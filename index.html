@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="styles.css">
+    <title>Player Demo</title>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header>
+        <nav>
+            <div class="heading">
+                <img src="/Covers/tmmm0zVgKe207b1RJtK62-transformed.png" alt="Logo Player Demo">
+            </div>
+            <div class="page-name">
+                <span>Player </span><span class="highlight">Demo</span>
+            </div>
+            <div class="search-bar">
+                <div class="search-container">
+                    <div class="search-icon">
+                        <span class="material-symbols-outlined">search</span>
+                    </div>
+                    <input type="text" placeholder="Buscar por canción, álbum, género...">
+                </div>
+            </div>
+            <div class="icon">
+                <span class="material-symbols-outlined">
+                    notifications
+                </span>
+                <img src="/img/gatito-amarillo.jpg" alt="Foto de perfil" class="profile-pic">
+            </div>
+        </nav>
+    </header>
+
+    <!-- Sidebar Menu -->
+    <div class="sidebar">
+        <div class="sidebar-title">
+            <h2>Menú</h2>
+        </div>
+        <div class="sidebar-item sidebar-home">
+            <div class="sidebar-icon-text">
+                <span class="material-symbols-outlined">home</span>
+                <div class="sidebar-text">Inicio</div>
+            </div>
+        </div>
+        <div class="sidebar-item sidebar-explore">
+            <div class="sidebar-icon-text">
+                <span class="material-symbols-outlined">explore</span>
+                <div class="sidebar-text">Todo</div>
+            </div>
+        </div>
+        <div class="sidebar-item sidebar-albums">
+            <div class="sidebar-icon-text">
+                <span class="material-symbols-outlined">album</span>
+                <div class="sidebar-text">Álbumes</div>
+            </div>
+        </div>
+        <div class="sidebar-item sidebar-artists">
+            <div class="sidebar-icon-text">
+                <span class="material-symbols-outlined">account_circle</span>
+                <div class="sidebar-text">Artistas</div>
+            </div>
+        </div>
+        <div class="sidebar-separator">
+            <h5>Biblioteca</h5>
+        </div>
+        <div class="sidebar-item sidebar-recent">
+            <div class="sidebar-icon-text">
+                <span class="material-symbols-outlined">history</span>
+                <div class="sidebar-text">Recién agregado</div>
+            </div>
+        </div>
+        <div class="sidebar-item sidebar-playbacks">
+            <div class="sidebar-icon-text">
+                <span class="material-symbols-outlined">play_circle</span>
+                <div class="sidebar-text">Reproducciones</div>
+            </div>
+        </div>
+        <div class="sidebar-separator">
+            <h5>Playlist y favoritos</h5>
+        </div>
+        <div class="sidebar-item sidebar-favorites">
+            <div class="sidebar-icon-text">
+                <span class="material-symbols-outlined">favorite</span>
+                <div class="sidebar-text">Tus Favoritos</div>
+            </div>
+        </div>
+        <div class="sidebar-item sidebar-playlist">
+            <div class="sidebar-icon-text">
+                <span class="material-symbols-outlined">queue_music</span>
+                <div class="sidebar-text">Tu Playlist</div>
+            </div>
+        </div>
+        <div class="sidebar-item sidebar-add-playlist">
+            <div class="sidebar-icon-text">
+                <span class="material-symbols-outlined">playlist_add</span>
+                <div class="sidebar-text">Agregar playlist</div>
+            </div>
+        </div>
+        <div class="sidebar-separator">
+            <h5>General</h5>
+        </div>
+        <div class="sidebar-item sidebar-settings">
+            <div class="sidebar-icon-text">
+                <span class="material-symbols-outlined">settings</span>
+                <div class="sidebar-text">Configuración</div>
+            </div>
+        </div>
+        <div class="sidebar-item sidebar-logout">
+            <div class="sidebar-icon-text">
+                <span class="material-symbols-outlined">exit_to_app</span>
+                <div class="sidebar-text">Cerrar Sesión</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main>
+        <section class="popular-artists">
+            <h2>Artistas Populares</h2>
+            <div class="artists-grid">
+                <div>Gustavo Cerati</div>
+                <div>Iron Maiden</div>
+                <div>Daft Punk</div>
+                <div>The Weeknd</div>
+            </div>
+        </section>
+        <section class="popular-albums">
+            <h2>Álbumes Reproducidos</h2>
+            <div class="albums-grid">
+                <div>Nada Personal</div>
+                <div>Killers</div>
+                <div>Starboy</div>
+                <div>The Best Of...</div>
+            </div>
+        </section>
+        <section class="trending">
+            <h2>Tendencias</h2>
+            <table>
+                <tr>
+                    <th>#</th>
+                    <th>Título</th>
+                    <th>Artista</th>
+                    <th>Álbum</th>
+                    <th>Duración</th>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>Nada Personal</td>
+                    <td>Soda Stereo</td>
+                    <td>Nada Personal</td>
+                    <td>3:34</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Somebody Told Me</td>
+                    <td>The Killers</td>
+                    <td>Hot Fuss</td>
+                    <td>3:17</td>
+                </tr>
+            </table>
+        </section>
+    </main>
+    <footer>
+        <div class="music-player">
+            <p>Reproduciendo: <strong>Danza Rota</strong> - Soda Stereo</p>
+            <div class="controls">
+                <button>⏮</button>
+                <button>⏯</button>
+                <button>⏭</button>
+            </div>
+            <div class="progress-bar"></div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
