@@ -156,9 +156,9 @@ header nav {
     top: 0;
     left: 0;
     background-color: #01061b;
-    padding-top: 50px;
+    padding-top: 60px;
     overflow-y: auto;
-    z-index: 1001;
+    z-index: 1000;
     scrollbar-width: none;
     box-sizing: border-box;
     border-radius: 10px 10px 10px 10px;
