@@ -25,6 +25,7 @@ header {
     width: 100%;
     z-index: 1001;
     border-radius: 0 0 5px 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 header nav {
@@ -154,17 +155,14 @@ header nav {
     position: fixed;
     top: 0;
     left: 0;
-    background: linear-gradient(180deg,
-            rgb(6, 20, 83) 18.5%,
-            rgba(97, 21, 133, 0.986) 86.00000143051147%);
+    background-color: #01061b;
     padding-top: 50px;
     overflow-y: auto;
-    z-index: 1000;
+    z-index: 1001;
     scrollbar-width: none;
     box-sizing: border-box;
     border-radius: 10px 10px 10px 10px;
     border-right: 1px solid #e409f8; 
-    border-top: 1px solid #e409f8;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -195,12 +193,14 @@ header nav {
 
 .sidebar-item {
     cursor: pointer;
+    padding: 10px 20px;
     padding: 5px;
     transition: background-color 0.3s;
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 100%;
 }
 
 .sidebar-separator {
@@ -239,21 +239,24 @@ header nav {
 }
 
 .sidebar-icon-text {
+    margin-right: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 100%;
 }
 
 .sidebar-icon-text .material-symbols-outlined {
     margin-right: 10px;
+    font-size: 24px; 
+    background: linear-gradient(to right, #ff00ff, #ff99cc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 main {
     margin-left: 250px;
     padding: 20px;
     overflow-y: auto;
-    /* Eliminar la restricción de altura */
-    /* height: 100vh; */
-    min-height: 100vh; /* Asegurar que el contenedor ocupe al menos la altura de la ventana */
-    
+    min-height: 100vh; 
 }
