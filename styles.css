@@ -150,14 +150,15 @@ header nav {
 }
 
 .carousel-container {
-    width: 100%;
-    max-width: 1000px;
-    margin: 80px 0 auto;
+    width: 80%;
+    max-width: 200%;
+    max-height: 300px;
+    margin: 100px 0 auto; 
     overflow: hidden;
     position: relative;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-left: 340px;
+    margin-left: 230px;
 }
 
 .carousel {
@@ -172,7 +173,9 @@ header nav {
 
 .carousel-item img {
     width: 100%;
-    border-radius: 10px;
+    height: auto; 
+    max-height: 500px;
+    position: relative;
     object-fit: cover;
     border-radius: 10px;
 }
