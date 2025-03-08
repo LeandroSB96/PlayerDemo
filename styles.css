@@ -23,7 +23,7 @@ header {
     position: fixed;
     top: 0;
     width: 100%;
-    z-index: 1001;
+    z-index: 1001; /* Asegúrate de que el z-index sea mayor que el de la sidebar */
     border-radius: 0 0 5px 5px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -149,6 +149,57 @@ header nav {
     cursor: pointer;
 }
 
+.carousel-container {
+    width: 100%;
+    max-width: 1000px;
+    margin: 80px 0 auto;
+    overflow: hidden;
+    position: relative;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-left: 340px;
+}
+
+.carousel {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+}
+
+.carousel-item {
+    min-width: 100%;
+    box-sizing: border-box;
+}
+
+.carousel-item img {
+    width: 100%;
+    border-radius: 10px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.slider-nav {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+}
+
+.slider-button {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.slider-button:hover,
+.slider-button.active {
+    background-color: rgba(255, 255, 255, 1);
+}
+
 .sidebar {
     width: 230px;
     height: 100vh;
@@ -156,9 +207,9 @@ header nav {
     top: 0;
     left: 0;
     background-color: #01061b;
-    padding-top: 60px;
+    padding-top: 60px; /* Ajusta este valor según sea necesario */
     overflow-y: auto;
-    z-index: 1000;
+    z-index: 1000; /* Asegúrate de que el z-index sea menor que el del header */
     scrollbar-width: none;
     box-sizing: border-box;
     border-radius: 10px 10px 10px 10px;
@@ -178,6 +229,8 @@ header nav {
             rgb(255, 0, 128) 0%,
             rgb(87, 4, 253) 100%);
     -webkit-background-clip: text;
+    background-clip: text;
+    background-clip: text;
     background-clip: text;
     text-align: center;
     padding: 5px;
@@ -217,7 +270,6 @@ header nav {
     -webkit-user-select: none;
     -moz-user-select: none; 
     -ms-user-select: none; 
-    pointer-events: none;
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -258,5 +310,23 @@ main {
     margin-left: 250px;
     padding: 20px;
     overflow-y: auto;
+    max-height: calc(100vh - 60px); 
     min-height: 100vh; 
+}
+
+footer {
+    background: linear-gradient(45deg,
+            #061453 18.5%,
+            #611585 86%);
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    z-index: 1003;
+    border-radius: 10px 10px 0 0;
+    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+    margin-left: 230px;
 }
