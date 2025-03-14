@@ -23,7 +23,7 @@ header {
     position: fixed;
     top: 0;
     width: 100%;
-    z-index: 1001; /* Asegúrate de que el z-index sea mayor que el de la sidebar */
+    z-index: 1001; 
     border-radius: 0 0 5px 5px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -210,9 +210,9 @@ header nav {
     top: 0;
     left: 0;
     background-color: #01061b;
-    padding-top: 60px; /* Ajusta este valor según sea necesario */
+    padding-top: 60px; 
     overflow-y: auto;
-    z-index: 1000; /* Asegúrate de que el z-index sea menor que el del header */
+    z-index: 1000; 
     scrollbar-width: none;
     box-sizing: border-box;
     border-radius: 10px 10px 10px 10px;
@@ -232,6 +232,7 @@ header nav {
             rgb(255, 0, 128) 0%,
             rgb(87, 4, 253) 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     background-clip: text;
     background-clip: text;
     background-clip: text;
