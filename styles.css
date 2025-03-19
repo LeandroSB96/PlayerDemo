@@ -161,7 +161,6 @@ header nav {
     margin-left: 230px; 
 }
 
-
 .carousel {
     display: flex;
     transition: transform 0.5s ease-in-out;
@@ -236,15 +235,11 @@ header nav {
             rgb(87, 4, 253) 100%);
     -webkit-background-clip: text;
     background-clip: text;
-    background-clip: text;
-    background-clip: text;
-    background-clip: text;
     text-align: center;
     padding: 5px;
     font-size: 1.5em;
     color: transparent;
     -webkit-text-fill-color: transparent;
-
 }
 
 .sidebar::-webkit-scrollbar {
@@ -255,12 +250,14 @@ header nav {
     cursor: pointer;
     padding: 10px 20px;
     padding: 5px;
-    transition: background-color 0.3s;
+    transition: transform 0.3s, color 0.3s; /* Solo transiciones para transform y color */
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
+    border-radius: 10px; 
+    position: relative; /* Para posicionar el pseudo-elemento */
 }
 
 .sidebar-separator {
@@ -277,24 +274,42 @@ header nav {
     -webkit-user-select: none;
     -moz-user-select: none; 
     -ms-user-select: none; 
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
 }
 
 .sidebar-item:hover {
-    background-color: #f0f0f0;
-    color: black;
+    color: rgb(255, 255, 255);
+    transform: scale(1.05); 
+}
+
+.sidebar-item:hover .material-symbols-outlined {
+    color: white !important;
+    background: none !important;
+    -webkit-background-clip: initial !important;
+    -webkit-text-fill-color: white !important;
+}
+
+.sidebar-item::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 70%;
+    background-color: rgb(255, 0, 128);
+    border-radius: 10px;
+    z-index: 0;
+    opacity: 0; /* Invisible por defecto */
+    transition: opacity 0.3s ease; /* Transición suave */
+}
+
+.sidebar-item:hover::before {
+    opacity: 1; /* Visible al pasar el cursor */
 }
 
 .sidebar-item .dropdown-content {
     display: none;
     padding-left: 20px;
-}
-
-.sidebar-item.active .dropdown-content {
-    display: block;
 }
 
 .sidebar-icon-text {
@@ -303,6 +318,8 @@ header nav {
     align-items: center;
     justify-content: center;
     width: 100%;
+    position: relative; /* Para que el contenido se alinee con la barra */
+    z-index: 1; /* Asegura que el texto e icono estén sobre la barra */
 }
 
 .sidebar-icon-text .material-symbols-outlined {
@@ -311,6 +328,7 @@ header nav {
     background: linear-gradient(to right, #ff00ff, #ff99cc);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    color: transparent;
 }
 
 main {
