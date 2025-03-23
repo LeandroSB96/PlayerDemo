@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="styles.css">
@@ -44,26 +44,28 @@
         </nav>
     </header>
 
-     <!-- Carousel -->
-     <div class="carousel-container">
-        <div class="carousel">
-            <div class="carousel-item active">
-                <img src="/img/banner página.jpg" alt="Soda Stereo">
-            </div>
-            <div class="carousel-item">
-                <img src="ruta-de-tu-imagen-2.jpg" alt="Otro artista">
-            </div>
-            <div class="carousel-item">
-                <img src="ruta-de-tu-imagen-3.jpg" alt="Otro artista más">
-            </div>
-            <div class="slider-nav">
-                <a href="#slider-1" class="slider-button"></a>
-                <a href="#slider-2" class="slider-button"></a>
-                <a href="#slider-3" class="slider-button"></a>
+    <!-- Carousel -->
+    <section class="carousel-section" aria-label="Banners promocionales">
+        <div class="carousel-container">
+            <div class="carousel">
+                <div class="carousel-item active">
+                    <img src="/img/banner página.jpg" alt="Banner promocional de Soda Stereo">
+                </div>
+                <div class="carousel-item">
+                    <img src="ruta-de-tu-imagen-2.jpg" alt="Banner promocional de otro artista">
+                </div>
+                <div class="carousel-item">
+                    <img src="ruta-de-tu-imagen-3.jpg" alt="Banner promocional de otro artista más">
+                </div>
+                <div class="slider-nav">
+                    <a href="#slider-1" class="slider-button"></a>
+                    <a href="#slider-2" class="slider-button"></a>
+                    <a href="#slider-3" class="slider-button"></a>
+                </div>
             </div>
         </div>
-    </div>
-    
+    </section>
+
     <!-- Sidebar Menu -->
     <div class="sidebar">
         <div class="sidebar-title">
@@ -152,52 +154,54 @@
             <h2>Artistas Populares</h2>
             <div class="artists-grid">
                 <div class="artist">
-                    <img src="/Covers/1.jpg" alt="Artista 1">
+                    <img src="/Covers/Cerati-img.jpg" alt="Artista 1">
                     <div class="artist-name">Gustavo Cerati</div>
                 </div>
                 <div class="artist">
-                    <img src="/Covers/2.jpg" alt="Artista 2">
+                    <img src="/Covers/ironmaiden-img..jpg" alt="Artista 2">
                     <div class="artist-name">Iron Maiden</div>
                 </div>
                 <div class="artist">
-                    <img src="/Covers/3.jpg" alt="Artista 3">
+                    <img src="/Covers/Daft-Punk.webp" alt="Artista 3">
                     <div class="artist-name">Daft Punk</div>
                 </div>
                 <div class="artist">
-                    <img src="/Covers/4.jpg" alt="Artista 4">
+                    <img src="/Covers/weekend-img.jpg" alt="Artista 4">
                     <div class="artist-name">The Weekend</div>
                 </div>
-                    <!-- Albums -->
-                <div class="albums-grid">
-                    <h2>Álbumes Reproducidos</h2>
-                    <div class="artist">
-                        <img src="/Covers/1.jpg" alt="Artista 1">
-                        <div class="album-name">Nada Personal</div>
-                        <div class="band">Soda Stereo</div>
-                        <div class="year">1985</div>
-                    </div>
-                    <div class="artist">
-                        <img src="/Covers/2.jpg" alt="Artista 2">
-                        <div class="album-name">Clics Modernos</div>
-                        <div class="band">Charly García</div>
-                        <div class="year">1983</div>
-                    </div>
-                    <div class="artist">
-                        <img src="/Covers/3.jpg" alt="Artista 3">
-                        <div class="album-name">El León</div>
-                        <div class="band">Los Fabulosos Cadillacs</div>
-                        <div class="year">1992</div>
-                    </div>
-                    <div class="artist">
-                        <img src="/Covers/4.jpg" alt="Artista 4">
-                        <div class="album-name">El Amor Después del Amor</div>
-                        <div class="band">Fito Páez</div>
-                        <div class="year">1992</div>
-                    </div>
-                </div>
+        </section>
+
+        <!-- Albums -->
+        <section class="albums-grid">
+            <h2>Álbumes Reproducidos</h2>
+            <div class="artist">
+                <img src="/Covers/1.jpg" alt="Artista 1">
+                <div class="album-name">Nada Personal</div>
+                <div class="band">Soda Stereo</div>
+                <div class="year">1985 • Álbum </div>
+            </div>
+            <div class="artist">
+                <img src="/Covers/2.jpg" alt="Artista 2">
+                <div class="album-name">Killers</div>
+                <div class="band">Iron Maiden</div>
+                <div class="year">1981 • Álbum</div>
+            </div>
+            <div class="artist">
+                <img src="/Covers/3.jpg" alt="Artista 3">
+                <div class="album-name">Starboy</div>
+                <div class="band">The Weeked</div>
+                <div class="year">2016 • Álbum</div>
+            </div>
+            <div class="artist">
+                <img src="/Covers/4.jpg" alt="Artista 4">
+                <div class="album-name">The Best Of...</div>
+                <div class="band">Blur</div>
+                <div class="year">2000 • Álbum</div>
+            </div>
+            </div>
         </section>
     </main>
-    
+
     <!-- Footer -->
     <footer>
         <div class="music-player">
