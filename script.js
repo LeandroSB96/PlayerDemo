@@ -4,3 +4,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 
+document.querySelectorAll('.album-card').forEach(card => {
+    card.addEventListener('click', () => {
+        document.querySelectorAll('.album-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+    });
+});
