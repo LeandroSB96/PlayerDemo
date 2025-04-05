@@ -690,6 +690,97 @@ main {
     color: #ff00ff;
 }
 
+.album-detail {
+    display: none; 
+    margin-top: 40px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.album-detail.active {
+    display: block; 
+}
+
+.album-detail-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.album-detail-header img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 20px;
+}
+
+.album-detail-info h1 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2em;
+    margin: 0;
+    color: white;
+}
+
+.album-detail-info p {
+    margin: 5px 0;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.song-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.song-table th, .song-table td {
+    padding: 12px;
+    text-align: left;
+    color: white;
+}
+
+.song-table th {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9em;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+}
+
+.song-table td {
+    font-size: 0.9em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.song-table tr:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.song-table .song-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.song-table .play-song {
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: color 0.3s ease;
+    margin-right: 10px; 
+}
+
+.song-table .play-song:hover {
+    color: #e409f8;
+}
+
+.song-table td:nth-child(2) {
+    width: 40px; 
+    padding-right: 0; 
+}
+
 footer {
     background: linear-gradient(45deg,
             #061453 18.5%,
