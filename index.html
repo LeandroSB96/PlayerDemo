@@ -12,6 +12,7 @@
         href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <script src="https://unpkg.com/wavesurfer.js@latest/dist/wavesurfer.min.js"></script>
     <link rel="stylesheet" href="styles.css">
     <title>Player Demo</title>
 </head>
@@ -49,16 +50,19 @@
         <div class="carousel-container">
             <div class="carousel">
                 <div class="carousel-item active">
-                    <img src="/img/banner página.jpg" alt="Banner promocional de Soda Stereo">
+                    <img src="/img/Diseño sin título (1).png" alt="Banner promocional de Soda Stereo">
                 </div>
                 <div class="carousel-item">
-                    <img src="ruta-de-tu-imagen-2.jpg" alt="Banner promocional de otro artista">
+                    <video muted loop playsinline>
+                        <source src="/img/video-banner.mp4" type="video/mp4">
+                        Tu navegador no soporta el elemento de video.
+                    </video>
                 </div>
                 <div class="carousel-item">
                     <img src="ruta-de-tu-imagen-3.jpg" alt="Banner promocional de otro artista más">
                 </div>
                 <div class="slider-nav">
-                    <a href="#slider-1" class="slider-button"></a>
+                    <a href="#slider-1" class="slider-button active"></a>
                     <a href="#slider-2" class="slider-button"></a>
                     <a href="#slider-3" class="slider-button"></a>
                 </div>
@@ -75,12 +79,6 @@
             <div class="sidebar-icon-text">
                 <span class="material-symbols-outlined">home</span>
                 <div class="sidebar-text">Inicio</div>
-            </div>
-        </div>
-        <div class="sidebar-item sidebar-explore">
-            <div class="sidebar-icon-text">
-                <span class="material-symbols-outlined">explore</span>
-                <div class="sidebar-text">Todo</div>
             </div>
         </div>
         <div class="sidebar-item sidebar-albums">
@@ -107,7 +105,7 @@
         <div class="sidebar-item sidebar-playbacks">
             <div class="sidebar-icon-text">
                 <span class="material-symbols-outlined">play_circle</span>
-                <div class="sidebar-text">Reproducciones</div>
+                <div class="sidebar-text">Reproducidos</div>
             </div>
         </div>
         <div class="sidebar-separator">
@@ -172,241 +170,284 @@
         </section>
 
         <!-- Albums -->
-        <section class="albums-grid">
+        <div class="albums-titulo">
             <h2>Álbumes Reproducidos</h2>
-            <div class="album-items">
-                <div class="album-card" data-album="nada-personal">
-                    <div class="album-cover">
-                        <img src="/Covers/nada-personal.jpg" alt="Nada Personal">
-                        <div class="play-button">
-                            <img src="/img/Frame 10.png" alt="Play" class="play-icon">
-                        </div>
-                    </div>
-                    <div class="album-info">
-                        <div class="album-name">Nada Personal</div>
-                        <div class="band">Soda Stereo</div>
-                        <div class="year">1985 • Álbum</div>
+        </div>
+            <div class="albumes">
+            <div class="album-card">
+                <div class="album-cover-container">
+                    <img src="/Covers/nada-personal.jpg" alt="Nada Personal" class="albumes-cover">
+                    <button class="album-play-btn">
+                        <img src="/img/Frame 10.png" alt="Play" class="play-song">
+                    </button>
+                </div>
+                <div class="album-name">Nada Personal</div>
+                <div class="album-artist">Soda Stereo</div>
+                <div class="album-year">Album • 1985</div>
+            </div>
+            <div class="album-card">
+                <div class="album-cover-container">
+                    <img src="/Covers/Iron-Maiden-–-Killers-ghostcultmag.jpg" alt="Killers" class="albumes-cover">
+                    <button class="album-play-btn">
+                        <img src="/img/Frame 10.png" alt="Play" class="play-song">
+                    </button>
+                </div>
+                <div class="album-name">Killers</div>
+                <div class="album-artist">Iron Maiden</div>
+                <div class="album-year">Album • 1981</div>
+            </div>
+            <div class="album-card">
+                <div class="album-cover-container">
+                    <img src="/Covers/starboy.jpg" alt="Starboy" class="albumes-cover">
+                    <button class="album-play-btn">
+                        <img src="/img/Frame 10.png" alt="Play" class="play-song">
+                    </button>
+                </div>
+                <div class="album-name">Starboy</div>
+                <div class="album-artist">The Weekend</div>
+                <div class="album-year">Album • 2016</div>
+            </div>
+            <div class="album-card">
+                <div class="album-cover-container">
+                    <img src="/Covers/blur.jpg" alt="blur" class="albumes-cover">
+                    <button class="album-play-btn">
+                        <img src="/img/Frame 10.png" alt="Play" class="play-song">
+                    </button>
+                </div>
+                <div class="album-name">The Best of...</div>
+                <div class="album-artist">Blur</div>
+                <div class="album-year">Album • 2003</div>
+            </div>
+        </div>
+            
+         <!-- Modal para álbum -->
+    <div id="albumModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-album-info">
+                    <img id="modalAlbumCover" src="" alt="Album Cover" class="modal-album-cover">
+                    <div class="modal-album-details">
+                        <h2 id="modalAlbumTitle">Nombre del Álbum</h2>
+                        <p id="modalAlbumArtist">Artista</p>
+                        <p id="modalAlbumYear">Año • Género</p>
                     </div>
                 </div>
-                <div class="album-card" data-album="killers">
-                    <div class="album-cover">
-                        <img src="/Covers/Iron-Maiden-–-Killers-ghostcultmag.jpg" alt="Killers">
-                        <div class="play-button">
-                            <img src="/img/Frame 10.png" alt="Play" class="play-icon">
-                        </div>
-                    </div>
-                    <div class="album-info">
-                        <div class="album-name">Killers</div>
-                        <div class="band">Iron Maiden</div>
-                        <div class="year">1981 • Álbum</div>
-                    </div>
+                <button class="close-modal">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="modal-controls">
+                    <button class="play-all-btn">
+                        <span class="material-symbols-outlined">play_circle</span>
+                        Reproducir todo
+                    </button>
+                    <button class="shuffle-btn">
+                        <span class="material-symbols-outlined">shuffle</span>
+                        Aleatorio
+                    </button>
+                    <button class="like-album-btn" id="likeAlbumBtn">
+                        <span class="material-symbols-outlined">favorite</span>
+                    </button>
                 </div>
-                <div class="album-card" data-album="starboy">
-                    <div class="album-cover">
-                        <img src="/Covers/starboy.jpg" alt="Starboy">
-                        <div class="play-button">
-                            <img src="/img/Frame 10.png" alt="Play" class="play-icon">
-                        </div>
-                    </div>
-                    <div class="album-info">
-                        <div class="album-title-container">
-                            <div class="album-name">Starboy</div>
-                            <span class="explicit-label">E</span>
-                        </div>
-                        <div class="band">The Weeknd</div>
-                        <div class="year">2016 • Álbum</div>
-                    </div>
-                </div>
-                <div class="album-card" data-album="the-best-of">
-                    <div class="album-cover">
-                        <img src="/Covers/blur.jpg" alt="The Best Of...">
-                        <div class="play-button">
-                            <img src="/img/Frame 10.png" alt="Play" class="play-icon">
-                        </div>
-                    </div>
-                    <div class="album-info">
-                        <div class="album-name">The Best Of...</div>
-                        <div class="band">Blur</div>
-                        <div class="year">2000 • Álbum</div>
-                    </div>
+                
+                <div class="modal-songs-list">
+                    <table class="modal-songs-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>TÍTULO</th>
+                                <th>DURACIÓN</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalSongsList">
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </section>
-
-        <section class="album-detail" id="album-detail">
-            <div class="album-detail-header">
-                <img id="detail-cover" src="" alt="Album Cover">
-                <div class="album-detail-info">
-                    <h1 id="detail-name"></h1>
-                    <p id="detail-band"></p>
-                    <p id="detail-year"></p>
-                </div>
-                <span class="material-symbols-outlined close-detail" id="close-detail">close</span>
-            </div>
-            <table class="song-table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th></th> 
-                        <th>Título</th>
-                        <th>Duración</th>
-                    </tr>
-                </thead>
-                <tbody id="song-table-body"></tbody>
-            </table>
-        </section>
+        </div>
+    </div>
 
         <!-- Playlist -->
-        <section class="playlist">
-            <h2>Tendencias</h2>
-            <table>
+        <section class="trends-section">
+            <h2 class="trends-title">TENDENCIAS</h2>
+            <div class="trends-table-container">
+                <table class="trends-table">
                 <thead>
                     <tr>
-                        <th>#</th>
-                        <th>Título</th>
-                        <th>Artista</th>
-                        <th>Álbum</th>
-                        <th>Dur.</th>
-                        <th></th>
+                            <th class="number-col">#</th>
+                            <th class="cover-col"></th>
+                            <th class="title-col">TÍTULO</th>
+                            <th class="artist-col">ARTISTA</th>
+                            <th class="album-col">ÁLBUM</th>
+                            <th class="duration-col">DUR</th>
+                            <th class="actions-col"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="song">
-                        <td>1</td>
-                        <td>
-                            <div class="song-title">
-                                <div class="song-cover-container">
-                                    <img src="/Covers/nada-personal.jpg" alt="Nada Personal" class="song-cover">
-                                    <div class="song-cover-overlay">
-                                        <span class="song-cover-play-button"></span>
-                                    </div>
-                                </div>
-                                Danza Rota
+                        <tr class="trend-song-row" data-song-index="0">
+                            <td class="song-number">1</td>
+                            <td class="song-cover-cell">
+                                <div class="song-cover-wrapper">
+                                <img src="/Covers/nada-personal.jpg" alt="Nada Personal" class="song-cover">
+                                    <button class="play-overlay-btn">
+                                        <span class="material-symbols-outlined">play_circle</span>
+                                    </button>
                             </div>
                         </td>
-                        <td>Soda Stereo</td>
-                        <td>Nada Personal</td>
-                        <td>3:34</td>
-                        <td>
-                            <div class="song-actions">
-                                <span class="material-symbols-outlined favorite-icon">favorite</span>
-                                <span class="material-symbols-outlined add-playlist-icon">queue_music</span>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr class="song">
-                        <td>2</td>
-                        <td>
-                            <div class="song-title">
-                                <div class="song-cover-container">
-                                    <img src="/Covers/mika-album.jpg" alt="Life in Cartoon Motion" class="song-cover">
-                                    <div class="song-cover-overlay">
-                                        <span class="song-cover-play-button"></span>
-                                    </div>
-                                </div>
-                                Relax, Take It Easy
-                            </div>
-                        </td>
-                        <td>Mika</td>
-                        <td>Life in Cartoon Motion</td>
-                        <td>4:30</td>
-                        <td>
-                            <div class="song-actions">
-                                <span class="material-symbols-outlined favorite-icon">favorite</span>
-                                <span class="material-symbols-outlined add-playlist-icon">queue_music</span>
-                            </div>
+                            <td class="song-title">Danza Rota</td>
+                            <td class="song-artist">Soda Stereo</td>
+                            <td class="song-album">Nada Personal</td>
+                            <td class="song-duration">3:34</td>
+                        <td class="song-actions">
+                                <button class="trend-like-btn">
+                                    <span class="material-symbols-outlined">favorite</span>
+                                </button>
+                                <button class="trend-add-btn">
+                                    <span class="material-symbols-outlined">queue_music</span>
+                                </button>
                         </td>
                     </tr>
-                    <tr class="song">
-                        <td>3</td>
-                        <td>
-                            <div class="song-title">
-                                <div class="song-cover-container">
-                                    <img src="/Covers/Iron-Maiden-–-Killers-ghostcultmag.jpg" alt="Killers"
-                                        class="song-cover">
-                                    <div class="song-cover-overlay">
-                                        <span class="song-cover-play-button"></span>
-                                    </div>
-                                </div>
-                                Wrathchild
+                        <tr class="trend-song-row" data-song-index="1">
+                            <td class="song-number">2</td>
+                            <td class="song-cover-cell">
+                                <div class="song-cover-wrapper">
+                                <img src="/Covers/mika-album.jpg" alt="Life in Cartoon Motion" class="song-cover">
+                                    <button class="play-overlay-btn">
+                                        <span class="material-symbols-outlined">play_circle</span>
+                                    </button>
                             </div>
                         </td>
-                        <td>Iron Maiden</td>
-                        <td>Killers</td>
-                        <td>2:56</td>
-                        <td>
-                            <div class="song-actions">
-                                <span class="material-symbols-outlined favorite-icon">favorite</span>
-                                <span class="material-symbols-outlined add-playlist-icon">queue_music</span>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr class="song">
-                        <td>4</td>
-                        <td>
-                            <div class="song-title">
-                                <div class="song-cover-container">
-                                    <img src="/Covers/daftpunk-album.jpg" alt="Random Access Memories"
-                                        class="song-cover">
-                                    <div class="song-cover-overlay">
-                                        <span class="song-cover-play-button"></span>
-                                    </div>
-                                </div>
-                                Get Lucky
-                            </div>
-                        </td>
-                        <td>Daft Punk</td>
-                        <td>Random Access Memories</td>
-                        <td>6:10</td>
-                        <td>
-                            <div class="song-actions">
-                                <span class="material-symbols-outlined favorite-icon">favorite</span>
-                                <span class="material-symbols-outlined add-playlist-icon">queue_music</span>
-                            </div>
+                            <td class="song-title">Relax, Take It Easy</td>
+                            <td class="song-artist">Mika</td>
+                            <td class="song-album">Life in Cartoon Motion</td>
+                            <td class="song-duration">4:30</td>
+                        <td class="song-actions">
+                                <button class="trend-like-btn">
+                                    <span class="material-symbols-outlined">favorite</span>
+                                </button>
+                                <button class="trend-add-btn">
+                                    <span class="material-symbols-outlined">queue_music</span>
+                                </button>
                         </td>
                     </tr>
-                    <tr class="song">
-                        <td>5</td>
-                        <td>
-                            <div class="song-title">
-                                <div class="song-cover-container">
-                                    <img src="/Covers/LedZeppelinIV.webp" alt="Led Zeppelin IV" class="song-cover">
-                                    <div class="song-cover-overlay">
-                                        <span class="song-cover-play-button"></span>
-                                    </div>
-                                </div>
-                                Stairway To Heaven
+                        <tr class="trend-song-row" data-song-index="2">
+                            <td class="song-number">3</td>
+                            <td class="song-cover-cell">
+                                <div class="song-cover-wrapper">
+                                    <img src="/Covers/Iron-Maiden–-Killers-ghostcultmag.jpg" alt="Killers" class="song-cover">
+                                    <button class="play-overlay-btn">
+                                        <span class="material-symbols-outlined">play_circle</span>
+                                    </button>
                             </div>
                         </td>
-                        <td>Led Zeppelin</td>
-                        <td>Led Zeppelin IV</td>
-                        <td>7:58</td>
-                        <td>
-                            <div class="song-actions">
-                                <span class="material-symbols-outlined favorite-icon">favorite</span>
-                                <span class="material-symbols-outlined add-playlist-icon">queue_music</span>
+                            <td class="song-title">Wrathchild</td>
+                            <td class="song-artist">Iron Maiden</td>
+                            <td class="song-album">Killers</td>
+                            <td class="song-duration">2:56</td>
+                        <td class="song-actions">
+                                <button class="trend-like-btn">
+                                    <span class="material-symbols-outlined">favorite</span>
+                                </button>
+                                <button class="trend-add-btn">
+                                    <span class="material-symbols-outlined">queue_music</span>
+                                </button>
+                        </td>
+                    </tr>
+                        <tr class="trend-song-row" data-song-index="3">
+                            <td class="song-number">4</td>
+                            <td class="song-cover-cell">
+                                <div class="song-cover-wrapper">
+                                <img src="/Covers/daftpunk-album.jpg" alt="Random Access Memories" class="song-cover">
+                                    <button class="play-overlay-btn">
+                                        <span class="material-symbols-outlined">play_circle</span>
+                                    </button>
                             </div>
+                        </td>
+                            <td class="song-title">Get Lucky</td>
+                            <td class="song-artist">Daft Punk</td>
+                            <td class="song-album">Random Access Memories</td>
+                            <td class="song-duration">6:10</td>
+                        <td class="song-actions">
+                                <button class="trend-like-btn">
+                                    <span class="material-symbols-outlined">favorite</span>
+                                </button>
+                                <button class="trend-add-btn">
+                                    <span class="material-symbols-outlined">queue_music</span>
+                                </button>
+                        </td>
+                    </tr>
+                        <tr class="trend-song-row" data-song-index="4">
+                            <td class="song-number">5</td>
+                            <td class="song-cover-cell">
+                                <div class="song-cover-wrapper">
+                                <img src="/Covers/LedZeppelinIV.webp" alt="Led Zeppelin IV" class="song-cover">
+                                    <button class="play-overlay-btn">
+                                        <span class="material-symbols-outlined">play_circle</span>
+                                    </button>
+                            </div>
+                        </td>
+                            <td class="song-title">Stairway to Heaven</td>
+                            <td class="song-artist">Led Zeppelin</td>
+                            <td class="song-album">Led Zeppelin IV</td>
+                            <td class="song-duration">7:58</td>
+                        <td class="song-actions">
+                                <button class="trend-like-btn">
+                                    <span class="material-symbols-outlined">favorite</span>
+                                </button>
+                                <button class="trend-add-btn">
+                                    <span class="material-symbols-outlined">queue_music</span>
+                                </button>
                         </td>
                     </tr>
                 </tbody>
             </table>
+            </div>
         </section>
     </main>
 
     <!-- Footer -->
     <footer>
         <div class="music-player">
-            <p>Reproduciendo: <strong>Danza Rota</strong> - Soda Stereo</p>
-            <div class="controls">
-                <button>⏮</button>
-                <button>⏯</button>
-                <button>⏭</button>
+            <div class="song-info">
+                <img src="" alt="Album Cover" class="album-cover" id="album-cover" style="display: none;">
+                <div class="song-details">
+                    <span class="song-title" id="song-title"></span>
+                    <span class="artist-name" id="artist-name"></span>
+                </div>
             </div>
-            <div class="progress-bar"></div>
+            <div class="player-controls">
+                <div class="controls">
+                    <img src="/img/Shuffle.png" alt="aleatorio" class="aleatorio" id="shuffle">
+                    <img src="/img/skip_previous_filled.png" alt="anterior" class="anterior" id="previous">
+                    <img src="/img/Frame 10.png" alt="Play" class="play-player" id="play-pause">
+                    <img src="/img/skip_next_filled.png" alt="siguiente" class="siguiente" id="next">
+                    <img src="/img/Repeat.png" alt="repetir" class="repetir" id="repeat">
+                </div>
+                <div class="progress-bar">
+                    <span class="current-time" id="current-time">0:00</span>
+                    <div class="waveform" id="waveform"></div>
+                    <span class="total-time" id="total-time">0:00</span>
+                </div>
+            </div>
+            <div class="extra-controls">
+                <img src="/img/favorite.png" alt="favorito" class="favorito" id="favorite">
+                <img src="/img/Volume 2.png" alt="volumen" class="volumen" id="volume">
+            </div>
+            <!-- Elemento de audio -->
+            <audio id="audio-player" preload="metadata">
+                <source src="" type="audio/mp3">
+                Tu navegador no soporta el elemento de audio.
+            </audio>
         </div>
     </footer>
 
-    <script src="script.js"></script>
+    <script src="sidebar.js"></script>
+    <script src="player.js"></script>
+    <script src="albumDetail.js"></script>
+    <script src="carousel.js"></script>
+    <script src="main.js"></script>
+    <script src="albumModal.js"></script>
 
 </body>
 
