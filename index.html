@@ -4,6 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Reproductor de música moderno con diseño elegante. Descubre nueva música, artistas populares y álbumes destacados.">
+    <meta name="keywords" content="música, reproductor, streaming, álbumes, artistas, playlist">
+    <meta name="author" content="Music Player App">
+    <meta property="og:title" content="Flume - Skin | Reproductor de Música">
+    <meta property="og:description" content="Disfruta de la mejor música con nuestro reproductor moderno y elegante">
+    <meta property="og:type" content="website">
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,442 +19,521 @@
         href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <script src="https://unpkg.com/wavesurfer.js@latest/dist/wavesurfer.min.js"></script>
+    <script src="https://kit.fontawesome.com/b8ca49fd5d.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="styles.css">
     <title>Player Demo</title>
 </head>
 
 <body>
 
-    <!-- Header -->
-    <header>
-        <nav>
-            <div class="heading">
-                <img src="/Covers/tmmm0zVgKe207b1RJtK62-transformed.png" alt="Logo Player Demo">
-            </div>
-            <div class="page-name">
-                <span>Player </span><span class="highlight">Demo</span>
-            </div>
-            <div class="search-bar">
-                <div class="search-container">
-                    <div class="search-icon">
-                        <span class="material-symbols-outlined">search</span>
-                    </div>
-                    <input type="text" placeholder="Buscar por canción, álbum, género...">
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar" role="navigation" aria-label="Menú principal">
+            <div class="logo">
+                <div class="logo-icon">
+                    <img src="assets/images/logo-disc.png" alt="Logo Player Demo" />
                 </div>
+                <span class="logo-text">Player <span class="highlight">Demo</span></span>
             </div>
-            <div class="icon">
-                <span class="material-symbols-outlined">
-                    notifications
-                </span>
-                <img src="/img/gatito-amarillo.jpg" alt="Foto de perfil" class="profile-pic">
+
+            <div class="menu-section">
+                <h3 class="menu-title">MENÚ PRINCIPAL</h3>
+                <a href="#" class="menu-item" aria-current="page">
+                    <span class="menu-icon"><i class="fa-solid fa-house"></i></span>
+                    Inicio
+                </a>
+                <a href="#" class="menu-item">
+                    <span class="menu-icon"><i class="fa-solid fa-music"></i></span>
+                    Explorar
+                </a>
+                <a href="#" class="menu-item">
+                    <span class="menu-icon"><i class="fa-solid fa-radio"></i></span>
+                    Radio
+                </a>
+            </div>
+
+            <div class="menu-section">
+                <h3 class="menu-title">TU BIBLIOTECA</h3>
+                <a href="#" class="menu-item">
+                    <span class="menu-icon"><i class="fa-solid fa-compact-disc"></i></span>
+                    Álbumes
+                </a>
+                <a href="#" class="menu-item">
+                    <span class="menu-icon"><i class="fa-solid fa-microphone"></i></span>
+                    Artistas
+                </a>
+                <a href="#" class="menu-item">
+                    <span class="menu-icon"><i class="fa-solid fa-list"></i></span>
+                    Playlists
+                </a>
+            </div>
+
+            <div class="menu-section">
+                <h3 class="menu-title">PERSONAL</h3>
+                <a href="#" class="menu-item">
+                    <span class="menu-icon"><i class="fa-solid fa-heart"></i></span>
+                    Favoritos
+                </a>
+                <a href="#" class="menu-item">
+                    <span class="menu-icon"><i class="fa-solid fa-clock-rotate-left"></i></span>
+                    Recientes
+                </a>
+                <a href="#" class="menu-item">
+                    <span class="menu-icon"><i class="fa-solid fa-star"></i></span>
+                    Recomendados
+                </a>
             </div>
         </nav>
-    </header>
 
-    <!-- Carousel -->
-    <section class="carousel-section" aria-label="Banners promocionales">
-        <div class="carousel-container">
-            <div class="carousel">
-                <div class="carousel-item active">
-                    <img src="/img/Diseño sin título (1).png" alt="Banner promocional de Soda Stereo">
-                </div>
-                <div class="carousel-item">
-                    <video muted loop playsinline>
-                        <source src="/img/video-banner.mp4" type="video/mp4">
-                        Tu navegador no soporta el elemento de video.
-                    </video>
-                </div>
-                <div class="carousel-item">
-                    <img src="ruta-de-tu-imagen-3.jpg" alt="Banner promocional de otro artista más">
-                </div>
-                <div class="slider-nav">
-                    <a href="#slider-1" class="slider-button active"></a>
-                    <a href="#slider-2" class="slider-button"></a>
-                    <a href="#slider-3" class="slider-button"></a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Sidebar Menu -->
-    <div class="sidebar">
-        <div class="sidebar-title">
-            <h2>Menú</h2>
-        </div>
-        <div class="sidebar-item sidebar-home">
-            <div class="sidebar-icon-text">
-                <span class="material-symbols-outlined">home</span>
-                <div class="sidebar-text">Inicio</div>
-            </div>
-        </div>
-        <div class="sidebar-item sidebar-albums">
-            <div class="sidebar-icon-text">
-                <span class="material-symbols-outlined">album</span>
-                <div class="sidebar-text">Álbumes</div>
-            </div>
-        </div>
-        <div class="sidebar-item sidebar-artists">
-            <div class="sidebar-icon-text">
-                <span class="material-symbols-outlined">account_circle</span>
-                <div class="sidebar-text">Artistas</div>
-            </div>
-        </div>
-        <div class="sidebar-separator">
-            <h5>Biblioteca</h5>
-        </div>
-        <div class="sidebar-item sidebar-recent">
-            <div class="sidebar-icon-text">
-                <span class="material-symbols-outlined">history</span>
-                <div class="sidebar-text">Recién agregado</div>
-            </div>
-        </div>
-        <div class="sidebar-item sidebar-playbacks">
-            <div class="sidebar-icon-text">
-                <span class="material-symbols-outlined">play_circle</span>
-                <div class="sidebar-text">Reproducidos</div>
-            </div>
-        </div>
-        <div class="sidebar-separator">
-            <h5>Playlist y favoritos</h5>
-        </div>
-        <div class="sidebar-item sidebar-favorites">
-            <div class="sidebar-icon-text">
-                <span class="material-symbols-outlined">favorite</span>
-                <div class="sidebar-text">Tus Favoritos</div>
-            </div>
-        </div>
-        <div class="sidebar-item sidebar-playlist">
-            <div class="sidebar-icon-text">
-                <span class="material-symbols-outlined">queue_music</span>
-                <div class="sidebar-text">Tu Playlist</div>
-            </div>
-        </div>
-        <div class="sidebar-item sidebar-add-playlist">
-            <div class="sidebar-icon-text">
-                <span class="material-symbols-outlined">playlist_add</span>
-                <div class="sidebar-text">Agregar playlist</div>
-            </div>
-        </div>
-        <div class="sidebar-separator">
-            <h5>General</h5>
-        </div>
-        <div class="sidebar-item sidebar-settings">
-            <div class="sidebar-icon-text">
-                <span class="material-symbols-outlined">settings</span>
-                <div class="sidebar-text">Configuración</div>
-            </div>
-        </div>
-        <div class="sidebar-item sidebar-logout">
-            <div class="sidebar-icon-text">
-                <span class="material-symbols-outlined">exit_to_app</span>
-                <div class="sidebar-text">Cerrar Sesión</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Content -->
-    <main>
-        <section class="popular-artists">
-            <h2>Artistas Populares</h2>
-            <div class="artists-grid">
-                <div class="artist">
-                    <img src="/Covers/Cerati-img.jpg" alt="Artista 1">
-                    <div class="artist-name">Gustavo Cerati</div>
-                </div>
-                <div class="artist">
-                    <img src="/Covers/ironmaiden-img..jpg" alt="Artista 2">
-                    <div class="artist-name">Iron Maiden</div>
-                </div>
-                <div class="artist">
-                    <img src="/Covers/Daft-Punk.webp" alt="Artista 3">
-                    <div class="artist-name">Daft Punk</div>
-                </div>
-                <div class="artist">
-                    <img src="/Covers/weekend-img.jpg" alt="Artista 4">
-                    <div class="artist-name">The Weekend</div>
-                </div>
-        </section>
-
-        <!-- Albums -->
-        <div class="albums-titulo">
-            <h2>Álbumes Reproducidos</h2>
-        </div>
-            <div class="albumes">
-            <div class="album-card">
-                <div class="album-cover-container">
-                    <img src="/Covers/nada-personal.jpg" alt="Nada Personal" class="albumes-cover">
-                    <button class="album-play-btn">
-                        <img src="/img/Frame 10.png" alt="Play" class="play-song">
-                    </button>
-                </div>
-                <div class="album-name">Nada Personal</div>
-                <div class="album-artist">Soda Stereo</div>
-                <div class="album-year">Album • 1985</div>
-            </div>
-            <div class="album-card">
-                <div class="album-cover-container">
-                    <img src="/Covers/Iron-Maiden-–-Killers-ghostcultmag.jpg" alt="Killers" class="albumes-cover">
-                    <button class="album-play-btn">
-                        <img src="/img/Frame 10.png" alt="Play" class="play-song">
-                    </button>
-                </div>
-                <div class="album-name">Killers</div>
-                <div class="album-artist">Iron Maiden</div>
-                <div class="album-year">Album • 1981</div>
-            </div>
-            <div class="album-card">
-                <div class="album-cover-container">
-                    <img src="/Covers/starboy.jpg" alt="Starboy" class="albumes-cover">
-                    <button class="album-play-btn">
-                        <img src="/img/Frame 10.png" alt="Play" class="play-song">
-                    </button>
-                </div>
-                <div class="album-name">Starboy</div>
-                <div class="album-artist">The Weekend</div>
-                <div class="album-year">Album • 2016</div>
-            </div>
-            <div class="album-card">
-                <div class="album-cover-container">
-                    <img src="/Covers/blur.jpg" alt="blur" class="albumes-cover">
-                    <button class="album-play-btn">
-                        <img src="/img/Frame 10.png" alt="Play" class="play-song">
-                    </button>
-                </div>
-                <div class="album-name">The Best of...</div>
-                <div class="album-artist">Blur</div>
-                <div class="album-year">Album • 2003</div>
-            </div>
-        </div>
-            
-         <!-- Modal para álbum -->
-    <div id="albumModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-album-info">
-                    <img id="modalAlbumCover" src="" alt="Album Cover" class="modal-album-cover">
-                    <div class="modal-album-details">
-                        <h2 id="modalAlbumTitle">Nombre del Álbum</h2>
-                        <p id="modalAlbumArtist">Artista</p>
-                        <p id="modalAlbumYear">Año • Género</p>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header-simplified">
+                <div class="search-and-profile">
+                    <div class="search-bar" role="search">
+                        <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+                        <input type="search" placeholder="Buscar por canción, álbum, artista o género..." aria-label="Buscar música">
                     </div>
+                    <div class="profile" role="img" aria-label="Perfil de usuario"></div>
                 </div>
-                <button class="close-modal">&times;</button>
+            </header>
+
+            <!-- Content -->
+            <div class="content">
+                <!-- Hero Section -->
+                <section class="hero-section">
+                    <div class="hero-image">
+                        <img src="assets/images/Soda Stereo-Banner.jpg" alt="Album Cover" />
+                        <div class="hero-buttons">
+                            <a href="#" class="btn btn-primary" role="button">PLAY</a>
+                            <a href="#" class="btn btn-secondary" role="button">FOLLOW</a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Popular Albums -->
+                <section class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Popular Albums</h2>
+                        <div class="section-nav">
+                            <div class="nav-arrow" role="button" aria-label="Anterior">‹</div>
+                            <div class="nav-arrow" role="button" aria-label="Siguiente">›</div>
+                        </div>
+                    </div>
+
+                    <div class="albums-grid">
+                        <article class="album-card" tabindex="0">
+                            <div class="album-cover">
+                                <button class="album-play-btn" aria-label="Reproducir álbum"></button>
+                            </div>
+                            <div class="album-info">
+                                <h3 class="album-title">Children of Bodom</h3>
+                                <p class="album-artist">Metal</p>
+                                <p class="album-year">2024</p>
+                            </div>
+                        </article>
+
+                        <article class="album-card" tabindex="0">
+                            <div class="album-cover" style="background: linear-gradient(45deg, #ff6b6b, #ee5a24);">
+                                <button class="album-play-btn" aria-label="Reproducir álbum"></button>
+                            </div>
+                            <div class="album-info">
+                                <h3 class="album-title">Black Wave</h3>
+                                <p class="album-artist">K.Flay</p>
+                                <p class="album-year">2025</p>
+                            </div>
+                        </article>
+
+                        <article class="album-card" tabindex="0">
+                            <div class="album-cover" style="background: linear-gradient(45deg, #4834d4, #686de0);">
+                                <button class="album-play-btn" aria-label="Reproducir álbum"></button>
+                            </div>
+                            <div class="album-info">
+                                <h3 class="album-title">Heart 26 Human</h3>
+                                <p class="album-artist">Various Artists</p>
+                                <p class="album-year">2024</p>
+                            </div>
+                        </article>
+
+                        <article class="album-card" tabindex="0">
+                            <div class="album-cover" style="background: linear-gradient(45deg, #00d2d3, #54a0ff);">
+                                <button class="album-play-btn" aria-label="Reproducir álbum"></button>
+                            </div>
+                            <div class="album-info">
+                                <h3 class="album-title">No Sound Without</h3>
+                                <p class="album-artist">ODESZA</p>
+                                <p class="album-year">2025</p>
+                            </div>
+                        </article>
+
+                        <article class="album-card" tabindex="0">
+                            <div class="album-cover" style="background: linear-gradient(45deg, #ff9ff3, #f368e0);">
+                                <button class="album-play-btn" aria-label="Reproducir álbum"></button>
+                            </div>
+                            <div class="album-info">
+                                <h3 class="album-title">Blue Neighbourhood</h3>
+                                <p class="album-artist">Troye Sivan</p>
+                                <p class="album-year">2024</p>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <!-- Nuevos Lanzamientos -->
+                <section class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Nuevos Lanzamientos</h2>
+                        <div class="section-nav">
+                            <div class="nav-arrow" role="button" aria-label="Anterior">‹</div>
+                            <div class="nav-arrow" role="button" aria-label="Siguiente">›</div>
+                        </div>
+                    </div>
+
+                    <div class="albums-grid">
+                        <article class="album-card" tabindex="0">
+                            <div class="album-cover" style="background: linear-gradient(45deg, #845EC2, #D65DB1);">
+                                <button class="album-play-btn" aria-label="Reproducir álbum"></button>
+                            </div>
+                            <div class="album-info">
+                                <h3 class="album-title">Antes de Ameri</h3>
+                                <p class="album-artist">Cami</p>
+                                <p class="album-year">2025</p>
+                            </div>
+                        </article>
+
+                        <article class="album-card" tabindex="0">
+                            <div class="album-cover" style="background: linear-gradient(45deg, #FF6F91, #FF9671);">
+                                <button class="album-play-btn" aria-label="Reproducir álbum"></button>
+                            </div>
+                            <div class="album-info">
+                                <h3 class="album-title">El Madrileño</h3>
+                                <p class="album-artist">C. Tangana</p>
+                                <p class="album-year">2025</p>
+                            </div>
+                        </article>
+
+                        <article class="album-card" tabindex="0">
+                            <div class="album-cover" style="background: linear-gradient(45deg, #FFC75F, #F9F871);">
+                                <button class="album-play-btn" aria-label="Reproducir álbum"></button>
+                            </div>
+                            <div class="album-info">
+                                <h3 class="album-title">Un Verano Sin Ti</h3>
+                                <p class="album-artist">Bad Bunny</p>
+                                <p class="album-year">2025</p>
+                            </div>
+                        </article>
+
+                        <article class="album-card" tabindex="0">
+                            <div class="album-cover" style="background: linear-gradient(45deg, #008F7A, #4B4453);">
+                                <button class="album-play-btn" aria-label="Reproducir álbum"></button>
+                            </div>
+                            <div class="album-info">
+                                <h3 class="album-title">GRRR REMIXES</h3>
+                                <p class="album-artist">Rosalía</p>
+                                <p class="album-year">2025</p>
+                            </div>
+                        </article>
+
+                        <article class="album-card" tabindex="0">
+                            <div class="album-cover" style="background: linear-gradient(45deg, #2C73D2, #0089BA);">
+                                <button class="album-play-btn" aria-label="Reproducir álbum"></button>
+                            </div>
+                            <div class="album-info">
+                                <h3 class="album-title">MAÑANA X</h3>
+                                <p class="album-artist">Trueno</p>
+                                <p class="album-year">2025</p>
+                            </div>
+                        </article>
+
+                    </div>
+                </section>
+
+                <!-- Canciones del Momento -->
+                <section class="section trending-songs">
+                    <div class="section-header">
+                        <h2 class="section-title">Canciones del Momento</h2>
+                        <div class="section-nav">
+                            <div class="nav-arrow" role="button" aria-label="Anterior">‹</div>
+                            <div class="nav-arrow" role="button" aria-label="Siguiente">›</div>
+                        </div>
+                    </div>
+
+                    <div class="song-list">
+                        <article class="song-item">
+                            <div class="song-cover">
+                                <img src="images/song1.jpg" alt="Portada de La Última" />
+                            </div>
+                            <div class="song-info">
+                                <h3 class="song-title">La Última</h3>
+                                <p class="song-artist">Quevedo</p>
+                                <p class="song-year">2025</p>
+                            </div>
+                            <button class="song-play-btn" aria-label="Reproducir canción"></button>
+                        </article>
+
+                        <article class="song-item">
+                            <div class="song-cover">
+                                <img src="assets/covers-img/LedZeppelinIV.jpg" alt="Portada de Led Zepellin iv" />
+                            </div>
+                            <div class="song-info">
+                                <h3 class="song-title">Stairway to Heaven</h3>
+                                <p class="song-artist">Led Zeppelin IV (Remastered)</p>
+                                <p class="song-year">1971</p>
+                            </div>
+                            <button class="song-play-btn" aria-label="Reproducir canción"></button>
+                        </article>
+
+                        <article class="song-item">
+                            <div class="song-cover">
+                                <img src="images/song3.jpg" alt="Portada de Vampiros" />
+                            </div>
+                            <div class="song-info">
+                                <h3 class="song-title">Vampiros</h3>
+                                <p class="song-artist">Rosalía, Rauw Alejandro</p>
+                                <p class="song-year">2025</p>
+                            </div>
+                            <button class="song-play-btn" aria-label="Reproducir canción"></button>
+                        </article>
+
+                        <article class="song-item">
+                            <div class="song-cover">
+                                <img src="images/song4.jpg" alt="Portada de Columbia" />
+                            </div>
+                            <div class="song-info">
+                                <h3 class="song-title">Columbia</h3>
+                                <p class="song-artist">Quevedo</p>
+                                <p class="song-year">2025</p>
+                            </div>
+                            <button class="song-play-btn" aria-label="Reproducir canción"></button>
+                        </article>
+
+                        <article class="song-item">
+                            <div class="song-cover">
+                                <img src="images/song5.jpg" alt="Portada de Classy 101" />
+                            </div>
+                            <div class="song-info">
+                                <h3 class="song-title">Classy 101</h3>
+                                <p class="song-artist">Feid, Young Miko</p>
+                                <p class="song-year">2025</p>
+                            </div>
+                            <button class="song-play-btn" aria-label="Reproducir canción"></button>
+                        </article>
+
+                        <article class="song-item">
+                            <div class="song-cover">
+                                <img src="images/song6.jpg" alt="Portada de Mejor Que Ayer" />
+                            </div>
+                            <div class="song-info">
+                                <h3 class="song-title">Mejor Que Ayer</h3>
+                                <p class="song-artist">Bad Bunny</p>
+                                <p class="song-year">2025</p>
+                            </div>
+                            <button class="song-play-btn" aria-label="Reproducir canción"></button>
+                        </article>
+                    </div>
+                </section>
+
+                <!-- Popular Artists -->
+                <section class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Artistas Populares</h2>
+                        <div class="section-nav">
+                            <div class="nav-arrow" role="button" aria-label="Anterior">‹</div>
+                            <div class="nav-arrow" role="button" aria-label="Siguiente">›</div>
+                        </div>
+                    </div>
+
+                    <div class="artists-grid">
+                        <article class="artist-card" tabindex="0">
+                            <div class="artist-avatar"></div>
+                            <h3 class="artist-name">Lady Gaga</h3>
+                        </article>
+
+                        <article class="artist-card" tabindex="0">
+                            <div class="artist-avatar" style="background: linear-gradient(45deg, #ff6b6b, #ee5a24);">
+                            </div>
+                            <h3 class="artist-name">Bruno Mars</h3>
+                        </article>
+
+                        <article class="artist-card" tabindex="0">
+                            <div class="artist-avatar" style="background: linear-gradient(45deg, #4834d4, #686de0);">
+                            </div>
+                            <h3 class="artist-name">Beyoncé</h3>
+                        </article>
+
+                        <article class="artist-card" tabindex="0">
+                            <div class="artist-avatar" style="background: linear-gradient(45deg, #00d2d3, #54a0ff);">
+                            </div>
+                            <h3 class="artist-name">Dua Lipa</h3>
+                        </article>
+
+                        <article class="artist-card" tabindex="0">
+                            <div class="artist-avatar" style="background: linear-gradient(45deg, #ff9ff3, #f368e0);">
+                            </div>
+                            <h3 class="artist-name">MARJIV</h3>
+                        </article>
+
+                        <article class="artist-card" tabindex="0">
+                            <div class="artist-avatar" style="background: linear-gradient(45deg, #26de81, #20bf6b);">
+                            </div>
+                            <h3 class="artist-name">Drake</h3>
+                        </article>
+
+                        <article class="artist-card" tabindex="0">
+                            <div class="artist-avatar" style="background: linear-gradient(45deg, #fd79a8, #e84393);">
+                            </div>
+                            <h3 class="artist-name">Tyga</h3>
+                        </article>
+                    </div>
+                </section>
+
+                <!-- Videos Section -->
+                <section class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Tus Videos Favoritos</h2>
+                        <div class="section-nav">
+                            <div class="nav-arrow" role="button" aria-label="Anterior">‹</div>
+                            <div class="nav-arrow" role="button" aria-label="Siguiente">›</div>
+                        </div>
+                    </div>
+
+                    <div class="videos-grid">
+                        <article class="video-card" data-ytid="H5v3kku4y6Q">
+                            <div class="yt-thumb-container">
+                                <img class="yt-thumb" src="https://img.youtube.com/vi/H5v3kku4y6Q/hqdefault.jpg"
+                                    alt="Miniatura As It Was" loading="lazy">
+                                <button class="yt-play-btn" aria-label="Reproducir video"></button>
+                            </div>
+                            <div class="video-info">
+                                <h3 class="video-title">As It Was</h3>
+                                <p class="video-artist">Harry Styles</p>
+                            </div>
+                        </article>
+                        <article class="video-card" data-ytid="G7KNmW9a75Y">
+                            <div class="yt-thumb-container">
+                                <img class="yt-thumb" src="https://img.youtube.com/vi/G7KNmW9a75Y/hqdefault.jpg"
+                                    alt="Miniatura Flowers" loading="lazy">
+                                <button class="yt-play-btn" aria-label="Reproducir video"></button>
+                            </div>
+                            <div class="video-info">
+                                <h3 class="video-title">Flowers</h3>
+                                <p class="video-artist">Miley Cyrus</p>
+                            </div>
+                        </article>
+                        <article class="video-card" data-ytid="b1kbLwvqugk">
+                            <div class="yt-thumb-container">
+                                <img class="yt-thumb" src="https://img.youtube.com/vi/b1kbLwvqugk/hqdefault.jpg"
+                                    alt="Miniatura Anti-Hero" loading="lazy">
+                                <button class="yt-play-btn" aria-label="Reproducir video"></button>
+                            </div>
+                            <div class="video-info">
+                                <h3 class="video-title">Anti-Hero</h3>
+                                <p class="video-artist">Taylor Swift</p>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <!-- Mood Playlists -->
+                <section class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Mood Playlists</h2>
+                        <div class="section-nav">
+                            <div class="nav-arrow" role="button" aria-label="Anterior">‹</div>
+                            <div class="nav-arrow" role="button" aria-label="Siguiente">›</div>
+                        </div>
+                    </div>
+
+                    <div class="albums-grid">
+                        <article class="album-card" tabindex="0">
+                            <div class="album-cover">
+                                <img src="assets/covers-img/moods/Chill Vibes.webp" alt="Chill Vibes" style="width:100%;height:100%;object-fit:cover;">
+                                <button class="album-play-btn" aria-label="Reproducir playlist"></button>
+                            </div>
+                            <div class="album-info">
+                                <h3 class="album-title">Chill Vibes</h3>
+                                <p class="album-artist">Para relajarte</p>
+                                <p class="album-year">120 canciones</p>
+                            </div>
+                        </article>
+
+                        <article class="album-card" tabindex="0">
+                            <div class="album-cover">
+                                <img src="assets/covers-img/moods/Deep Focus.webp" alt="Deep Focus" style="width:100%;height:100%;object-fit:cover;">
+                                <button class="album-play-btn" aria-label="Reproducir playlist"></button>
+                            </div>
+                            <div class="album-info">
+                                <h3 class="album-title">Deep Focus</h3>
+                                <p class="album-artist">Concentración</p>
+                                <p class="album-year">40 canciones</p>
+                            </div>
+                        </article>
+
+                        <article class="album-card" tabindex="0">
+                            <div class="album-cover">
+                                <img src="assets/covers-img/moods/sleep.webp" alt="Sleep Time" style="width:100%;height:100%;object-fit:cover;">
+                                <button class="album-play-btn" aria-label="Reproducir playlist"></button>
+                            </div>
+                            <div class="album-info">
+                                <h3 class="album-title">Sleep Time</h3>
+                                <p class="album-artist">Para dormir</p>
+                                <p class="album-year">95 canciones</p>
+                            </div>
+                        </article>
+
+                        <article class="album-card" tabindex="0">
+                            <div class="album-cover">
+                                <img src="assets/covers-img/moods/meditation.webp" alt="Meditation" style="width:100%;height:100%;object-fit:cover;">
+                                <button class="album-play-btn" aria-label="Reproducir playlist"></button>
+                            </div>
+                            <div class="album-info">
+                                <h3 class="album-title">Meditation</h3>
+                                <p class="album-artist">Meditación</p>
+                                <p class="album-year">20 canciones</p>
+                            </div>
+                        </article>
+
+                        <article class="album-card" tabindex="0">
+                            <div class="album-cover">
+                                <img src="assets/covers-img/moods/happy.webp" alt="Happy Vibes" style="width:100%;height:100%;object-fit:cover;">
+                                <button class="album-play-btn" aria-label="Reproducir playlist"></button>
+                            </div>
+                            <div class="album-info">
+                                <h3 class="album-title">Happy Vibes</h3>
+                                <p class="album-artist">Energía</p>
+                                <p class="album-year">110 canciones</p>
+                            </div>
+                        </article>
+                    </div>
+                </section>
             </div>
-            
-            <div class="modal-body">
-                <div class="modal-controls">
-                    <button class="play-all-btn">
-                        <span class="material-symbols-outlined">play_circle</span>
-                        Reproducir todo
-                    </button>
-                    <button class="shuffle-btn">
-                        <span class="material-symbols-outlined">shuffle</span>
-                        Aleatorio
-                    </button>
-                    <button class="like-album-btn" id="likeAlbumBtn">
-                        <span class="material-symbols-outlined">favorite</span>
-                    </button>
-                </div>
-                
-                <div class="modal-songs-list">
-                    <table class="modal-songs-table">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>TÍTULO</th>
-                                <th>DURACIÓN</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody id="modalSongsList">
-                        </tbody>
-                    </table>
-                </div>
+        </main>
+    </div>
+
+    <!-- Player -->
+    <div class="player" role="region" aria-label="Reproductor de música">
+        <div class="player-controls">
+            <button class="control-btn" aria-label="Anterior"><i class="fa-solid fa-backward-step"></i></button>
+            <button class="control-btn play-btn" aria-label="Reproducir/Pausar"><i class="fa-solid fa-play"></i></button>
+            <button class="control-btn" aria-label="Siguiente"><i class="fa-solid fa-forward-step"></i></button>
+        </div>
+
+        <div class="progress-bar" role="slider" aria-label="Progreso de la canción">
+            <div class="progress-fill"></div>
+        </div>
+
+        <div class="volume-control">
+            <span><i class="fa-solid fa-volume-high"></i></span>
+            <div class="volume-bar" role="slider" aria-label="Control de volumen">
+                <div class="volume-fill"></div>
             </div>
         </div>
     </div>
 
-        <!-- Playlist -->
-        <section class="trends-section">
-            <h2 class="trends-title">TENDENCIAS</h2>
-            <div class="trends-table-container">
-                <table class="trends-table">
-                <thead>
-                    <tr>
-                            <th class="number-col">#</th>
-                            <th class="cover-col"></th>
-                            <th class="title-col">TÍTULO</th>
-                            <th class="artist-col">ARTISTA</th>
-                            <th class="album-col">ÁLBUM</th>
-                            <th class="duration-col">DUR</th>
-                            <th class="actions-col"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                        <tr class="trend-song-row" data-song-index="0">
-                            <td class="song-number">1</td>
-                            <td class="song-cover-cell">
-                                <div class="song-cover-wrapper">
-                                <img src="/Covers/nada-personal.jpg" alt="Nada Personal" class="song-cover">
-                                    <button class="play-overlay-btn">
-                                        <span class="material-symbols-outlined">play_circle</span>
-                                    </button>
-                            </div>
-                        </td>
-                            <td class="song-title">Danza Rota</td>
-                            <td class="song-artist">Soda Stereo</td>
-                            <td class="song-album">Nada Personal</td>
-                            <td class="song-duration">3:34</td>
-                        <td class="song-actions">
-                                <button class="trend-like-btn">
-                                    <span class="material-symbols-outlined">favorite</span>
-                                </button>
-                                <button class="trend-add-btn">
-                                    <span class="material-symbols-outlined">queue_music</span>
-                                </button>
-                        </td>
-                    </tr>
-                        <tr class="trend-song-row" data-song-index="1">
-                            <td class="song-number">2</td>
-                            <td class="song-cover-cell">
-                                <div class="song-cover-wrapper">
-                                <img src="/Covers/mika-album.jpg" alt="Life in Cartoon Motion" class="song-cover">
-                                    <button class="play-overlay-btn">
-                                        <span class="material-symbols-outlined">play_circle</span>
-                                    </button>
-                            </div>
-                        </td>
-                            <td class="song-title">Relax, Take It Easy</td>
-                            <td class="song-artist">Mika</td>
-                            <td class="song-album">Life in Cartoon Motion</td>
-                            <td class="song-duration">4:30</td>
-                        <td class="song-actions">
-                                <button class="trend-like-btn">
-                                    <span class="material-symbols-outlined">favorite</span>
-                                </button>
-                                <button class="trend-add-btn">
-                                    <span class="material-symbols-outlined">queue_music</span>
-                                </button>
-                        </td>
-                    </tr>
-                        <tr class="trend-song-row" data-song-index="2">
-                            <td class="song-number">3</td>
-                            <td class="song-cover-cell">
-                                <div class="song-cover-wrapper">
-                                    <img src="/Covers/Iron-Maiden–-Killers-ghostcultmag.jpg" alt="Killers" class="song-cover">
-                                    <button class="play-overlay-btn">
-                                        <span class="material-symbols-outlined">play_circle</span>
-                                    </button>
-                            </div>
-                        </td>
-                            <td class="song-title">Wrathchild</td>
-                            <td class="song-artist">Iron Maiden</td>
-                            <td class="song-album">Killers</td>
-                            <td class="song-duration">2:56</td>
-                        <td class="song-actions">
-                                <button class="trend-like-btn">
-                                    <span class="material-symbols-outlined">favorite</span>
-                                </button>
-                                <button class="trend-add-btn">
-                                    <span class="material-symbols-outlined">queue_music</span>
-                                </button>
-                        </td>
-                    </tr>
-                        <tr class="trend-song-row" data-song-index="3">
-                            <td class="song-number">4</td>
-                            <td class="song-cover-cell">
-                                <div class="song-cover-wrapper">
-                                <img src="/Covers/daftpunk-album.jpg" alt="Random Access Memories" class="song-cover">
-                                    <button class="play-overlay-btn">
-                                        <span class="material-symbols-outlined">play_circle</span>
-                                    </button>
-                            </div>
-                        </td>
-                            <td class="song-title">Get Lucky</td>
-                            <td class="song-artist">Daft Punk</td>
-                            <td class="song-album">Random Access Memories</td>
-                            <td class="song-duration">6:10</td>
-                        <td class="song-actions">
-                                <button class="trend-like-btn">
-                                    <span class="material-symbols-outlined">favorite</span>
-                                </button>
-                                <button class="trend-add-btn">
-                                    <span class="material-symbols-outlined">queue_music</span>
-                                </button>
-                        </td>
-                    </tr>
-                        <tr class="trend-song-row" data-song-index="4">
-                            <td class="song-number">5</td>
-                            <td class="song-cover-cell">
-                                <div class="song-cover-wrapper">
-                                <img src="/Covers/LedZeppelinIV.webp" alt="Led Zeppelin IV" class="song-cover">
-                                    <button class="play-overlay-btn">
-                                        <span class="material-symbols-outlined">play_circle</span>
-                                    </button>
-                            </div>
-                        </td>
-                            <td class="song-title">Stairway to Heaven</td>
-                            <td class="song-artist">Led Zeppelin</td>
-                            <td class="song-album">Led Zeppelin IV</td>
-                            <td class="song-duration">7:58</td>
-                        <td class="song-actions">
-                                <button class="trend-like-btn">
-                                    <span class="material-symbols-outlined">favorite</span>
-                                </button>
-                                <button class="trend-add-btn">
-                                    <span class="material-symbols-outlined">queue_music</span>
-                                </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            </div>
-        </section>
-    </main>
-
-    <!-- Footer -->
-    <footer>
-        <div class="music-player">
-            <div class="song-info">
-                <img src="" alt="Album Cover" class="album-cover" id="album-cover" style="display: none;">
-                <div class="song-details">
-                    <span class="song-title" id="song-title"></span>
-                    <span class="artist-name" id="artist-name"></span>
-                </div>
-            </div>
-            <div class="player-controls">
-                <div class="controls">
-                    <img src="/img/Shuffle.png" alt="aleatorio" class="aleatorio" id="shuffle">
-                    <img src="/img/skip_previous_filled.png" alt="anterior" class="anterior" id="previous">
-                    <img src="/img/Frame 10.png" alt="Play" class="play-player" id="play-pause">
-                    <img src="/img/skip_next_filled.png" alt="siguiente" class="siguiente" id="next">
-                    <img src="/img/Repeat.png" alt="repetir" class="repetir" id="repeat">
-                </div>
-                <div class="progress-bar">
-                    <span class="current-time" id="current-time">0:00</span>
-                    <div class="waveform" id="waveform"></div>
-                    <span class="total-time" id="total-time">0:00</span>
-                </div>
-            </div>
-            <div class="extra-controls">
-                <img src="/img/favorite.png" alt="favorito" class="favorito" id="favorite">
-                <img src="/img/Volume 2.png" alt="volumen" class="volumen" id="volume">
-            </div>
-            <!-- Elemento de audio -->
-            <audio id="audio-player" preload="metadata">
-                <source src="" type="audio/mp3">
-                Tu navegador no soporta el elemento de audio.
-            </audio>
-        </div>
-    </footer>
-
-    <script src="sidebar.js"></script>
-    <script src="player.js"></script>
-    <script src="albumDetail.js"></script>
-    <script src="carousel.js"></script>
-    <script src="main.js"></script>
-    <script src="albumModal.js"></script>
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+    <script src="youtube-player.js"></script>
+    </script>
 
 </body>
 
