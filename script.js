@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', function() {
     navTabs.forEach(tab => {
         tab.addEventListener('click', function(e) {
             e.preventDefault();
-            // Remover clase active de todos los tabs
             navTabs.forEach(t => t.classList.remove('active'));
             navTabs.forEach(t => t.removeAttribute('aria-current'));
             
@@ -22,7 +21,6 @@ document.addEventListener('DOMContentLoaded', function() {
     menuItems.forEach(item => {
         item.addEventListener('click', function(e) {
             e.preventDefault();
-            // Remover clase active de todos los items
             menuItems.forEach(i => i.classList.remove('active'));
             menuItems.forEach(i => i.removeAttribute('aria-current'));
             
@@ -107,8 +105,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(() => {
                     this.style.transform = 'translateY(-5px)';
                 }, 100);
-                
-                // Aquí podrías agregar la lógica para reproducir el álbum/artista
                 console.log('Reproduciendo:', this.querySelector('.album-title, .artist-name')?.textContent);
             }
         });
