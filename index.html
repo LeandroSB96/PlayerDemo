@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <script src="https://kit.fontawesome.com/b8ca49fd5d.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="styles.css">
+    <script type="module" src="script.js"></script>
     <title>Player Demo</title>
 </head>
 
@@ -114,7 +115,7 @@
                 <!-- Popular Albums -->
                 <section class="section">
                     <div class="section-header">
-                        <h2 class="section-title">Popular Albums</h2>
+                        <h2 class="section-title">Álbumes Populares</h2>
                         <div class="section-nav">
                             <div class="nav-arrow" role="button" aria-label="Anterior">‹</div>
                             <div class="nav-arrow" role="button" aria-label="Siguiente">›</div>
@@ -155,7 +156,7 @@
                                 <button class="album-play-btn" aria-label="Reproducir álbum"></button>
                             </div>
                             <div class="album-info">
-                                <h3 class="album-title">Killers</h3>
+                                <h3 class="album-title">Killers (2015 Remaster)</h3>
                                 <p class="album-artist">Iron Maiden</p>
                                 <p class="album-year">1981</p>
                             </div>
@@ -435,8 +436,10 @@
                                 <button class="video-play-btn" aria-label="Reproducir video"></button>
                             </div>
                             <div class="video-info">
-                                <h3 class="video-title">Morning Glory</h3>
-                                <p class="video-artist">Oasis</p>
+                                <div class="video-text">
+                                    <div class="video-title">Morning Glory</div>
+                                    <div class="video-artist">Oasis</div>
+                                </div>
                                 <div class="video-duration">4:17</div>
                             </div>
                         </article>
@@ -450,8 +453,10 @@
                                 <button class="video-play-btn" aria-label="Reproducir video"></button>
                             </div>
                             <div class="video-info">
-                                <h3 class="video-title">Juegos De Seducción</h3>
-                                <p class="video-artist">Soda Stereo</p>
+                                <div class="video-text">
+                                    <div class="video-title">Juegos De Seducción</div>
+                                    <div class="video-artist">Soda Stereo</div>
+                                </div>
                                 <div class="video-duration">4:12</div>
                             </div>
                         </article>
@@ -609,10 +614,25 @@
     <!-- Player -->
     <div class="player" role="region" aria-label="Reproductor de música">
         <div class="player-controls">
-            <button class="control-btn" aria-label="Anterior"><i class="fa-solid fa-backward-step"></i></button>
-            <button class="control-btn play-btn" aria-label="Reproducir/Pausar"><i
-                    class="fa-solid fa-play"></i></button>
-            <button class="control-btn" aria-label="Siguiente"><i class="fa-solid fa-forward-step"></i></button>
+            <button class="control-btn shuffle-btn" aria-label="Aleatorio">
+                <i class="fa-solid fa-shuffle"></i>
+            </button>
+
+            <button class="control-btn" aria-label="Anterior">
+                <i class="fa-solid fa-backward-step"></i>
+            </button>
+
+            <button class="control-btn play-btn" aria-label="Reproducir/Pausar">
+                <i class="fa-solid fa-play"></i>
+            </button>
+
+            <button class="control-btn" aria-label="Siguiente">
+                <i class="fa-solid fa-forward-step"></i>
+            </button>
+
+            <button class="control-btn repeat-btn" aria-label="Repetir">
+                <i class="fa-solid fa-repeat"></i>
+            </button>
         </div>
 
         <div class="progress-bar" role="slider" aria-label="Progreso de la canción">
@@ -628,7 +648,7 @@
     </div>
 
     <!-- JavaScript -->
-    <script src="script.js"></script>
+    <script  src="script.js"></script>
     <script src="player-video.js"></script>
 </body>
 
