@@ -11,12 +11,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Event listeners para las cards de álbumes
     const albumCards = document.querySelectorAll('.album-card');
-    console.log('Total de cards encontradas:', albumCards.length);
-    
     albumCards.forEach(card => {
         card.addEventListener('click', async function (e) {
             if (e.target.closest('.album-play-btn')) return;
-
             const albumTitle = this.querySelector('.album-title').textContent;
             const artistName = this.querySelector('.album-artist').textContent;
             const albumCover = this.querySelector('.album-cover img').src;
@@ -34,14 +31,14 @@ document.addEventListener('DOMContentLoaded', async function () {
                 alert('No se pudo encontrar el álbum en Spotify');
                 return;
             }
-            
+
             // Obtener detalles completos del álbum
             const albumData = await spotifyService.getAlbum(albumSearch.id);
             const artistData = await spotifyService.getArtist(albumData.artists[0].id);
-            
+
             // Ocultar el contenido principal y mostrar la página del álbum
             document.querySelector('.content').style.display = 'none';
-            
+
             // Crear la página del álbum
             createAlbumPage(albumData, artistData, localCover);
         } catch (error) {
@@ -56,7 +53,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (existingPage) {
             existingPage.remove();
         }
-        
+
         // Crear la página del álbum
         const albumPage = document.createElement('div');
         albumPage.className = 'album-page';
@@ -82,34 +79,48 @@ document.addEventListener('DOMContentLoaded', async function () {
                 </div>
             </div>
             
-            <div class="album-page-content">
-                <div class="album-actions">
-                    <button class="play-album-btn">
-                        <i class="fa-solid fa-play"></i>
-                    </button>
-                </div>
-                
-                <div class="album-tracks-list">
-                    <div class="tracks-header">
-                        <span class="track-col-number">#</span>
-                        <span class="track-col-title">Título</span>
-                        <span class="track-col-duration"><i class="fa-regular fa-clock"></i></span>
+     <div class="album-page-content">
+    <div class="album-actions">
+        <button class="play-album-btn">
+            <i class="fa-solid fa-play"></i>
+        </button>
+        <button class="favorite-album-btn" aria-label="Me gusta">
+            <i class="fa-regular fa-heart"></i>
+        </button>
+        <button class="shuffle-album-btn" aria-label="Aleatorio">
+            <i class="fa-solid fa-shuffle"></i>
+        </button>
+    </div>
+    
+    <div class="album-tracks-list">
+        <div class="tracks-header">
+            <span class="track-col-number">#</span>
+            <span class="track-col-title">Título</span>
+            <span class="track-col-album">Álbum</span>
+            <span class="track-col-heart"></span>
+            <span class="track-col-duration"><i class="fa-regular fa-clock"></i></span>
+        </div>
+        ${albumData.tracks.items.map((track, index) => {
+            const minutes = Math.floor(track.duration_ms / 60000);
+            const seconds = ((track.duration_ms % 60000) / 1000).toFixed(0).padStart(2, '0');
+            return `
+                <div class="track-row" data-preview="${track.preview_url || ''}">
+                    <span class="track-col-number">${index + 1}</span>
+                    <div class="track-col-title">
+                        <span class="track-name">${track.name}</span>
+                        <span class="track-artists">${track.artists.map(a => a.name).join(', ')}</span>
                     </div>
-                    ${albumData.tracks.items.map((track, index) => {
-                        const minutes = Math.floor(track.duration_ms / 60000);
-                        const seconds = ((track.duration_ms % 60000) / 1000).toFixed(0).padStart(2, '0');
-                        return `
-                            <div class="track-row" data-preview="${track.preview_url || ''}">
-                                <span class="track-col-number">${index + 1}</span>
-                                <div class="track-col-title">
-                                    <span class="track-name">${track.name}</span>
-                                    <span class="track-artists">${track.artists.map(a => a.name).join(', ')}</span>
-                                </div>
-                                <span class="track-col-duration">${minutes}:${seconds}</span>
-                            </div>
-                        `;
-                    }).join('')}
+                    <div class="track-col-album">
+                        <span>${albumData.name}</span>
+                    </div>
+                    <button class="track-favorite-btn" aria-label="Me gusta">
+                        <i class="fa-regular fa-heart"></i>
+                    </button>
+                    <span class="track-col-duration">${minutes}:${seconds}</span>
                 </div>
+            `;
+        }).join('')}
+    </div>
                 
                 <div class="album-info-extra">
                     <p class="info-date">${new Date(albumData.release_date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
@@ -123,14 +134,14 @@ document.addEventListener('DOMContentLoaded', async function () {
                 </div>
             </div>
         `;
-        
+
         // Insertar después del header, dentro de main-content
         const mainContent = document.querySelector('.main-content');
         mainContent.appendChild(albumPage);
-        
+
         // Scroll al inicio
         mainContent.scrollTop = 0;
-        
+
         // Botón de volver
         const backBtn = albumPage.querySelector('.back-button');
         backBtn.addEventListener('click', () => {
@@ -141,12 +152,67 @@ document.addEventListener('DOMContentLoaded', async function () {
         // Event listeners para las canciones (opcional - para reproducir previews)
         const trackRows = albumPage.querySelectorAll('.track-row');
         trackRows.forEach(row => {
-            row.addEventListener('click', function() {
+            row.addEventListener('click', function () {
                 const previewUrl = this.getAttribute('data-preview');
                 if (previewUrl && previewUrl !== 'null') {
                     console.log('Reproducir preview:', previewUrl);
                 } else {
                     console.log('No hay preview disponible para esta canción');
+                }
+            });
+        });
+
+        // Botón de favorito del álbum
+        const favoriteAlbumBtn = albumPage.querySelector('.favorite-album-btn');
+        let isAlbumFavorite = false;
+
+        favoriteAlbumBtn.addEventListener('click', function () {
+            isAlbumFavorite = !isAlbumFavorite;
+            const icon = this.querySelector('i');
+
+            if (isAlbumFavorite) {
+                icon.classList.remove('fa-regular');
+                icon.classList.add('fa-solid');
+                this.classList.add('active');
+                // Animación
+                this.style.transform = 'scale(1.3)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 300);
+            } else {
+                icon.classList.remove('fa-solid');
+                icon.classList.add('fa-regular');
+                this.classList.remove('active');
+            }
+        });
+
+        // Botón de aleatorio del álbum
+        const shuffleBtn = albumPage.querySelector('.shuffle-album-btn');
+        shuffleBtn.addEventListener('click', function () {
+            console.log('Reproducir álbum en modo aleatorio');
+            this.classList.toggle('active');
+        });
+
+        // Botones de favorito en cada canción
+        const trackFavoriteBtns = albumPage.querySelectorAll('.track-favorite-btn');
+        trackFavoriteBtns.forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation(); // Evitar que se active el click de la fila
+                const icon = this.querySelector('i');
+
+                if (icon.classList.contains('fa-regular')) {
+                    icon.classList.remove('fa-regular');
+                    icon.classList.add('fa-solid');
+                    this.classList.add('active');
+                    // Animación
+                    this.style.transform = 'scale(1.3)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 300);
+                } else {
+                    icon.classList.remove('fa-solid');
+                    icon.classList.add('fa-regular');
+                    this.classList.remove('active');
                 }
             });
         });
