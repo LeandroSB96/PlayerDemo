@@ -158,5 +158,23 @@ async searchAlbum(albumName, artistName) {
             throw error;
         }
     }
+
+    //Albumes recomendados del artista
+    async getRecommendedAlbums(artistId, limit = 5, country = 'AR') {
+        await this.checkAndRefreshToken();
+        try {
+            const response = await fetch(`https://api.spotify.com/v1/artists/${artistId}/albums?market=${country}&limit=${limit}`, {
+                headers: {
+                    'Authorization': `${this.tokenType} ${this.accessToken}`
+                }
+            });
+            const data = await response.json();
+            return data.items;
+        } catch (error) {
+            console.error('Error obteniendo álbumes recomendados:', error);
+            throw error;
+        }
+    }
+
 }
 export const spotifyService = new SpotifyService();

@@ -9,6 +9,24 @@ document.addEventListener('DOMContentLoaded', async function () {
         console.error('Error al inicializar Spotify:', error);
     }
 
+    // Botón de favorito en el reproductor
+    const playerFavoriteBtn = document.querySelector('.player-favorite-btn');
+    let isFavorite = false;
+
+    playerFavoriteBtn.addEventListener('click', function () {
+        isFavorite = !isFavorite;
+        const icon = this.querySelector('i');
+        if (isFavorite) {
+            icon.classList.remove('fa-regular');
+            icon.classList.add('fa-solid');
+            this.classList.add('active');
+        } else {
+            icon.classList.remove('fa-solid');
+            icon.classList.add('fa-regular');
+            this.classList.remove('active');
+        }
+    });
+
     // Event listeners para las cards de álbumes
     const albumCards = document.querySelectorAll('.album-card');
     albumCards.forEach(card => {
@@ -25,7 +43,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Función para mostrar la página del álbum
     async function showAlbumPage(albumTitle, artistName, localCover) {
         try {
-            // Buscar el álbum en Spotify
             const albumSearch = await spotifyService.searchAlbum(albumTitle, artistName);
             if (!albumSearch) {
                 alert('No se pudo encontrar el álbum en Spotify');
@@ -40,15 +57,14 @@ document.addEventListener('DOMContentLoaded', async function () {
             document.querySelector('.content').style.display = 'none';
 
             // Crear la página del álbum
-            createAlbumPage(albumData, artistData, localCover);
+            await createAlbumPage(albumData, artistData, localCover);
         } catch (error) {
             console.error('Error al cargar el álbum:', error);
             alert('Hubo un error al cargar el álbum. Por favor intenta de nuevo.');
         }
     }
 
-    function createAlbumPage(albumData, artistData, localCover) {
-        // Verificar si ya existe y eliminarla
+    async function createAlbumPage(albumData, artistData, localCover) {
         let existingPage = document.querySelector('.album-page');
         if (existingPage) {
             existingPage.remove();
@@ -79,48 +95,48 @@ document.addEventListener('DOMContentLoaded', async function () {
                 </div>
             </div>
             
-     <div class="album-page-content">
-    <div class="album-actions">
-        <button class="play-album-btn">
-            <i class="fa-solid fa-play"></i>
-        </button>
-        <button class="favorite-album-btn" aria-label="Me gusta">
-            <i class="fa-regular fa-heart"></i>
-        </button>
-        <button class="shuffle-album-btn" aria-label="Aleatorio">
-            <i class="fa-solid fa-shuffle"></i>
-        </button>
-    </div>
-    
-    <div class="album-tracks-list">
-        <div class="tracks-header">
-            <span class="track-col-number">#</span>
-            <span class="track-col-title">Título</span>
-            <span class="track-col-album">Álbum</span>
-            <span class="track-col-heart"></span>
-            <span class="track-col-duration"><i class="fa-regular fa-clock"></i></span>
-        </div>
-        ${albumData.tracks.items.map((track, index) => {
+            <div class="album-page-content">
+                <div class="album-actions">
+                    <button class="play-album-btn">
+                        <i class="fa-solid fa-play"></i>
+                    </button>
+                    <button class="favorite-album-btn" aria-label="Me gusta">
+                        <i class="fa-regular fa-heart"></i>
+                    </button>
+                    <button class="shuffle-album-btn" aria-label="Aleatorio">
+                        <i class="fa-solid fa-shuffle"></i>
+                    </button>
+                </div>
+                
+                <div class="album-tracks-list">
+                    <div class="tracks-header">
+                        <span class="track-col-number">#</span>
+                        <span class="track-col-title">Título</span>
+                        <span class="track-col-album">Álbum</span>
+                        <span class="track-col-heart"></span>
+                        <span class="track-col-duration"><i class="fa-regular fa-clock"></i></span>
+                    </div>
+                    ${albumData.tracks.items.map((track, index) => {
             const minutes = Math.floor(track.duration_ms / 60000);
             const seconds = ((track.duration_ms % 60000) / 1000).toFixed(0).padStart(2, '0');
             return `
-                <div class="track-row" data-preview="${track.preview_url || ''}">
-                    <span class="track-col-number">${index + 1}</span>
-                    <div class="track-col-title">
-                        <span class="track-name">${track.name}</span>
-                        <span class="track-artists">${track.artists.map(a => a.name).join(', ')}</span>
-                    </div>
-                    <div class="track-col-album">
-                        <span>${albumData.name}</span>
-                    </div>
-                    <button class="track-favorite-btn" aria-label="Me gusta">
-                        <i class="fa-regular fa-heart"></i>
-                    </button>
-                    <span class="track-col-duration">${minutes}:${seconds}</span>
-                </div>
-            `;
+                            <div class="track-row" data-preview="${track.preview_url || ''}">
+                                <span class="track-col-number">${index + 1}</span>
+                                <div class="track-col-title">
+                                    <span class="track-name">${track.name}</span>
+                                    <span class="track-artists">${track.artists.map(a => a.name).join(', ')}</span>
+                                </div>
+                                <div class="track-col-album">
+                                    <span>${albumData.name}</span>
+                                </div>
+                                <button class="track-favorite-btn" aria-label="Me gusta">
+                                    <i class="fa-regular fa-heart"></i>
+                                </button>
+                                <span class="track-col-duration">${minutes}:${seconds}</span>
+                            </div>
+                        `;
         }).join('')}
-    </div>
+                </div>
                 
                 <div class="album-info-extra">
                     <p class="info-date">${new Date(albumData.release_date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
@@ -132,10 +148,82 @@ document.addEventListener('DOMContentLoaded', async function () {
                         </div>
                     </div>
                 </div>
+
+                <div class="album-recommendations">
+                    <h3 class="recommendations-title">Otros álbumes de ${artistData.name}</h3>
+                    <div class="recommendations-grid" id="recommendationsGrid">
+                    </div>
+                </div>
             </div>
+
+            <!-- Footer -->
+            <footer class="site-footer">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <div class="footer-logo">
+                            <div class="logo-icon">
+                                <img src="assets/images/logo-img/logo-disc.webp" alt="Logo Player Demo" />
+                            </div>
+                            <span class="logo-text">Player <span class="highlight">Demo</span></span>
+                        </div>
+                        <p style="color: #b3b3b3; margin-bottom: 20px;">Tu música favorita, siempre con vos. Descubre nuevos artistas y disfruta de la mejor experiencia musical.</p>
+                        <div class="social-icons">
+                            <a href="#" class="social-icon" aria-label="Facebook">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="social-icon" aria-label="Twitter">
+                                <i class="fa-brands fa-x-twitter"></i>
+                            </a>
+                            <a href="#" class="social-icon" aria-label="Instagram">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="#" class="social-icon" aria-label="YouTube">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="footer-section">
+                        <h3 class="footer-title">Recursos</h3>
+                        <ul class="footer-links">
+                            <li><a href="#">Acerca de Nosotros</a></li>
+                            <li><a href="#">Planes Premium</a></li>
+                            <li><a href="#">Para Artistas</a></li>
+                            <li><a href="#">Desarrolladores</a></li>
+                            <li><a href="#">Inversores</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-section">
+                        <h3 class="footer-title">Comunidad</h3>
+                        <ul class="footer-links">
+                            <li><a href="#">Blog</a></li>
+                            <li><a href="#">Foro</a></li>
+                            <li><a href="#">Eventos</a></li>
+                            <li><a href="#">Merchandising</a></li>
+                            <li><a href="#">Novedades</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-section">
+                        <h3 class="footer-title">Ayuda</h3>
+                        <ul class="footer-links">
+                            <li><a href="#">Soporte</a></li>
+                            <li><a href="#">Centro de Ayuda</a></li>
+                            <li><a href="#">Contacto</a></li>
+                            <li><a href="#">Términos de Uso</a></li>
+                            <li><a href="#">Privacidad</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="footer-bottom">
+                    <p>&copy; 2025 Player Demo. Todos los derechos reservados.</p>
+                </div>
+            </footer>
         `;
 
-        // Insertar después del header, dentro de main-content
+        // Insertar en el DOM
         const mainContent = document.querySelector('.main-content');
         mainContent.appendChild(albumPage);
 
@@ -149,7 +237,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             document.querySelector('.content').style.display = 'block';
         });
 
-        // Event listeners para las canciones (opcional - para reproducir previews)
+        // Event listeners para las canciones 
         const trackRows = albumPage.querySelectorAll('.track-row');
         trackRows.forEach(row => {
             row.addEventListener('click', function () {
@@ -174,7 +262,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                 icon.classList.remove('fa-regular');
                 icon.classList.add('fa-solid');
                 this.classList.add('active');
-                // Animación
                 this.style.transform = 'scale(1.3)';
                 setTimeout(() => {
                     this.style.transform = 'scale(1)';
@@ -197,14 +284,13 @@ document.addEventListener('DOMContentLoaded', async function () {
         const trackFavoriteBtns = albumPage.querySelectorAll('.track-favorite-btn');
         trackFavoriteBtns.forEach(btn => {
             btn.addEventListener('click', function (e) {
-                e.stopPropagation(); // Evitar que se active el click de la fila
+                e.stopPropagation();
                 const icon = this.querySelector('i');
 
                 if (icon.classList.contains('fa-regular')) {
                     icon.classList.remove('fa-regular');
                     icon.classList.add('fa-solid');
                     this.classList.add('active');
-                    // Animación
                     this.style.transform = 'scale(1.3)';
                     setTimeout(() => {
                         this.style.transform = 'scale(1)';
@@ -216,6 +302,33 @@ document.addEventListener('DOMContentLoaded', async function () {
                 }
             });
         });
+
+        // Cargar álbumes recomendados del artista
+        try {
+            const artistAlbumsResponse = await spotifyService.getArtistAlbums(albumData.artists[0].id);
+            const artistAlbums = artistAlbumsResponse.items || artistAlbumsResponse;
+
+            // Filtrar para no mostrar el álbum actual
+            const filteredAlbums = artistAlbums.filter(album => album.id !== albumData.id).slice(0, 6);
+
+            // Buscar el grid de recomendaciones
+            const recommendationsGrid = albumPage.querySelector('#recommendationsGrid');
+
+            if (filteredAlbums.length > 0 && recommendationsGrid) {
+                recommendationsGrid.innerHTML = filteredAlbums.map(album => `
+    <div class="recommendation-card">
+        <div class="album-cover">
+            <img src="${album.images[0]?.url || ''}" alt="${album.name}" class="recommendation-cover">
+            <button class="album-play-btn" aria-label="Reproducir álbum"></button>
+        </div>
+        <div class="recommendation-name" title="${album.name}">${album.name}</div>
+        <div class="recommendation-year">${album.release_date.split('-')[0]}</div>
+    </div>
+`).join('');
+            }
+        } catch (error) {
+            console.error('Error al cargar álbumes recomendados:', error);
+        }
     }
 
     // Navegación activa en tabs principales
@@ -245,21 +358,27 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
 
     // Control del reproductor
-    const playBtn = document.querySelector('.play-btn');
-    let isPlaying = false;
+const playBtn = document.querySelector('.play-btn');
+const progressBar = document.querySelector('.progress-bar');
+let isPlaying = false;
 
-    if (playBtn) {
-        playBtn.addEventListener('click', function () {
-            isPlaying = !isPlaying;
-            this.innerHTML = isPlaying ? '⏸' : '▶';
-            this.setAttribute('aria-label', isPlaying ? 'Pausar' : 'Reproducir');
+if (playBtn) {
+    playBtn.addEventListener('click', function () {
+        isPlaying = !isPlaying;
+        this.innerHTML = isPlaying ? '⏸' : '▶';
 
-            this.style.transform = isPlaying ? 'scale(1.1)' : 'scale(1)';
-            setTimeout(() => {
-                this.style.transform = 'scale(1)';
-            }, 150);
-        });
-    }
+        const albumContainer = document.getElementById('playerAlbumContainer');
+        if (albumContainer) {
+            if (isPlaying) {
+                albumContainer.classList.add('active');
+                if (progressBar) progressBar.classList.add('active');
+            } else {
+                albumContainer.classList.remove('active');
+                if (progressBar) progressBar.classList.remove('active');
+            }
+        }
+    });
+}
 
     // Función para actualizar barras de progreso
     function updateProgress(bar, event) {
@@ -274,18 +393,9 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     // Barra de progreso interactiva
-    const progressBar = document.querySelector('.progress-bar');
     if (progressBar) {
         progressBar.addEventListener('click', (e) => {
             updateProgress(progressBar, e);
-        });
-
-        progressBar.addEventListener('mouseenter', function () {
-            this.style.height = '6px';
-        });
-
-        progressBar.addEventListener('mouseleave', function () {
-            this.style.height = '4px';
         });
     }
 
@@ -294,14 +404,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     if (volumeBar) {
         volumeBar.addEventListener('click', (e) => {
             updateProgress(volumeBar, e);
-        });
-
-        volumeBar.addEventListener('mouseenter', function () {
-            this.style.height = '6px';
-        });
-
-        volumeBar.addEventListener('mouseleave', function () {
-            this.style.height = '4px';
         });
     }
 
