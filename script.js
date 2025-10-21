@@ -5,6 +5,103 @@ document.addEventListener('DOMContentLoaded', async function () {
     try {
         await spotifyService.initialize();
         console.log('Spotify inicializado correctamente');
+        
+        // Configuración del buscador
+        const searchInput = document.querySelector('.search-bar input[type="search"]');
+        const searchResults = document.createElement('div');
+        searchResults.className = 'search-results';
+        searchInput.parentElement.appendChild(searchResults);
+        
+        let searchTimeout;
+
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const query = this.value.trim();
+            
+            if (query.length < 2) {
+                searchResults.classList.remove('active');
+                return;
+            }
+
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const results = await spotifyService.search(query);
+                    displaySearchResults(results);
+                } catch (error) {
+                    console.error('Error en la búsqueda:', error);
+                }
+            }, 300);
+        });
+
+        // Ocultar resultados al hacer clic fuera
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.classList.remove('active');
+            }
+        });
+
+        function displaySearchResults(results) {
+            searchResults.innerHTML = '';
+            const allResults = [
+                ...results.artists.map(item => ({ ...item, type: 'Artista' })),
+                ...results.albums.map(item => ({ ...item, type: 'Álbum' })),
+                ...results.tracks.map(item => ({ ...item, type: 'Canción' }))
+            ];
+
+            if (allResults.length === 0) {
+                searchResults.innerHTML = '<div class="search-result-item"><p class="search-result-title">No se encontraron resultados</p></div>';
+                searchResults.classList.add('active');
+                return;
+            }
+
+            allResults.forEach(item => {
+                const resultElement = document.createElement('div');
+                resultElement.className = 'search-result-item';
+                
+                const imageUrl = item.type === 'Artista' ? 
+                               (item.images?.[0]?.url || 'assets/images/default-artist.webp') :
+                               (item.type === 'Álbum' ? item.images?.[0]?.url : item.album?.images?.[0]?.url);
+                
+                const subtitle = item.type === 'Canción' ? 
+                               `${item.artists?.[0]?.name} • ${item.album?.name}` :
+                               (item.type === 'Álbum' ? item.artists?.[0]?.name : 
+                               `${item.followers?.total?.toLocaleString() || 0} seguidores`);
+
+                resultElement.innerHTML = `
+                    <img class="search-result-image" src="${imageUrl}" alt="${item.name}">
+                    <div class="search-result-info">
+                        <div class="search-result-title">${item.name}</div>
+                        <div class="search-result-subtitle">${subtitle}</div>
+                    </div>
+                    <span class="search-result-type">${item.type}</span>
+                `;
+
+                resultElement.addEventListener('click', () => {
+                    handleSearchResultClick(item);
+                });
+
+                searchResults.appendChild(resultElement);
+            });
+
+            searchResults.classList.add('active');
+        }
+
+        function handleSearchResultClick(item) {
+            switch (item.type) {
+                case 'Artista':
+                    console.log('Navegar a artista:', item.name);
+                    break;
+                case 'Álbum':
+                    showAlbumPage(item.name, item.artists[0].name, item.images[0].url);
+                    break;
+                case 'Canción':
+                    console.log('Reproducir:', item.name);
+                    break;
+            }
+            searchResults.classList.remove('active');
+            searchInput.value = '';
+        }
+
     } catch (error) {
         console.error('Error al inicializar Spotify:', error);
     }
@@ -121,7 +218,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             const seconds = ((track.duration_ms % 60000) / 1000).toFixed(0).padStart(2, '0');
             return `
                             <div class="track-row" data-preview="${track.preview_url || ''}">
-                                <span class="track-col-number">${index + 1}</span>
+                                <span class="track-col-number" data-number="${index + 1}"></span>
                                 <div class="track-col-title">
                                     <span class="track-name">${track.name}</span>
                                     <span class="track-artists">${track.artists.map(a => a.name).join(', ')}</span>
@@ -360,6 +457,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Control del reproductor
 const playBtn = document.querySelector('.play-btn');
 const progressBar = document.querySelector('.progress-bar');
+const progressFill = document.querySelector('.progress-fill');
 let isPlaying = false;
 
 if (playBtn) {

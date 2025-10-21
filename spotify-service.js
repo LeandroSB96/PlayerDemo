@@ -46,6 +46,28 @@ class SpotifyService {
     }
 
     // Búsqueda de tracks
+    // Búsqueda general (artistas, álbumes y canciones)
+    async search(query, types = ['artist', 'album', 'track'], limit = 5) {
+        await this.checkAndRefreshToken();
+        try {
+            const response = await fetch(
+                `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=${types.join(',')}&limit=${limit}`, {
+                headers: {
+                    'Authorization': `${this.tokenType} ${this.accessToken}`
+                }
+            });
+            const data = await response.json();
+            return {
+                artists: data.artists?.items || [],
+                albums: data.albums?.items || [],
+                tracks: data.tracks?.items || []
+            };
+        } catch (error) {
+            console.error('Error en la búsqueda:', error);
+            throw error;
+        }
+    }
+
     async searchTrack(query) {
         await this.checkAndRefreshToken();
         try {
