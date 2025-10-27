@@ -4,6 +4,9 @@
   "description": "",
   "main": "config.example.js",
   "scripts": {
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && node server.js",
+    "client": "live-server --port=5500 --no-browser",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,5 +22,9 @@
   "homepage": "https://github.com/LeandroSB96/PlayerDemo#readme",
   "dependencies": {
     "dotenv": "^17.2.3"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "live-server": "^1.2.2"
   }
 }

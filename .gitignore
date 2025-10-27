@@ -1,7 +1,9 @@
 config.js
+**/config.js
 
 # Dependencias
 node_modules/
+package-lock.json
 
 # Archivos del sistema
 .DS_Store
@@ -23,3 +25,14 @@ npm-debug.log*
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Archivos de respaldo
+*.bak
+
+# Directorios de construcción
+/dist
+/build
+
+# Archivos temporales
+*.tmp
+*.temp
