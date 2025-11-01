@@ -627,7 +627,7 @@ body {
 }
 
 .album-card {
-    background: rgba(78, 73, 73, 0.07);
+    background: rgb(78 73 73 / 3%);
     border-radius: 6px;
     padding: 16px;
     transition: background-color 0.3s ease;
@@ -833,7 +833,7 @@ body {
     padding: 15px;
     border-radius: 16px;
     transition: all 0.3s ease;
-    background: rgb(255 255 255 / 1%);
+    background: rgb(255 255 255 / 0%);
 }
 
 .artist-card:hover {
@@ -1126,19 +1126,51 @@ body {
     transform: scale(1.08);
 }
 
-.progress-bar {
-    width: 70%;
-    height: 5px;
-    background: rgba(255, 0, 255, 0.10);
-    border-radius: 4px;
-    position: relative;
-    cursor: pointer;
-    transition: all 0.3s ease;
+/* Contenedor de progreso con tiempos */
+.progress-container {
     display: flex;
     align-items: center;
-    flex-shrink: 0;
+    gap: 12px;
+    width: 100%;
+}
+
+.time-current,
+.time-total {
+    font-size: 11px;
+    color: #b3b3b3;
+    min-width: 45px;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    user-select: none;
+    font-weight: 500;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative;
+    transition: height 0.2s ease;
+}
+
+.progress-bar:hover {
+    height: 6px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #9b4bff 0%, #c77dff 100%);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.1s linear;
+    position: relative;
     opacity: 0;
-    pointer-events: none;
+}
+
+.progress-container.active .progress-fill {
+    opacity: 1;
 }
 
 .progress-bar.active {
@@ -1150,10 +1182,12 @@ body {
     height: 5px; 
 }
 
-.player-favorite-section {
+.player-right-section {
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 16px;
+    min-width: 200px;
+    justify-content: flex-end;
 }
 
 .player-favorite-btn {
@@ -1169,6 +1203,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 .player-favorite-btn:hover {
@@ -1247,7 +1282,7 @@ body {
     height: 100%;
     background: linear-gradient(90deg, #ff00ff 0%, #9b4bff 100%);
     border-radius: 4px;
-    width: 60%;
+    width: 0%;
     position: relative;
 }
 

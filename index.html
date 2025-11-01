@@ -93,8 +93,8 @@
                 <div class="search-and-profile">
                     <div class="search-bar" role="search">
                         <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
-                        <input type="search" id="searchInput" placeholder="Buscar por canción, álbum, artista o género..."
-                            aria-label="Buscar música">
+                        <input type="search" id="searchInput"
+                            placeholder="Buscar por canción, álbum, artista o género..." aria-label="Buscar música">
                         <div id="searchResults" class="search-results">
                         </div>
                     </div>
@@ -644,21 +644,25 @@
                 </button>
             </div>
 
-            <div class="progress-bar" role="slider" aria-label="Progreso de la canción">
-                <div class="progress-fill"></div>
+            <div class="progress-container">
+                <span class="time-current" id="currentTime">0:00</span>
+                <div class="progress-bar" role="slider" aria-label="Progreso de la canción">
+                    <div class="progress-fill"></div>
+                </div>
+                <span class="time-total" id="totalTime">0:00</span>
             </div>
         </div>
 
-        <div class="player-favorite-section">
+        <div class="player-right-section">
             <button class="player-favorite-btn" aria-label="Me gusta esta canción">
                 <i class="fa-solid fa-heart"></i>
             </button>
-        </div>
 
-        <div class="volume-control">
-            <span><i class="fa-solid fa-volume-high"></i></span>
-            <div class="volume-bar" role="slider" aria-label="Control de volumen">
-                <div class="volume-fill"></div>
+            <div class="volume-control">
+                <span><i class="fa-solid fa-volume-high"></i></span>
+                <div class="volume-bar" role="slider" aria-label="Control de volumen">
+                    <div class="volume-fill"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -666,7 +670,7 @@
     <!-- JavaScript -->
     <script src="js/player-video.js"></script>
     <script type="module" src="js/script.js"></script>
-    <script type="module"  src="js/spotify-service.js"></script>
+    <script type="module" src="js/spotify-service.js"></script>
     <script type="module" src="js/music-data.js"></script>
     <script type="module" src="js/player-service.js"></script>
 </body>
