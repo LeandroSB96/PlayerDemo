@@ -12,7 +12,7 @@ export const playerState = {
     currentTrackIndex: -1,
     tracks: [],
     isShuffleOn: false,
-    repeatMode: 'no-repeat', 
+    repeatMode: 'no-repeat',
     shuffledIndexes: []
 };
 
@@ -72,14 +72,13 @@ function shuffleArray(array) {
 export function toggleShuffle() {
     playerState.isShuffleOn = !playerState.isShuffleOn;
     if (playerState.isShuffleOn) {
-        // Generar nueva secuencia aleatoria
         playerState.shuffledIndexes = shuffleArray([...Array(playerState.tracks.length).keys()]);
-    
+
         if (playerState.currentTrackIndex !== -1) {
             const currentIndex = playerState.shuffledIndexes.indexOf(playerState.currentTrackIndex);
             if (currentIndex !== -1) {
-                [playerState.shuffledIndexes[0], playerState.shuffledIndexes[currentIndex]] = 
-                [playerState.shuffledIndexes[currentIndex], playerState.shuffledIndexes[0]];
+                [playerState.shuffledIndexes[0], playerState.shuffledIndexes[currentIndex]] =
+                    [playerState.shuffledIndexes[currentIndex], playerState.shuffledIndexes[0]];
             }
         }
     }
@@ -96,17 +95,17 @@ export function toggleRepeat() {
     const modes = ['no-repeat', 'repeat-all', 'repeat-one'];
     const currentIndex = modes.indexOf(playerState.repeatMode);
     playerState.repeatMode = modes[(currentIndex + 1) % modes.length];
-    
+
     // Actualizar UI
     const repeatBtn = document.querySelector('.repeat-btn');
     if (repeatBtn) {
         repeatBtn.classList.remove('no-repeat', 'repeat-all', 'repeat-one');
         repeatBtn.classList.add(playerState.repeatMode);
-        
+
         // Actualizar el ícono según el modo
         const icon = repeatBtn.querySelector('i');
         if (icon) {
-            icon.className = playerState.repeatMode === 'repeat-one' ? 
+            icon.className = playerState.repeatMode === 'repeat-one' ?
                 'fas fa-repeat-1' : 'fas fa-repeat';
         }
     }
@@ -134,14 +133,14 @@ export function playTrack(index) {
         console.error('Índice de pista inválido:', index);
         return;
     }
-    
+
     const track = playerState.tracks[index];
     const audioFile = track.audioFile || track.dataset?.localAudio;
     if (!audioFile) {
         console.error('No se encontró el archivo de audio para la pista:', track);
         return;
     }
-    
+
     console.log('Intentando reproducir pista:', {
         title: track.title || track.dataset?.title,
         artist: track.artist,
@@ -182,16 +181,16 @@ export function playTrack(index) {
 
         volumeBar.addEventListener('mousedown', (e) => {
             updateVolume(e);
-            
+
             const onMouseMove = (moveEvent) => {
                 updateVolume(moveEvent);
             };
-            
+
             const onMouseUp = () => {
                 document.removeEventListener('mousemove', onMouseMove);
                 document.removeEventListener('mouseup', onMouseUp);
             };
-            
+
             document.addEventListener('mousemove', onMouseMove);
             document.addEventListener('mouseup', onMouseUp);
         });
@@ -199,20 +198,34 @@ export function playTrack(index) {
         volumeBar.addEventListener('click', updateVolume);
     }
 
+    // ESPERAR A QUE SE CARGUE LA METADATA ANTES DE ACTUALIZAR
+    audio.addEventListener('loadedmetadata', () => {
+        const totalTimeEl = document.getElementById('totalTime');
+        if (totalTimeEl) totalTimeEl.textContent = formatTime(audio.duration);
+
+        // Resetear barra de progreso
+        const progressFill = document.querySelector('.progress-fill');
+        if (progressFill) {
+            progressFill.style.width = '0%';
+        }
+    });
+
     // Eventos del audio
     audio.addEventListener('ended', playNextTrack);
     audio.addEventListener('timeupdate', () => {
-        const progress = (audio.currentTime / audio.duration) * 100;
-        const progressFill = document.querySelector('.progress-fill');
-        if (progressFill) {
-            progressFill.style.width = `${progress}%`;
-        }
+        // SOLO actualizar si duration está disponible
+        if (!isNaN(audio.duration) && isFinite(audio.duration)) {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            const progressFill = document.querySelector('.progress-fill');
+            if (progressFill) {
+                progressFill.style.width = `${progress}%`;
+            }
 
-        // Actualizar tiempos
-        const currentTime = document.getElementById('currentTime');
-        const totalTime = document.getElementById('totalTime');
-        if (currentTime) currentTime.textContent = formatTime(audio.currentTime);
-        if (totalTime) totalTime.textContent = formatTime(audio.duration);
+            const currentTime = document.getElementById('currentTime');
+            const totalTime = document.getElementById('totalTime');
+            if (currentTime) currentTime.textContent = formatTime(audio.currentTime);
+            if (totalTime) totalTime.textContent = formatTime(audio.duration);
+        }
     });
 
     // Actualizar UI
@@ -272,7 +285,7 @@ export function togglePlay() {
     if (!playerState.currentAudio) return;
 
     const playBtn = document.querySelector('.play-btn i');
-    
+
     if (playerState.currentAudio.paused) {
         playerState.currentAudio.play()
             .then(() => {
@@ -313,70 +326,70 @@ export function setupPlayerControls() {
     });
 }
 
-    // Inicializar controles de progreso
-    function initializeProgressBar() {
-        const progressBar = document.querySelector('.progress-bar');
-        const progressFill = document.querySelector('.progress-fill');
-        const currentTime = document.getElementById('currentTime');
-        const totalTime = document.getElementById('totalTime');
+// Inicializar controles de progreso
+function initializeProgressBar() {
+    const progressBar = document.querySelector('.progress-bar');
+    const progressFill = document.querySelector('.progress-fill');
+    const currentTime = document.getElementById('currentTime');
+    const totalTime = document.getElementById('totalTime');
 
-        if (progressBar && progressFill) {
-            const updateProgressBar = (e) => {
-                if (!playerState.currentAudio) return;
-                const rect = progressBar.getBoundingClientRect();
-                const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-                const duration = playerState.currentAudio.duration;
-                if (!isNaN(duration)) {
-                    playerState.currentAudio.currentTime = percent * duration;
-                }
+    if (progressBar && progressFill) {
+        const updateProgressBar = (e) => {
+            if (!playerState.currentAudio) return;
+            const rect = progressBar.getBoundingClientRect();
+            const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            const duration = playerState.currentAudio.duration;
+            if (!isNaN(duration)) {
+                playerState.currentAudio.currentTime = percent * duration;
+            }
+        };
+
+        // Manejar clicks y arrastre en la barra de progreso
+        progressBar.addEventListener('mousedown', (e) => {
+            updateProgressBar(e);
+
+            const onMouseMove = (moveEvent) => {
+                moveEvent.preventDefault();
+                updateProgressBar(moveEvent);
             };
 
-            // Manejar clicks y arrastre en la barra de progreso
-            progressBar.addEventListener('mousedown', (e) => {
-                updateProgressBar(e);
-                
-                const onMouseMove = (moveEvent) => {
-                    moveEvent.preventDefault();
-                    updateProgressBar(moveEvent);
-                };
-                
-                const onMouseUp = () => {
-                    document.removeEventListener('mousemove', onMouseMove);
-                    document.removeEventListener('mouseup', onMouseUp);
-                };
-                
-                document.addEventListener('mousemove', onMouseMove);
-                document.addEventListener('mouseup', onMouseUp);
-            });
+            const onMouseUp = () => {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            };
 
-            progressBar.addEventListener('click', updateProgressBar);
-        }
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
 
-        // Actualizar progreso durante la reproducción
-        if (playerState.currentAudio) {
-            playerState.currentAudio.addEventListener('timeupdate', () => {
-                if (!playerState.currentAudio) return;
-                
-                const current = playerState.currentAudio.currentTime;
-                const duration = playerState.currentAudio.duration;
-                
-                if (!isNaN(duration) && progressFill) {
-                    const progress = (current / duration) * 100;
-                    progressFill.style.width = `${progress}%`;
-                }
+        progressBar.addEventListener('click', updateProgressBar);
+    }
 
-                if (currentTime) {
-                    currentTime.textContent = formatTime(current);
-                }
-                if (totalTime) {
-                    totalTime.textContent = formatTime(duration);
-                }
-            });
-        }
+    // Actualizar progreso durante la reproducción
+    if (playerState.currentAudio) {
+        playerState.currentAudio.addEventListener('timeupdate', () => {
+            if (!playerState.currentAudio) return;
+
+            const current = playerState.currentAudio.currentTime;
+            const duration = playerState.currentAudio.duration;
+
+            if (!isNaN(duration) && progressFill) {
+                const progress = (current / duration) * 100;
+                progressFill.style.width = `${progress}%`;
+            }
+
+            if (currentTime) {
+                currentTime.textContent = formatTime(current);
+            }
+            if (totalTime) {
+                totalTime.textContent = formatTime(duration);
+            }
+        });
+    }
 }// Actualización de progreso
 function updateProgress() {
     if (!playerState.currentAudio) return;
-    
+
     const progress = (playerState.currentAudio.currentTime / playerState.currentAudio.duration) * 100;
     const progressFill = document.querySelector('.progress-fill');
     if (progressFill) {

@@ -12,6 +12,9 @@ body {
     min-height: 100vh;
     overflow-x: hidden;
     overflow-y: auto;
+    position: fixed;
+    width: 100%; 
+    height: 100vh; 
 }
 
 .container {
@@ -20,6 +23,7 @@ body {
     position: relative;
     padding-bottom: 80px;
     overflow: hidden;
+    width: 100%;
 }
 
 /* Logo del sitio */
@@ -165,7 +169,8 @@ body {
     display: flex;
     flex-direction: column;
     height: 100%;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 /* Header simple */
@@ -543,6 +548,7 @@ body {
     padding: 30px;
     overflow-y: auto;
     flex: 1;
+    
 }
 
 .hero-section {
@@ -928,7 +934,7 @@ body {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: linear-gradient(45deg, #9b4bff, #1a1464);
+    background: linear-gradient(45deg, #ff00ff 0%, #9b4bff 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1013,13 +1019,16 @@ body {
     backdrop-filter: blur(20px);
     z-index: 1000;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
-    height: 90px; /* Cambia min-height por height fija */
+    height: 90px; 
 }
 
 .player-album-section {
     display: flex;
     align-items: center;
     min-width: 200px;
+    max-width: 250px; 
+    width: 200px;
+    flex-shrink: 0;
 }
 
 .player-album-container {
@@ -1030,6 +1039,8 @@ body {
     transform: translateX(-20px);
     transition: all 0.4s ease;
     pointer-events: none;
+    width: 100%; 
+    overflow: hidden; 
 }
 
 .player-album-container.active {
@@ -1052,6 +1063,8 @@ body {
     flex-direction: column;
     gap: 4px;
     min-width: 0;
+    flex: 1; 
+    overflow: hidden; 
 }
 
 .player-track-name,
@@ -1060,6 +1073,7 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 100%; 
 }
 
 .player-track-name {
@@ -1599,6 +1613,8 @@ body {
     height: 100%;
     overflow-y: auto;
     background: linear-gradient(180deg, rgba(26, 26, 46, 0.9) 0%, rgba(15, 15, 35, 1) 300px);
+    
+
 }
 
 .album-page-header {
@@ -1695,14 +1711,16 @@ body {
     margin-top: 40px;
 }
 
-.album-actions {
+.album-actions,
+.favorites-page .album-actions {
     margin-bottom: 32px;
     display: flex;
     align-items: center;
     gap: 24px;
 }
 
-.play-album-btn {
+.play-album-btn,
+.favorite-album-btn {
     width: 56px;
     height: 56px;
     border-radius: 50%;
@@ -1717,13 +1735,53 @@ body {
     justify-content: center;
 }
 
-.play-album-btn:hover {
-    transform: scale(1.06);
-    background: linear-gradient(131deg, rgba(115, 59, 161, 1) 31%, rgba(207, 9, 253, 1) 71%);
+/* Botones de acciones - Compartidos entre álbum y favoritos */
+.album-actions,
+.favorites-page .album-actions {
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
 }
 
+/* Botón de reproducir principal (álbum y favoritos) */
+.play-album-btn,
+.play-favorites-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(131deg, rgba(115, 59, 161, 1) 31%, rgba(207, 9, 253, 1) 71%);
+    border: none;
+    color: #f5f3f3;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.play-album-btn:hover,
+.play-favorites-btn:hover {
+    transform: scale(1.06);
+    box-shadow: 
+        0 0 20px rgba(155, 75, 255, 0.5),
+        0 0 40px rgba(155, 75, 255, 0.3),
+        0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.play-album-btn:active,
+.play-favorites-btn:active {
+    transform: scale(0.95);
+}
+
+/* Botones secundarios (favorito, shuffle, etc.) */
 .favorite-album-btn,
-.shuffle-album-btn {
+.shuffle-album-btn,
+.shuffle-favorites-btn,
+.clear-favorites-btn {
     width: 48px;
     height: 48px;
     border-radius: 50%;
@@ -1736,23 +1794,81 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    overflow: hidden;
 }
 
 .favorite-album-btn:hover,
-.shuffle-album-btn:hover {
+.shuffle-album-btn:hover,
+.shuffle-favorites-btn:hover {
     border-color: rgba(255, 255, 255, 0.4);
     color: #fff;
     transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
 }
 
+/* Efecto ripple al hacer click */
+.album-actions button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.album-actions button:active::after {
+    width: 100px;
+    height: 100px;
+}
+
+/* Botón de favorito activo */
 .favorite-album-btn.active {
     color: #ff0066;
     border-color: #ff0066;
+    background: rgba(255, 0, 102, 0.1);
 }
 
-.shuffle-album-btn.active {
+.favorite-album-btn.active:hover {
+    background: rgba(255, 0, 102, 0.15);
+    border-color: #ff3385;
+}
+
+/* Botón de shuffle activo */
+.shuffle-album-btn.active,
+.shuffle-favorites-btn.active {
     color: #b633bd;
     border-color: #ab1db9;
+    background: rgba(182, 51, 189, 0.1);
+}
+
+.shuffle-album-btn.active:hover,
+.shuffle-favorites-btn.active:hover {
+    background: rgba(182, 51, 189, 0.15);
+    border-color: #c844d6;
+}
+
+/* Botón de limpiar favoritos (estilo especial) */
+.clear-favorites-btn {
+    border-color: rgba(255, 69, 69, 0.3);
+    color: #ff4545;
+}
+
+.clear-favorites-btn:hover {
+    background: rgba(255, 69, 69, 0.1);
+    border-color: rgba(255, 69, 69, 0.6);
+    color: #ff6666;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(255, 69, 69, 0.3);
+}
+
+.clear-favorites-btn:active {
+    transform: scale(0.95);
 }
 
 .album-recommendations {
@@ -2095,4 +2211,54 @@ body {
     .track-artists {
         font-size: 12px;
     }
+
+.notification {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 10000;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Ícono de favoritos en la página de favoritos */
+.favorites-icon {
+    width: 232px;
+    height: 232px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 75, 155, 0.1);
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+/* Estilos para la página de favoritos */
+.favorites-page .album-page-header {
+    background: linear-gradient(180deg, rgba(255, 75, 155, 0.3) 0%, rgba(26, 26, 46, 0.8) 100%) !important;
+}
+
+/* Ajustes responsivos para notificaciones */
+@media (max-width: 768px) {
+    .notification {
+        bottom: 90px;
+        padding: 12px 24px;
+        font-size: 13px;
+    }
+}
 }
