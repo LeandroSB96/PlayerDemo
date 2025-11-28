@@ -1,7 +1,7 @@
 export const localAlbums = [
     {
         id: 'nada-personal',
-        title: 'Nada Personal',
+        title: 'Nada Personal (Remastered)',
         artist: 'Soda Stereo',
         year: 1985,
         cover: 'assets/covers-img/popular-albums/nada-personal.webp',
@@ -22,7 +22,7 @@ export const localAlbums = [
     },
     {
         id: 'violator',
-        title: 'Violator',
+        title: 'Violator (Deluxe)',
         artist: 'Depeche Mode',
         year: 1990,
         cover: 'assets/covers-img/popular-albums/Depeche-Mode-Violator.webp',
@@ -38,7 +38,13 @@ export const localAlbums = [
             { id: "track 6", title: "Enjoy The Silence", duration: "6:13", audioFile: 'assets/audio/albums/Depeche Mode - Violator/06 - Enjoy the Silence.mp3' },
             { id: "track 7", title: "Policy Of Truth", duration: "4:54", audioFile: 'assets/audio/albums/Depeche Mode - Violator/07 - Policy of Truth.mp3' },
             { id: "track 8", title: "Blue Dress", duration: "5:38", audioFile: 'assets/audio/albums/Depeche Mode - Violator/08 - Blue Dress.mp3' },
-            { id: "track 9", title: "Clean", duration: "5:33", audioFile: 'assets/audio/albums/Depeche Mode - Violator/09 - Clean.mp3' }
+            { id: "track 9", title: "Clean", duration: "5:33", audioFile: 'assets/audio/albums/Depeche Mode - Violator/09 - Clean.mp3' },
+            { id: "track 10", title: "Dangerous", duration: "4:22", audioFile: 'assets/audio/albums/Depeche Mode - Violator/10 - Dangerous.mp3' },
+            { id: "track 11", title: "Memphisto", duration: "4:08", audioFile: 'assets/audio/albums/Depeche Mode - Violator/11 - Memphisto.mp3' },
+            { id: "track 12", title: "Silbeling", duration: "3:17", audioFile: 'assets/audio/albums/Depeche Mode - Violator/12 - Sibeling.mp3' },
+            { id: "track 13", title: "Kaleid (7 Version)", duration: "4:17", audioFile: 'assets/audio/albums/Depeche Mode - Violator/13 - Kaleid (7" Version).mp3' },
+            { id: "track 14", title: "Happiest Girl (Jack Mix)", duration: "4:57", audioFile: 'assets/audio/albums/Depeche Mode - Violator/14 - Happiest Girl (Jack Mix).mp3' },
+            { id: "track 15", title: "Sea Of Sins (Tonal Mix)", duration: "4:44", audioFile: 'assets/audio/albums/Depeche Mode - Violator/15 - Sea of Sin(Tonal Mix).mp3' }
         ]
     },
     {

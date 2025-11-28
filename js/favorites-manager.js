@@ -1,24 +1,35 @@
+// Gestor de Favoritos con Storage Persistente
 class FavoritesManager {
     constructor() {
         this.storageKey = 'musicPlayerFavorites';
-        this.favorites = this.loadFavorites();
+        this.favorites = [];
+        this.initialized = false;
     }
 
-    // Cargar favoritos desde localStorage
-    loadFavorites() {
+    // Cargar favoritos desde storage persistente
+    async loadFavorites() {
         try {
-            const saved = localStorage.getItem(this.storageKey);
-            return saved ? JSON.parse(saved) : [];
+            const saved = await window.storage.get(this.storageKey);
+            if (saved && saved.value) {
+                this.favorites = JSON.parse(saved.value);
+            } else {
+                this.favorites = [];
+            }
+            this.initialized = true;
+            console.log('✅ Favoritos cargados:', this.favorites.length);
+            return this.favorites;
         } catch (error) {
             console.error('Error cargando favoritos:', error);
+            this.favorites = [];
+            this.initialized = true;
             return [];
         }
     }
 
-    // Guardar favoritos en localStorage
-    saveFavorites() {
+    // Guardar favoritos en storage persistente
+    async saveFavorites() {
         try {
-            localStorage.setItem(this.storageKey, JSON.stringify(this.favorites));
+            await window.storage.set(this.storageKey, JSON.stringify(this.favorites));
             console.log('✅ Favoritos guardados:', this.favorites.length);
         } catch (error) {
             console.error('Error guardando favoritos:', error);
@@ -32,17 +43,17 @@ class FavoritesManager {
     }
 
     // Agregar una canción a favoritos
-    addFavorite(track) {
+    async addFavorite(track) {
         const trackId = this.createTrackId(track.name, track.artist, track.album);
 
-        // si existe
+        // Verificar si existe
         const exists = this.favorites.some(fav => fav.id === trackId);
         if (exists) {
             console.log('⚠️ La canción ya está en favoritos');
             return false;
         }
 
-        // Crea el objeto de favorito
+        // Crear el objeto de favorito
         const favorite = {
             id: trackId,
             name: track.name,
@@ -55,20 +66,20 @@ class FavoritesManager {
         };
 
         this.favorites.push(favorite);
-        this.saveFavorites();
+        await this.saveFavorites();
         console.log('❤️ Agregado a favoritos:', track.name);
         return true;
     }
 
     // Remover una canción de favoritos
-    removeFavorite(trackName, artistName, albumName) {
+    async removeFavorite(trackName, artistName, albumName) {
         const trackId = this.createTrackId(trackName, artistName, albumName);
         const initialLength = this.favorites.length;
 
         this.favorites = this.favorites.filter(fav => fav.id !== trackId);
 
         if (this.favorites.length < initialLength) {
-            this.saveFavorites();
+            await this.saveFavorites();
             console.log('💔 Removido de favoritos:', trackName);
             return true;
         }
@@ -83,11 +94,11 @@ class FavoritesManager {
     }
 
     // Toggle: agregar o remover según el estado actual
-    toggleFavorite(track) {
+    async toggleFavorite(track) {
         if (this.isFavorite(track.name, track.artist, track.album)) {
-            return this.removeFavorite(track.name, track.artist, track.album);
+            return await this.removeFavorite(track.name, track.artist, track.album);
         } else {
-            return this.addFavorite(track);
+            return await this.addFavorite(track);
         }
     }
 
@@ -120,10 +131,10 @@ class FavoritesManager {
         );
     }
 
-    // Limpiar todos los favoritos (con confirmación)
-    clearAllFavorites() {
+    // Limpiar todos los favoritos
+    async clearAllFavorites() {
         this.favorites = [];
-        this.saveFavorites();
+        await window.storage.delete(this.storageKey);
         console.log('🗑️ Todos los favoritos eliminados');
     }
 
@@ -138,12 +149,12 @@ class FavoritesManager {
     }
 
     // Importar favoritos desde JSON
-    importFavorites(jsonString) {
+    async importFavorites(jsonString) {
         try {
             const imported = JSON.parse(jsonString);
             if (Array.isArray(imported)) {
                 this.favorites = imported;
-                this.saveFavorites();
+                await this.saveFavorites();
                 return true;
             }
         } catch (error) {
@@ -155,7 +166,3 @@ class FavoritesManager {
 
 // Exportar una instancia única
 export const favoritesManager = new FavoritesManager();
-
-
-
-

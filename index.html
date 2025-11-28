@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="styles.css">
     <script type="module" src="js/script.js"></script>
     <title>Player Demo</title>
+    <link rel="icon" type="image/icon" href="assets/images/logo-img/logo-disc.ico">
 </head>
 
 <body>
@@ -63,9 +64,9 @@
                     <span class="menu-icon"><i class="fa-solid fa-microphone"></i></span>
                     Artistas
                 </a>
-                <a href="#" class="menu-item">
+                <a href="#" class="menu-item" id="playlistsNavBtn">
                     <span class="menu-icon"><i class="fa-solid fa-list"></i></span>
-                    Playlists
+                    Playlists (<span class="playlists-counter">0</span>)
                 </a>
             </div>
 
@@ -145,7 +146,7 @@
                                 <button class="album-play-btn" aria-label="Reproducir álbum"></button>
                             </div>
                             <div class="album-info">
-                                <h3 class="album-title">Violator</h3>
+                                <h3 class="album-title">Violator (Deluxe)</h3>
                                 <p class="album-artist">Depeche Mode</p>
                                 <p class="album-year">1990</p>
                             </div>
@@ -414,17 +415,17 @@
 
                     <div class="videos-grid">
                         <article class="video-card"
-                            data-video-src="assets/videos/Depeche Mode - World in My Eyes (Official Video).mp4">
+                            data-video-src="assets/videos/CA7RIEL & Paco Amoroso - EL ÚNICO.webm">
                             <div class="video-thumb-container">
                                 <img class="video-thumb"
-                                    src="assets/images/video-covers/Depeche Mode - World In My Eyes.webp"
-                                    alt="Miniatura World in My Eyes" loading="lazy">
+                                    src="assets/images/video-covers/paco y catriel- el unico.webp"
+                                    alt="Miniatura El Unico" loading="lazy">
                                 <button class="video-play-btn" aria-label="Reproducir video"></button>
                             </div>
                             <div class="video-info">
                                 <div class="video-text">
-                                    <div class="video-title">World In My Eyes</div>
-                                    <div class="video-artist">Depeche Mode</div>
+                                    <div class="video-title">EL ÚNICO</div>
+                                    <div class="video-artist">Ca7riel & Paco Amoroso</div>
                                 </div>
                                 <div class="video-duration">4:32</div>
                             </div>
@@ -654,25 +655,31 @@
         </div>
 
         <div class="player-right-section">
-            <button class="player-favorite-btn" aria-label="Me gusta esta canción">
-                <i class="fa-solid fa-heart"></i>
+            <button class="player-favorite-btn" aria-label="Me gusta">
+                <i class="fa-regular fa-heart"></i>
             </button>
-
+        
+            <button class="player-add-playlist-btn" aria-label="Agregar a playlist">
+                <i class="fa-solid fa-plus"></i>
+            </button>
             <div class="volume-control">
                 <span><i class="fa-solid fa-volume-high"></i></span>
-                <div class="volume-bar" role="slider" aria-label="Control de volumen">
+                <div class="volume-bar">
                     <div class="volume-fill"></div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- JavaScript -->
-    <script src="js/player-video.js"></script>
-    <script type="module" src="js/script.js"></script>
-    <script type="module" src="js/spotify-service.js"></script>
-    <script type="module" src="js/music-data.js"></script>
-    <script type="module" src="js/player-service.js"></script>
+        <!-- JavaScript -->
+        <script src="js/player-video.js"></script>
+        <script type="module" src="js/playlist-system.js"></script>
+        <script type="module" src="js/playlist-ui.js"></script>
+        <script type="module" src="js/script.js"></script>
+        <script type="module" src="js/spotify-service.js"></script>
+        <script type="module" src="js/music-data.js"></script>
+        <script type="module" src="js/player-service.js"></script>
+        <script type="module" src="js/explore-page.js"></script>
+
 </body>
 
 </html>
