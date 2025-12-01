@@ -1,9 +1,11 @@
+// Importar módulos 
 import { spotifyService } from './spotify-service.js';
 import { localAlbums } from './music-data.js';
 import { favoritesManager } from './favorites-manager.js';
 import { playlistSystem } from './playlist-system.js';
 import { showPlaylistModal, showPlaylistsPage } from './playlist-ui.js';
 import { showExplorePage } from './explore-page.js';
+import { showArtistsPage } from './artists-page.js';
 
 // Función para formatear tiempo en mm:ss
 function formatTime(seconds) {
@@ -200,8 +202,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
-    // FUNCIONES DELEGADAS PARA PLAYLISTS - Usar nuevo sistema
-    // Handler para botón + en reproductor, filas y álbumes
+    // FUNCIONES DELEGADAS PARA PLAYLISTS 
     document.body.addEventListener('click', function (e) {
         const playlistBtn = e.target.closest('.player-add-playlist-btn, .track-add-playlist-btn, .album-add-playlist-btn');
         if (playlistBtn) {
@@ -325,7 +326,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Listener para reproducir track específico de playlist
     window.addEventListener('playlist:playTrack', (e) => {
         const { playlistId, track } = e.detail;
-        // currentPlaylist ya está configurado por la página de detalle
         // Solo necesitamos encontrar el índice y reproducir
         const idx = currentPlaylist.findIndex(t => t.audioFile === track.audioFile);
         if (idx >= 0) {
@@ -333,6 +333,128 @@ document.addEventListener('DOMContentLoaded', async function () {
             playTrack(idx);
         }
     });
+
+    // FUNCIONES DE FAVORITOS
+    function showEmptyFavoritesPage() {
+        const existingPages = document.querySelectorAll('.album-page, .favorites-page, .playlists-page, .explore-page, .artists-page');
+        existingPages.forEach(page => page.remove());
+
+        // Ocultar contenido principal
+        document.querySelector('.content').style.display = 'none';
+
+        // Crear página de favoritos vacía
+        const emptyFavoritesPage = document.createElement('div');
+        emptyFavoritesPage.className = 'favorites-page album-page';
+        emptyFavoritesPage.innerHTML = `
+        <div class="album-page-header" style="background: linear-gradient(180deg, rgba(255, 75, 155, 0.3) 0%, rgba(26, 26, 46, 0.8) 100%);">
+            <button class="back-button">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <div class="album-page-hero">
+                <div class="favorites-icon" style="width: 232px; height: 232px; display: flex; align-items: center; justify-content: center; background: rgba(255, 75, 155, 0.1); border-radius: 8px;">
+                    <i class="fa-solid fa-heart" style="font-size: 120px; color: #ff4b9b;"></i>
+                </div>
+                <div class="album-page-info">
+                    <span class="album-page-type">TU COLECCIÓN</span>
+                    <h1 class="album-page-title">Favoritos</h1>
+                    <div class="album-page-meta">
+                        <span>0 canciones</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="album-page-content">
+            <div class="empty-favorites-state" style="text-align: center; padding: 80px 20px; max-width: 600px; margin: 0 auto;">
+                <div style="font-size: 80px; margin-bottom: 24px; opacity: 0.5;">
+                    <i class="fa-regular fa-heart"></i>
+                </div>
+                <h2 style="color: #fff; font-size: 32px; font-weight: 700; margin-bottom: 16px;">
+                    No tienes favoritos aún
+                </h2>
+                <p style="color: #b3b3b3; font-size: 16px; line-height: 1.6; margin-bottom: 32px;">
+                    Empieza a construir tu colección de canciones favoritas. 
+                    Dale clic al corazón ❤️ en cualquier canción que te guste y aparecerá aquí.
+                </p>
+                <button class="explore-music-btn" style="padding: 14px 32px; background: linear-gradient(131deg, rgba(115, 59, 161, 1) 31%, rgba(207, 9, 253, 1) 71%); border: none; border-radius: 25px; color: white; font-weight: 600; font-size: 16px; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-music"></i>
+                    Explorar Música
+                </button>
+            </div>
+        </div>
+
+        <footer class="site-footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <div class="logo-icon">
+                            <img src="assets/images/logo-img/logo-disc.webp" alt="Logo Player Demo" />
+                        </div>
+                        <span class="logo-text">Player <span class="highlight">Demo</span></span>
+                    </div>
+                    <p style="color: #b3b3b3; margin-bottom: 20px;">Tu música favorita, siempre con vos.</p>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon" aria-label="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-icon" aria-label="Twitter">
+                            <i class="fa-brands fa-x-twitter"></i>
+                        </a>
+                        <a href="#" class="social-icon" aria-label="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="social-icon" aria-label="YouTube">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h3 class="footer-title">Recursos</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Acerca de Nosotros</a></li>
+                        <li><a href="#">Planes Premium</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h3 class="footer-title">Comunidad</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Eventos</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h3 class="footer-title">Ayuda</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Soporte</a></li>
+                        <li><a href="#">Contacto</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Player Demo. Todos los derechos reservados.</p>
+            </div>
+        </footer>
+    `;
+
+        const mainContent = document.querySelector('.main-content');
+        mainContent.appendChild(emptyFavoritesPage);
+        mainContent.scrollTop = 0;
+
+        // Botón de regresar
+        emptyFavoritesPage.querySelector('.back-button').addEventListener('click', () => {
+            emptyFavoritesPage.remove();
+            document.querySelector('.content').style.display = 'block';
+        });
+
+        // Botón de explorar música
+        emptyFavoritesPage.querySelector('.explore-music-btn').addEventListener('click', () => {
+            emptyFavoritesPage.remove();
+            document.querySelector('.content').style.display = 'block';
+        });
+    }
 
     // FUNCIONES DE FAVORITOS
     function showFavoritesPage() {
@@ -345,8 +467,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const favorites = favoritesManager.getFavoritesByDate();
 
         if (favorites.length === 0) {
-            alert('No tienes canciones favoritas aún');
-            document.querySelector('.content').style.display = 'block';
+            showEmptyFavoritesPage();
             return;
         }
 
@@ -355,78 +476,80 @@ document.addEventListener('DOMContentLoaded', async function () {
         const favoritesPage = document.createElement('div');
         favoritesPage.className = 'favorites-page album-page';
         favoritesPage.innerHTML = `
-            <div class="album-page-header" style="background: linear-gradient(180deg, rgba(255, 75, 155, 0.3) 0%, rgba(26, 26, 46, 0.8) 100%);">
-                <button class="back-button">
-                    <i class="fa-solid fa-arrow-left"></i>
-                </button>
-                <div class="album-page-hero">
-                    <div class="favorites-icon">
-                        <i class="fa-solid fa-heart" style="font-size: 120px; color: #ff4b9b;"></i>
-                    </div>
-                    <div class="album-page-info">
-                        <span class="album-page-type">PLAYLIST</span>
-                        <h1 class="album-page-title">Tus Favoritos</h1>
-                        <div class="album-page-meta">
-                            <span>${favorites.length} canciones</span>
-                        </div>
+        <div class="album-page-header" style="background: linear-gradient(180deg, rgba(255, 75, 155, 0.3) 0%, rgba(26, 26, 46, 0.8) 100%);">
+            <button class="back-button">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <div class="album-page-hero">
+                <div class="favorites-icon">
+                    <i class="fa-solid fa-heart" style="font-size: 120px; color: #ff4b9b;"></i>
+                </div>
+                <div class="album-page-info">
+                    <span class="album-page-type">PLAYLIST</span>
+                    <h1 class="album-page-title">Tus Favoritos</h1>
+                    <div class="album-page-meta">
+                        <span>${favorites.length} canciones</span>
                     </div>
                 </div>
+            </div>
+        </div>
+        
+        <div class="album-page-content">
+            <div class="album-actions">
+                <button class="play-favorites-btn">
+                    <i class="fa-solid fa-play"></i>
+                </button>
+                <button class="shuffle-favorites-btn" aria-label="Aleatorio">
+                    <i class="fa-solid fa-shuffle"></i>
+                </button>
+                <button class="clear-favorites-btn" aria-label="Limpiar favoritos">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
             </div>
             
-            <div class="album-page-content">
-                <div class="album-actions">
-                    <button class="play-favorites-btn">
-                        <i class="fa-solid fa-play"></i>
-                    </button>
-                    <button class="shuffle-favorites-btn" aria-label="Aleatorio">
-                        <i class="fa-solid fa-shuffle"></i>
-                    </button>
-                    <button class="clear-favorites-btn" aria-label="Limpiar favoritos">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
+            <div class="album-tracks-list">
+                <div class="tracks-header">
+                    <span class="track-col-number">#</span>
+                    <span class="track-col-title">Título</span>
+                    <span class="track-col-album">Álbum</span>
+                    <span class="track-col-heart"></span>
+                    <span class="track-col-duration"><i class="fa-regular fa-clock"></i></span>
                 </div>
-                
-                <div class="album-tracks-list">
-                    <div class="tracks-header">
-                        <span class="track-col-number">#</span>
-                        <span class="track-col-title">Título</span>
-                        <span class="track-col-album">Álbum</span>
-                        <span class="track-col-heart"></span>
-                        <span class="track-col-duration"><i class="fa-regular fa-clock"></i></span>
-                    </div>
-                    ${favorites.map((track, index) => `
-                        <div class="track-row" 
-                            data-local-audio="${track.audioFile || ''}"
-                            data-track-index="${index}">
-                            <span class="track-col-number" data-number="${index + 1}"></span>
-                            <div class="track-col-title">
-                                <span class="track-name">${track.name}</span>
-                                <span class="track-artists">${track.artist}</span>
-                            </div>
-                            <div class="track-col-album">
-                                <span>${track.album}</span>
-                            </div>
-                            <div class="track-col-heart">
-                                <button class="track-favorite-btn active" aria-label="Quitar de favoritos">
-                                    <i class="fa-solid fa-heart"></i>
-                                </button>
-                            </div>
-                            <span class="track-col-duration">${track.duration}</span>
+                ${favorites.map((track, index) => `
+                    <div class="track-row" 
+                        data-local-audio="${track.audioFile || ''}"
+                        data-track-index="${index}">
+                        <span class="track-col-number" data-number="${index + 1}"></span>
+                        <div class="track-col-title">
+                            <span class="track-name">${track.name}</span>
+                            <span class="track-artists">${track.artist}</span>
                         </div>
-                    `).join('')}
-                </div>
+                        <div class="track-col-album">
+                            <span>${track.album}</span>
+                        </div>
+                        <div class="track-col-heart">
+                            <button class="track-favorite-btn active" aria-label="Quitar de favoritos">
+                                <i class="fa-solid fa-heart"></i>
+                            </button>
+                        </div>
+                        <span class="track-col-duration">${track.duration}</span>
+                    </div>
+                `).join('')}
             </div>
-        `;
+        </div>
+    `;
 
         const mainContent = document.querySelector('.main-content');
         mainContent.appendChild(favoritesPage);
         mainContent.scrollTop = 0;
 
+        // Botón de regresar
         favoritesPage.querySelector('.back-button').addEventListener('click', () => {
             favoritesPage.remove();
             document.querySelector('.content').style.display = 'block';
         });
 
+        // Crear playlist de tracks
         const trackRows = favoritesPage.querySelectorAll('.track-row');
         currentPlaylist = favorites.map((track, idx) => ({
             audioFile: track.audioFile,
@@ -437,6 +560,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             row: trackRows[idx]
         }));
 
+        // Clicks en tracks
         trackRows.forEach((row, index) => {
             row.addEventListener('click', function () {
                 const audioFile = this.getAttribute('data-local-audio');
@@ -447,21 +571,26 @@ document.addEventListener('DOMContentLoaded', async function () {
             });
         });
 
+        // Botones de favoritos individuales
         const favBtns = favoritesPage.querySelectorAll('.track-favorite-btn');
         favBtns.forEach((btn, index) => {
             btn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 const track = favorites[index];
-                favoritesManager.removeFavorite(track.name, track.artist, track.album);
-                showNotification('💔 Removido de favoritos');
-                updateFavoritesCounter();
-                favoritesPage.remove();
-                showFavoritesPage();
+
+                if (confirm(`¿Deseas eliminar "${track.name}" de tus favoritos?`)) {
+                    favoritesManager.removeFavorite(track.name, track.artist, track.album);
+                    showNotification('💔 Removido de favoritos');
+                    updateFavoritesCounter();
+                    favoritesPage.remove();
+                    showFavoritesPage();
+                }
             });
         });
 
+        // Botón de limpiar todos los favoritos
         favoritesPage.querySelector('.clear-favorites-btn').addEventListener('click', () => {
-            if (confirm('¿Eliminar todos los favoritos?')) {
+            if (confirm('¿Eliminar todos los favoritos? Esta acción no se puede deshacer.')) {
                 favoritesManager.clearAllFavorites();
                 favoritesPage.remove();
                 document.querySelector('.content').style.display = 'block';
@@ -470,6 +599,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         });
 
+        // Botón de reproducir
         const playFavoritesBtn = favoritesPage.querySelector('.play-favorites-btn');
         if (playFavoritesBtn) {
             playFavoritesBtn.addEventListener('click', (e) => {
@@ -495,6 +625,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             });
         }
 
+        // Botón de shuffle
         const shuffleFavoritesBtn = favoritesPage.querySelector('.shuffle-favorites-btn');
         if (shuffleFavoritesBtn) {
             shuffleFavoritesBtn.addEventListener('click', () => {
@@ -1020,11 +1151,20 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (exploreNavBtn) {
             exploreNavBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
-                await showExplorePage(showAlbumPage); 
+                await showExplorePage(showAlbumPage);
             });
         }
 
-        
+        // Botón de Artistas en el sidebar
+        const artistsNavBtn = document.querySelectorAll('.menu-item')[4];
+        if (artistsNavBtn) {
+            artistsNavBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                await showArtistsPage();
+            });
+        }
+
+        // Búsqueda global
         const searchInput = document.querySelector('.search-bar input[type="search"]');
         const searchResults = document.createElement('div');
         searchResults.className = 'search-results';
@@ -1188,6 +1328,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         });
     }
+
     // Botón de agregar a playlist en el reproductor
     const playerAddToPlaylistBtn = document.querySelector('.player-add-playlist-btn');
     if (playerAddToPlaylistBtn) {
@@ -1229,9 +1370,17 @@ document.addEventListener('DOMContentLoaded', async function () {
             if (e.target.closest('.album-play-btn')) {
                 return;
             }
-            const albumTitle = this.querySelector('.album-title')?.textContent?.trim();
-            const artistName = this.querySelector('.album-artist')?.textContent?.trim();
-            const albumCover = this.querySelector('.album-cover img')?.src || '';
+            // Intentar obtener desde atributos `data-` (explore-page) o desde el HTML (index)
+            const albumTitle = this.dataset.albumName || this.querySelector('.album-title')?.textContent?.trim() || '';
+            const artistName = this.dataset.artistName || this.querySelector('.album-artist')?.textContent?.trim() || '';
+            const albumCover = this.dataset.cover || this.querySelector('.album-cover img')?.src || '';
+
+            console.log('Album card clicked:', { albumTitle, artistName, albumCover });
+
+            if (!albumTitle || !artistName) {
+                console.warn('Faltan datos del álbum en la tarjeta; no se puede abrir la página del álbum.', this);
+                return;
+            }
 
             await showAlbumPage(albumTitle, artistName, albumCover);
         });
@@ -1240,12 +1389,17 @@ document.addEventListener('DOMContentLoaded', async function () {
     document.body.addEventListener('click', async (e) => {
         const card = e.target.closest('.album-card');
         if (card && !e.target.closest('.album-play-btn')) {
-            const albumTitle = card.querySelector('.album-title')?.textContent?.trim();
-            const artistName = card.querySelector('.album-artist')?.textContent?.trim();
-            const albumCover = card.querySelector('.album-cover img')?.src || '';
-            if (albumTitle && artistName) {
-                await showAlbumPage(albumTitle, artistName, albumCover);
+            const albumTitle = card.dataset.albumName || card.querySelector('.album-title')?.textContent?.trim() || '';
+            const artistName = card.dataset.artistName || card.querySelector('.album-artist')?.textContent?.trim() || '';
+            const albumCover = card.dataset.cover || card.querySelector('.album-cover img')?.src || '';
+
+            if (!albumTitle || !artistName) {
+                console.warn('Delegated click: faltan datos en tarjeta de álbum, se ignora.', card);
+                return;
             }
+
+            console.log('Delegated album click:', { albumTitle, artistName, albumCover });
+            await showAlbumPage(albumTitle, artistName, albumCover);
         }
     });
 

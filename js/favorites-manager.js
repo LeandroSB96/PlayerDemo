@@ -143,7 +143,7 @@ class FavoritesManager {
         return this.favorites.length;
     }
 
-    // Exportar favoritos como JSON (para backup)
+    // Exportar favoritos como JSON 
     exportFavorites() {
         return JSON.stringify(this.favorites, null, 2);
     }

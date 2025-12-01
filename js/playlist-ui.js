@@ -6,8 +6,8 @@ import { playlistSystem } from './playlist-system.js';
 
 /**
   Mostrar modal para agregar track a una playlist
-  @param {object} track 
-  @param {function} onSuccess 
+   @param {object} track 
+   @param {function} onSuccess 
  */
 export function showPlaylistModal(item, onSuccess = null) {
     // `item` puede ser una pista individual o un objeto álbum con `tracks`.
@@ -55,8 +55,8 @@ export function showPlaylistModal(item, onSuccess = null) {
                 <!-- Existing playlists -->
                 <div class="playlist-modal-list">
                     ${playlists.length === 0 ?
-                        `<p class="playlist-modal-empty">No tienes playlists. ¡Crea una!</p>` :
-                        playlists.map(pl => `
+            `<p class="playlist-modal-empty">No tienes playlists. ¡Crea una!</p>` :
+            playlists.map(pl => `
                             <div class="playlist-modal-item" data-playlist-id="${pl.id}">
                                 <div class="playlist-modal-item-info">
                                     <i class="fa-solid fa-list"></i>
@@ -70,7 +70,7 @@ export function showPlaylistModal(item, onSuccess = null) {
                                 </button>
                             </div>
                         `).join('')
-                    }
+        }
                 </div>
             </div>
         </div>
@@ -242,6 +242,9 @@ export function showCreatePlaylistModal(trackToAdd = null, onSuccess = null) {
  * Mostrar página de playlists
  */
 export function showPlaylistsPage(onBack = null) {
+    const existingPages = document.querySelectorAll('.album-page:not(.playlists-page-container), .favorites-page, .explore-page, .artists-page');
+    existingPages.forEach(page => page.remove());
+
     const existing = document.querySelector('.playlists-page-container');
     if (existing) existing.remove();
 
@@ -450,7 +453,8 @@ export function showPlaylistDetailPage(playlistId, onBack = null) {
     });
 
     page.querySelector('.playlist-delete-btn').addEventListener('click', () => {
-        if (confirm(`¿Eliminar "${playlist.name}"?`)) {
+        const message = `¿Eliminar playlist?\nLa playlist "${playlist.name}" será eliminada permanentemente junto con todas sus ${playlist.tracks.length} canciones.`;
+        if (confirm(message)) {
             playlistSystem.deletePlaylist(playlistId);
             showNotification('🗑️ Playlist eliminada');
             page.remove();

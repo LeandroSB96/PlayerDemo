@@ -2765,4 +2765,148 @@ body {
     }
 }
 
+/* Pagina de Artistas */
+.artists-page {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
 }
+
+.artists-page-icon {
+    width: 232px;
+    height: 232px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(255, 75, 155, 0.2), rgba(155, 75, 255, 0.2));
+    border-radius: 50%;
+    box-shadow: 0 8px 32px rgba(255, 75, 155, 0.3);
+    flex-shrink: 0;
+}
+
+/* Animación de entrada para categorías */
+.artist-category-section {
+    opacity: 0;
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.artist-category-section:nth-child(1) { animation-delay: 0.1s; }
+.artist-category-section:nth-child(2) { animation-delay: 0.2s; }
+.artist-category-section:nth-child(3) { animation-delay: 0.3s; }
+.artist-category-section:nth-child(4) { animation-delay: 0.4s; }
+.artist-category-section:nth-child(5) { animation-delay: 0.5s; }
+.artist-category-section:nth-child(6) { animation-delay: 0.6s; }
+.artist-category-section:nth-child(7) { animation-delay: 0.7s; }
+.artist-category-section:nth-child(8) { animation-delay: 0.8s; }
+.artist-category-section:nth-child(9) { animation-delay: 0.9s; }
+
+/* Skeleton para avatares de artistas */
+.skeleton-artist-avatar {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Responsive para página de artistas */
+@media (max-width: 768px) {
+    .artists-page-icon {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .artists-page-icon i {
+        font-size: 80px !important;
+    }
+    
+    .artist-category-section {
+        margin-bottom: 35px !important;
+    }
+    
+    .artist-avatar {
+        width: 100px !important;
+        height: 100px !important;
+    }
+}
+
+/* Pagina de favoritos vacia */
+
+.empty-favorites-state {
+    animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.empty-favorites-state > div:first-child {
+    animation: heartBeatSlow 3s ease-in-out infinite;
+}
+
+@keyframes heartBeatSlow {
+    0%, 100% { 
+        transform: scale(1); 
+        opacity: 0.5;
+    }
+    50% { 
+        transform: scale(1.05); 
+        opacity: 0.7;
+    }
+}
+
+.explore-music-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.explore-music-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.explore-music-btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.explore-music-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(207, 9, 253, 0.4);
+}
+
+.explore-music-btn:active {
+    transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .empty-favorites-state {
+        padding: 60px 20px !important;
+    }
+    
+    .empty-favorites-state > div:first-child {
+        font-size: 60px !important;
+    }
+    
+    .empty-favorites-state h2 {
+        font-size: 24px !important;
+    }
+    
+    .empty-favorites-state p {
+        font-size: 14px !important;
+    }
+}
+
+} 
