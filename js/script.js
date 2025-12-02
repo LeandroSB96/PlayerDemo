@@ -21,6 +21,77 @@ function durationToMs(duration) {
     return (minutes * 60 + seconds) * 1000;
 }
 
+// Función para mostrar modal de confirmación 
+function showConfirmationModal(options = {}) {
+    return new Promise((resolve) => {
+        const {
+            title = '¿Estás seguro?',
+            message = '¿Confirmar acción?',
+            confirmText = 'Eliminar',
+            cancelText = 'Cancelar',
+            icon = '⚠️'
+        } = options;
+
+        // Crear overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'confirmation-modal-overlay';
+
+        // Crear modal
+        const modal = document.createElement('div');
+        modal.className = 'confirmation-modal';
+        modal.innerHTML = `
+            <div class="confirmation-modal-header">
+                <span class="confirmation-modal-icon">${icon}</span>
+                <h2 class="confirmation-modal-title">${title}</h2>
+                <p class="confirmation-modal-message">${message}</p>
+            </div>
+            <div class="confirmation-modal-actions">
+                <button class="confirmation-modal-btn confirmation-modal-btn-cancel">${cancelText}</button>
+                <button class="confirmation-modal-btn confirmation-modal-btn-confirm">${confirmText}</button>
+            </div>
+        `;
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        // Handlers
+        const cancelBtn = modal.querySelector('.confirmation-modal-btn-cancel');
+        const confirmBtn = modal.querySelector('.confirmation-modal-btn-confirm');
+
+        const closeModal = () => {
+            overlay.remove();
+        };
+
+        cancelBtn.addEventListener('click', () => {
+            closeModal();
+            resolve(false);
+        });
+
+        confirmBtn.addEventListener('click', () => {
+            closeModal();
+            resolve(true);
+        });
+
+        // Cerrar al hacer click en el overlay
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                closeModal();
+                resolve(false);
+            }
+        });
+
+        // Cerrar con ESC
+        const handleEsc = (e) => {
+            if (e.key === 'Escape') {
+                document.removeEventListener('keydown', handleEsc);
+                closeModal();
+                resolve(false);
+            }
+        };
+        document.addEventListener('keydown', handleEsc);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', async function () {
 
     // VARIABLES GLOBALES
@@ -574,11 +645,19 @@ document.addEventListener('DOMContentLoaded', async function () {
         // Botones de favoritos individuales
         const favBtns = favoritesPage.querySelectorAll('.track-favorite-btn');
         favBtns.forEach((btn, index) => {
-            btn.addEventListener('click', function (e) {
+            btn.addEventListener('click', async function (e) {
                 e.stopPropagation();
                 const track = favorites[index];
 
-                if (confirm(`¿Deseas eliminar "${track.name}" de tus favoritos?`)) {
+                const confirmed = await showConfirmationModal({
+                    title: 'Quitar de Favoritos',
+                    message: `¿Deseas eliminar "${track.name}" de tus favoritos?`,
+                    confirmText: 'Eliminar',
+                    cancelText: 'Cancelar',
+                    icon: '💔'
+                });
+
+                if (confirmed) {
                     favoritesManager.removeFavorite(track.name, track.artist, track.album);
                     showNotification('💔 Removido de favoritos');
                     updateFavoritesCounter();
@@ -589,8 +668,16 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
 
         // Botón de limpiar todos los favoritos
-        favoritesPage.querySelector('.clear-favorites-btn').addEventListener('click', () => {
-            if (confirm('¿Eliminar todos los favoritos? Esta acción no se puede deshacer.')) {
+        favoritesPage.querySelector('.clear-favorites-btn').addEventListener('click', async () => {
+            const confirmed = await showConfirmationModal({
+                title: 'Eliminar Todos los Favoritos',
+                message: '¿Eliminar todos los favoritos? Esta acción no se puede deshacer.',
+                confirmText: 'Eliminar Todo',
+                cancelText: 'Cancelar',
+                icon: '🗑️'
+            });
+
+            if (confirmed) {
                 favoritesManager.clearAllFavorites();
                 favoritesPage.remove();
                 document.querySelector('.content').style.display = 'block';
