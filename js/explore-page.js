@@ -80,7 +80,7 @@ function createExplorePageStructure() {
 
 /**
  * Crea el HTML del footer
- * @returns {string} HTML del footer
+ * @returns {string} 
  */
 function createFooter() {
     return `
