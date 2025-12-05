@@ -92,6 +92,144 @@ function showConfirmationModal(options = {}) {
     });
 }
 
+// ========================================
+// MINI-PLAYER FLOTANTE
+// ========================================
+
+function initMiniPlayer() {
+    const miniPlayerWrapper = document.querySelector('.mini-player-wrapper');
+    const miniPlayerToggle = document.querySelector('.mini-player-toggle');
+    const miniPlayerExpanded = document.querySelector('.mini-player-expanded');
+    const miniPlayerClose = document.querySelector('.mini-player-close');
+    const miniPlayerCover = document.getElementById('miniPlayerCover');
+    const miniPlayerToggleCover = document.getElementById('miniPlayerToggleCover');
+    const miniPlayerSongName = document.getElementById('miniPlayerSongName');
+    const miniPlayerArtistName = document.getElementById('miniPlayerArtistName');
+    const miniPlayBtn = document.querySelector('.mini-play-btn');
+    const miniPrevBtn = document.querySelector('.mini-prev-btn');
+    const miniNextBtn = document.querySelector('.mini-next-btn');
+    const miniCurrentTime = document.getElementById('miniCurrentTime');
+    const miniTotalTime = document.getElementById('miniTotalTime');
+    const miniProgressFill = document.querySelector('.mini-progress-fill');
+    const miniProgressBar = document.querySelector('.mini-progress-bar');
+    const miniVolumeFill = document.querySelector('.mini-volume-fill');
+    const miniVolumeBar = document.querySelector('.mini-volume-bar');
+
+    let isMiniPlayerExpanded = false;
+
+    // Toggle mini-player (expand/collapse)
+    miniPlayerToggle.addEventListener('click', () => {
+        isMiniPlayerExpanded = !isMiniPlayerExpanded;
+        
+        if (isMiniPlayerExpanded) {
+            miniPlayerToggle.classList.add('hidden');
+            miniPlayerExpanded.classList.add('active');
+        } else {
+            miniPlayerToggle.classList.remove('hidden');
+            miniPlayerExpanded.classList.remove('active');
+        }
+    });
+
+    // Cerrar mini-player
+    miniPlayerClose.addEventListener('click', () => {
+        isMiniPlayerExpanded = false;
+        miniPlayerToggle.classList.remove('hidden');
+        miniPlayerExpanded.classList.remove('active');
+    });
+
+    // Controles de reproducción
+    miniPlayBtn.addEventListener('click', () => {
+        const globalPlayBtn = document.querySelector('.play-btn');
+        if (window.currentAudio) {
+            if (window.currentAudio.paused) {
+                window.currentAudio.play();
+                miniPlayBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                if (globalPlayBtn) globalPlayBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+            } else {
+                window.currentAudio.pause();
+                miniPlayBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+                if (globalPlayBtn) globalPlayBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+            }
+        }
+    });
+
+    miniPrevBtn.addEventListener('click', () => {
+        window.dispatchEvent(new Event('mini-player:prev'));
+    });
+
+    miniNextBtn.addEventListener('click', () => {
+        window.dispatchEvent(new Event('mini-player:next'));
+    });
+
+    // Control de progreso
+    miniProgressBar.addEventListener('click', (e) => {
+        if (!window.currentAudio) return;
+        const rect = miniProgressBar.getBoundingClientRect();
+        const percent = (e.clientX - rect.left) / rect.width;
+        window.currentAudio.currentTime = percent * window.currentAudio.duration;
+    });
+
+    // Control de volumen
+    miniVolumeBar.addEventListener('click', (e) => {
+        const rect = miniVolumeBar.getBoundingClientRect();
+        const percent = (e.clientX - rect.left) / rect.width;
+        const volume = Math.max(0, Math.min(1, percent));
+        
+        if (window.currentAudio) {
+            window.currentAudio.volume = volume;
+            window.savedVolume = volume;
+        }
+        miniVolumeFill.style.width = `${volume * 100}%`;
+    });
+
+    // Actualizar mini-player cuando se reproduce una canción
+    window.addEventListener('mini-player:update', (e) => {
+        const { cover, songName, artistName } = e.detail;
+        
+        miniPlayerCover.src = cover;
+        miniPlayerToggleCover.src = cover;
+        miniPlayerSongName.textContent = songName;
+        miniPlayerArtistName.textContent = artistName;
+    });
+
+    // Actualizar barra de progreso
+    window.addEventListener('mini-player:progress', (e) => {
+        const { current, total } = e.detail;
+        miniCurrentTime.textContent = formatTime(current);
+        miniTotalTime.textContent = formatTime(total);
+        
+        if (total > 0) {
+            miniProgressFill.style.width = `${(current / total) * 100}%`;
+        }
+    });
+
+    // Actualizar estado del botón play/pausa
+    window.addEventListener('mini-player:play-state', (e) => {
+        const { isPlaying } = e.detail;
+        miniPlayBtn.innerHTML = isPlaying 
+            ? '<i class="fa-solid fa-pause"></i>'
+            : '<i class="fa-solid fa-play"></i>';
+    });
+
+    return {
+        updateTrack: (cover, songName, artistName) => {
+            window.dispatchEvent(new CustomEvent('mini-player:update', {
+                detail: { cover, songName, artistName }
+            }));
+        },
+        updateProgress: (current, total) => {
+            window.dispatchEvent(new CustomEvent('mini-player:progress', {
+                detail: { current, total }
+            }));
+        },
+        updatePlayState: (isPlaying) => {
+            window.dispatchEvent(new CustomEvent('mini-player:play-state', {
+                detail: { isPlaying }
+            }));
+        }
+    };
+}
+
 document.addEventListener('DOMContentLoaded', async function () {
 
     // VARIABLES GLOBALES
@@ -218,6 +356,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (playerArtistName) playerArtistName.textContent = track.artist;
         if (playerPlayBtn) playerPlayBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
 
+        // Actualizar mini-player
+        miniPlayer.updateTrack(track.cover, track.name, track.artist);
+
         const albumContainer = document.getElementById('playerAlbumContainer');
         const progressContainer = document.querySelector('.progress-container');
         if (albumContainer) albumContainer.classList.add('active');
@@ -240,6 +381,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                 if (progressFill) progressFill.style.width = `${progress}%`;
                 if (currentTimeEl) currentTimeEl.textContent = formatTime(audio.currentTime);
                 if (totalTimeEl) totalTimeEl.textContent = formatTime(audio.duration);
+
+                // Actualizar mini-player
+                miniPlayer.updateProgress(audio.currentTime, audio.duration);
             }
         });
 
@@ -253,6 +397,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
 
         audio.play().then(() => {
+            miniPlayer.updatePlayState(true);
+            
             const playerFavBtn = document.querySelector('.player-favorite-btn');
             if (playerFavBtn) {
                 const isFav = favoritesManager.isFavorite(track.name, track.artist, track.album || 'Desconocido');
@@ -1208,6 +1354,18 @@ document.addEventListener('DOMContentLoaded', async function () {
     if (currentTimeEl) currentTimeEl.textContent = '0:00';
     if (totalTimeEl) totalTimeEl.textContent = '0:00';
 
+    // Inicializar mini-player
+    const miniPlayer = initMiniPlayer();
+
+    // Event listeners para controles del mini-player
+    window.addEventListener('mini-player:prev', () => {
+        playPrevious();
+    });
+
+    window.addEventListener('mini-player:next', () => {
+        playNext();
+    });
+
     try {
         await spotifyService.initialize();
         console.log('Spotify inicializado correctamente');
@@ -1498,9 +1656,11 @@ document.addEventListener('DOMContentLoaded', async function () {
                 if (window.currentAudio.paused) {
                     window.currentAudio.play();
                     playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                    miniPlayer.updatePlayState(true);
                 } else {
                     window.currentAudio.pause();
                     playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+                    miniPlayer.updatePlayState(false);
                 }
             }
         });

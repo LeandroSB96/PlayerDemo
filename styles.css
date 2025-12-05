@@ -3018,3 +3018,313 @@ body {
         font-size: 12px;
     }
 }
+
+/* ========================================
+   MINI-PLAYER FLOTANTE
+   ======================================== */
+
+.mini-player-wrapper {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    z-index: 5000;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Estado Colapsado (Toggle Icon) */
+.mini-player-toggle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #9b4bff 0%, #cf09fd 100%);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(155, 75, 255, 0.4);
+    transition: all 0.3s ease;
+    border: none;
+    overflow: hidden;
+    opacity: 1;
+    visibility: visible;
+    animation: slideIn 0.3s ease;
+}
+
+.mini-player-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 32px rgba(155, 75, 255, 0.6);
+}
+
+.mini-player-toggle-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Estado Expandido */
+.mini-player-expanded {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 340px;
+    background: linear-gradient(135deg, #2a2a4a 0%, #1a1a2e 100%);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px) scale(0.95);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.mini-player-expanded.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.mini-player-toggle.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Header del Mini-Player */
+.mini-player-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mini-player-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #b3b3b3;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.mini-player-close {
+    background: none;
+    border: none;
+    color: #b3b3b3;
+    font-size: 18px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mini-player-close:hover {
+    color: #fff;
+}
+
+/* Contenido del Mini-Player */
+.mini-player-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.mini-player-cover {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.mini-player-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Información de la Canción */
+.mini-player-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mini-player-song-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mini-player-artist-name {
+    font-size: 12px;
+    color: #b3b3b3;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Barra de Progreso Mini */
+.mini-player-progress {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.mini-time {
+    font-size: 10px;
+    color: #b3b3b3;
+    min-width: 32px;
+}
+
+.mini-progress-bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.mini-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #9b4bff 0%, #cf09fd 100%);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.1s linear;
+}
+
+/* Controles Mini */
+.mini-player-controls {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.mini-control-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(155, 75, 255, 0.15);
+    border: 1px solid rgba(155, 75, 255, 0.3);
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mini-control-btn:hover {
+    background: rgba(155, 75, 255, 0.25);
+    border-color: rgba(155, 75, 255, 0.5);
+    transform: scale(1.05);
+}
+
+.mini-control-btn:active {
+    transform: scale(0.95);
+}
+
+.mini-play-btn {
+    background: linear-gradient(135deg, #9b4bff 0%, #cf09fd 100%);
+    border: none;
+    width: 50px;
+    height: 50px;
+    font-size: 18px;
+}
+
+.mini-play-btn:hover {
+    box-shadow: 0 4px 12px rgba(155, 75, 255, 0.4);
+}
+
+/* Control de Volumen Mini */
+.mini-player-volume {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mini-player-volume i {
+    color: #b3b3b3;
+    font-size: 14px;
+    min-width: 16px;
+}
+
+.mini-volume-bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.mini-volume-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #9b4bff 0%, #cf09fd 100%);
+    border-radius: 2px;
+    width: 60%;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .mini-player-wrapper {
+        bottom: 90px;
+        right: 10px;
+    }
+
+    .mini-player-toggle {
+        width: 50px;
+        height: 50px;
+    }
+
+    .mini-player-expanded {
+        width: 300px;
+        padding: 16px;
+    }
+
+    .mini-player-song-name {
+        font-size: 14px;
+    }
+
+    .mini-control-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 14px;
+    }
+
+    .mini-play-btn {
+        width: 45px;
+        height: 45px;
+    }
+}
+
+@media (max-width: 480px) {
+    .mini-player-expanded {
+        width: 280px;
+    }
+}

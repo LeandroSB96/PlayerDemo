@@ -672,6 +672,61 @@
             </div>
         </div>
 
+        <!-- Mini-Player Flotante -->
+        <div class="mini-player-wrapper">
+            <!-- Toggle Icon (Collapsed State) -->
+            <div class="mini-player-toggle" aria-label="Abrir mini reproductor">
+                <img src="" alt="Cover" class="mini-player-toggle-cover" id="miniPlayerToggleCover">
+            </div>
+
+            <!-- Expanded Mini-Player -->
+            <div class="mini-player-expanded">
+                <div class="mini-player-header">
+                    <span class="mini-player-title">Ahora Reproduciendo</span>
+                    <button class="mini-player-close" aria-label="Cerrar mini reproductor">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="mini-player-content">
+                    <div class="mini-player-cover">
+                        <img src="" alt="Carátula" id="miniPlayerCover">
+                    </div>
+
+                    <div class="mini-player-info">
+                        <h3 class="mini-player-song-name" id="miniPlayerSongName">-</h3>
+                        <p class="mini-player-artist-name" id="miniPlayerArtistName">-</p>
+                        <div class="mini-player-progress">
+                            <span class="mini-time" id="miniCurrentTime">0:00</span>
+                            <div class="mini-progress-bar">
+                                <div class="mini-progress-fill"></div>
+                            </div>
+                            <span class="mini-time" id="miniTotalTime">0:00</span>
+                        </div>
+                    </div>
+
+                    <div class="mini-player-controls">
+                        <button class="mini-control-btn mini-play-btn" aria-label="Reproducir/Pausar">
+                            <i class="fa-solid fa-play"></i>
+                        </button>
+                        <button class="mini-control-btn mini-prev-btn" aria-label="Anterior">
+                            <i class="fa-solid fa-backward-step"></i>
+                        </button>
+                        <button class="mini-control-btn mini-next-btn" aria-label="Siguiente">
+                            <i class="fa-solid fa-forward-step"></i>
+                        </button>
+                    </div>
+
+                    <div class="mini-player-volume">
+                        <i class="fa-solid fa-volume-low"></i>
+                        <div class="mini-volume-bar">
+                            <div class="mini-volume-fill"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- JavaScript -->
         <script src="js/player-video.js"></script>
         <script type="module" src="js/playlist-system.js"></script>
