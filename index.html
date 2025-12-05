@@ -618,7 +618,7 @@
 
     <!-- Player -->
     <div class="player" role="region" aria-label="Reproductor de música">
-        <div class="player-album-section">
+        <div class="player-album-section" id="playerAlbumSection" style="cursor: pointer;">
             <div class="player-album-container" id="playerAlbumContainer">
                 <img src="" alt="Carátula" class="player-album-cover" id="playerAlbumCover">
                 <div class="player-album-info">
@@ -706,11 +706,11 @@
                     </div>
 
                     <div class="mini-player-controls">
-                        <button class="mini-control-btn mini-play-btn" aria-label="Reproducir/Pausar">
-                            <i class="fa-solid fa-play"></i>
-                        </button>
                         <button class="mini-control-btn mini-prev-btn" aria-label="Anterior">
                             <i class="fa-solid fa-backward-step"></i>
+                        </button>
+                        <button class="mini-control-btn mini-play-btn" aria-label="Reproducir/Pausar">
+                            <i class="fa-solid fa-play"></i>
                         </button>
                         <button class="mini-control-btn mini-next-btn" aria-label="Siguiente">
                             <i class="fa-solid fa-forward-step"></i>

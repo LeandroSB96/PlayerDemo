@@ -117,6 +117,18 @@ function initMiniPlayer() {
 
     let isMiniPlayerExpanded = false;
 
+    // Mostrar mini-player toggle solo cuando hay reproducción
+    function showMiniPlayerToggle() {
+        miniPlayerToggle.classList.add('visible');
+    }
+
+    function hideMiniPlayerToggle() {
+        miniPlayerToggle.classList.remove('visible');
+        miniPlayerToggle.classList.remove('hidden');
+        isMiniPlayerExpanded = false;
+        miniPlayerExpanded.classList.remove('active');
+    }
+
     // Toggle mini-player (expand/collapse)
     miniPlayerToggle.addEventListener('click', () => {
         isMiniPlayerExpanded = !isMiniPlayerExpanded;
@@ -190,6 +202,8 @@ function initMiniPlayer() {
         miniPlayerToggleCover.src = cover;
         miniPlayerSongName.textContent = songName;
         miniPlayerArtistName.textContent = artistName;
+        
+        showMiniPlayerToggle();
     });
 
     // Actualizar barra de progreso
@@ -226,7 +240,9 @@ function initMiniPlayer() {
             window.dispatchEvent(new CustomEvent('mini-player:play-state', {
                 detail: { isPlaying }
             }));
-        }
+        },
+        showToggle: showMiniPlayerToggle,
+        hideToggle: hideMiniPlayerToggle
     };
 }
 
@@ -1390,6 +1406,21 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         updateFavoritesCounter();
         updatePlaylistsCounter();
+
+        // Click en carátula del reproductor para abrir mini-player
+        const playerAlbumSection = document.getElementById('playerAlbumSection');
+        if (playerAlbumSection) {
+            playerAlbumSection.addEventListener('click', () => {
+                const miniPlayerToggle = document.querySelector('.mini-player-toggle');
+                const miniPlayerExpanded = document.querySelector('.mini-player-expanded');
+                
+                // Si el toggle está visible, abrir el mini-player
+                if (miniPlayerToggle.classList.contains('visible') && !miniPlayerToggle.classList.contains('hidden')) {
+                    miniPlayerToggle.classList.add('hidden');
+                    miniPlayerExpanded.classList.add('active');
+                }
+            });
+        }
 
         // Botón de Explorar en el sidebar
         const exploreNavBtn = document.querySelectorAll('.menu-item')[1];
