@@ -102,7 +102,6 @@ function initMiniPlayer() {
     const miniPlayerExpanded = document.querySelector('.mini-player-expanded');
     const miniPlayerClose = document.querySelector('.mini-player-close');
     const miniPlayerCover = document.getElementById('miniPlayerCover');
-    const miniPlayerToggleCover = document.getElementById('miniPlayerToggleCover');
     const miniPlayerSongName = document.getElementById('miniPlayerSongName');
     const miniPlayerArtistName = document.getElementById('miniPlayerArtistName');
     const miniPlayBtn = document.querySelector('.mini-play-btn');
@@ -117,36 +116,28 @@ function initMiniPlayer() {
 
     let isMiniPlayerExpanded = false;
 
-    // Mostrar mini-player toggle solo cuando hay reproducción
-    function showMiniPlayerToggle() {
-        miniPlayerToggle.classList.add('visible');
+    // Funciones para abrir/cerrar mini-player
+    function openMiniPlayer() {
+        isMiniPlayerExpanded = true;
+        miniPlayerExpanded.classList.add('active');
     }
 
-    function hideMiniPlayerToggle() {
-        miniPlayerToggle.classList.remove('visible');
-        miniPlayerToggle.classList.remove('hidden');
+    function closeMiniPlayer() {
         isMiniPlayerExpanded = false;
         miniPlayerExpanded.classList.remove('active');
     }
 
-    // Toggle mini-player (expand/collapse)
-    miniPlayerToggle.addEventListener('click', () => {
-        isMiniPlayerExpanded = !isMiniPlayerExpanded;
-        
+    function toggleMiniPlayer() {
         if (isMiniPlayerExpanded) {
-            miniPlayerToggle.classList.add('hidden');
-            miniPlayerExpanded.classList.add('active');
+            closeMiniPlayer();
         } else {
-            miniPlayerToggle.classList.remove('hidden');
-            miniPlayerExpanded.classList.remove('active');
+            openMiniPlayer();
         }
-    });
+    }
 
-    // Cerrar mini-player
+    // Cerrar mini-player con botón X
     miniPlayerClose.addEventListener('click', () => {
-        isMiniPlayerExpanded = false;
-        miniPlayerToggle.classList.remove('hidden');
-        miniPlayerExpanded.classList.remove('active');
+        closeMiniPlayer();
     });
 
     // Controles de reproducción
@@ -199,11 +190,8 @@ function initMiniPlayer() {
         const { cover, songName, artistName } = e.detail;
         
         miniPlayerCover.src = cover;
-        miniPlayerToggleCover.src = cover;
         miniPlayerSongName.textContent = songName;
         miniPlayerArtistName.textContent = artistName;
-        
-        showMiniPlayerToggle();
     });
 
     // Actualizar barra de progreso
@@ -241,8 +229,9 @@ function initMiniPlayer() {
                 detail: { isPlaying }
             }));
         },
-        showToggle: showMiniPlayerToggle,
-        hideToggle: hideMiniPlayerToggle
+        openMiniPlayer: openMiniPlayer,
+        closeMiniPlayer: closeMiniPlayer,
+        toggleMiniPlayer: toggleMiniPlayer
     };
 }
 
@@ -539,6 +528,112 @@ document.addEventListener('DOMContentLoaded', async function () {
             updatePlaylistsCounter();
         });
     }
+
+    // Evitar recargas completas al navegar por el sidebar y mantener el reproductor activo
+    function showHome() {
+        // Remover páginas dinámicas si existen
+        document.querySelectorAll('.album-page, .favorites-page, .playlists-page, .explore-page, .artists-page').forEach(p => p.remove());
+        const content = document.querySelector('.content');
+        if (content) content.style.display = 'block';
+        // Restaurar header/main si hay elementos ocultos
+        const mainContent = document.querySelector('.main-content');
+        if (mainContent) mainContent.scrollTop = 0;
+        document.title = 'Player Demo';
+    }
+
+    // Interceptar clicks en enlaces de la sidebar para evitar recargas que paran el audio
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+        sidebar.addEventListener('click', (e) => {
+            const a = e.target.closest('a');
+            if (!a) return;
+            const href = a.getAttribute('href');
+
+            // Si es un enlace externo o vacío, dejar el comportamiento por defecto
+            if (!href || href.startsWith('http') || href.startsWith('mailto:')) return;
+
+            e.preventDefault();
+
+            // Rutas conocidas manejadas por JS
+            if (href.includes('index.html') || href === '/' ) {
+                showHome();
+                history.pushState({ page: 'home' }, '', '/index.html');
+                return;
+            }
+
+            // Enlaces con id específicos (favoritos, playlists)
+            const id = a.id;
+            if (id === 'favoritesNavBtn') {
+                showFavoritesPage();
+                history.pushState({ page: 'favorites' }, '', '#favorites');
+                return;
+            }
+            if (id === 'playlistsNavBtn') {
+                showPlaylistsPage(() => updatePlaylistsCounter());
+                history.pushState({ page: 'playlists' }, '', '#playlists');
+                return;
+            }
+
+            // Enlaces tipo '#' (placeholder) — no hacer nada
+            if (href === '#') return;
+
+            // Intentamos obtener la página y reemplazar el .main-content
+            fetch(href, { credentials: 'same-origin' })
+                .then(resp => {
+                    if (!resp.ok) throw new Error('Network response was not ok');
+                    return resp.text();
+                })
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newMain = doc.querySelector('.main-content');
+                    const currentMain = document.querySelector('.main-content');
+                    if (newMain && currentMain) {
+                        // Reemplazar contenido pero mantener el mini-player y audio global
+                        // Removemos elementos dinámicos y volcamos el contenido nuevo
+                        currentMain.innerHTML = newMain.innerHTML;
+                        // Re-inicializar bindings que dependen del DOM
+                        if (typeof initAfterAjaxLoad === 'function') initAfterAjaxLoad();
+                        history.pushState({ page: href }, '', href);
+                    } else {
+                        // Si no encontramos .main-content, fallback a navegación normal
+                        window.location.href = href;
+                    }
+                })
+                .catch(() => {
+                    // En caso de error realizar navegación completa
+                    window.location.href = href;
+                });
+        });
+    }
+
+    // Manejo de back/forward para restaurar vistas manejadas por JS
+    window.addEventListener('popstate', (e) => {
+        const state = e.state;
+        if (!state) return;
+        if (state.page === 'home') {
+            showHome();
+        } else if (state.page === 'favorites') {
+            showFavoritesPage();
+        } else if (state.page === 'playlists') {
+            showPlaylistsPage(() => updatePlaylistsCounter());
+        } else if (typeof state.page === 'string' && state.page.startsWith('/')) {
+            // Intentar cargar la ruta almacenada
+            const href = state.page;
+            fetch(href, { credentials: 'same-origin' })
+                .then(r => r.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newMain = doc.querySelector('.main-content');
+                    const currentMain = document.querySelector('.main-content');
+                    if (newMain && currentMain) {
+                        currentMain.innerHTML = newMain.innerHTML;
+                        if (typeof initAfterAjaxLoad === 'function') initAfterAjaxLoad();
+                    }
+                }).catch(()=>{});
+        }
+    });
 
     // Listener para reproducir playlist completa
     window.addEventListener('playlist:play', (e) => {
@@ -1407,18 +1502,11 @@ document.addEventListener('DOMContentLoaded', async function () {
         updateFavoritesCounter();
         updatePlaylistsCounter();
 
-        // Click en carátula del reproductor para abrir mini-player
+        // Click en carátula del reproductor para abrir/cerrar mini-player
         const playerAlbumSection = document.getElementById('playerAlbumSection');
         if (playerAlbumSection) {
             playerAlbumSection.addEventListener('click', () => {
-                const miniPlayerToggle = document.querySelector('.mini-player-toggle');
-                const miniPlayerExpanded = document.querySelector('.mini-player-expanded');
-                
-                // Si el toggle está visible, abrir el mini-player
-                if (miniPlayerToggle.classList.contains('visible') && !miniPlayerToggle.classList.contains('hidden')) {
-                    miniPlayerToggle.classList.add('hidden');
-                    miniPlayerExpanded.classList.add('active');
-                }
+                miniPlayer.toggleMiniPlayer();
             });
         }
 
@@ -1639,45 +1727,41 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
-    // Navegación al hacer clic en una tarjeta de álbum
-    const albumCards = document.querySelectorAll('.album-card');
-    albumCards.forEach(card => {
-        card.addEventListener('click', async function (e) {
-            if (e.target.closest('.album-play-btn')) {
-                return;
-            }
-            // Intentar obtener desde atributos `data-` (explore-page) o desde el HTML (index)
-            const albumTitle = this.dataset.albumName || this.querySelector('.album-title')?.textContent?.trim() || '';
-            const artistName = this.dataset.artistName || this.querySelector('.album-artist')?.textContent?.trim() || '';
-            const albumCover = this.dataset.cover || this.querySelector('.album-cover img')?.src || '';
-
-            console.log('Album card clicked:', { albumTitle, artistName, albumCover });
-
-            if (!albumTitle || !artistName) {
-                console.warn('Faltan datos del álbum en la tarjeta; no se puede abrir la página del álbum.', this);
-                return;
-            }
-
-            await showAlbumPage(albumTitle, artistName, albumCover);
+    // Inicializaciones que deben re-ejecutarse después de cargas parciales (PJAX)
+    function initAfterAjaxLoad() {
+        // Vincular navegación en tarjetas de álbum
+        const albumCards = document.querySelectorAll('.album-card');
+        albumCards.forEach(card => {
+            // Remover listeners previos si los hay evitando duplicados
+            card.replaceWith(card.cloneNode(true));
         });
-    });
 
-    document.body.addEventListener('click', async (e) => {
-        const card = e.target.closest('.album-card');
-        if (card && !e.target.closest('.album-play-btn')) {
-            const albumTitle = card.dataset.albumName || card.querySelector('.album-title')?.textContent?.trim() || '';
-            const artistName = card.dataset.artistName || card.querySelector('.album-artist')?.textContent?.trim() || '';
-            const albumCover = card.dataset.cover || card.querySelector('.album-cover img')?.src || '';
+        // Re-seleccionar después del clone
+        const freshAlbumCards = document.querySelectorAll('.album-card');
+        freshAlbumCards.forEach(card => {
+            card.addEventListener('click', async function (e) {
+                if (e.target.closest('.album-play-btn')) {
+                    return;
+                }
+                const albumTitle = this.dataset.albumName || this.querySelector('.album-title')?.textContent?.trim() || '';
+                const artistName = this.dataset.artistName || this.querySelector('.album-artist')?.textContent?.trim() || '';
+                const albumCover = this.dataset.cover || this.querySelector('.album-cover img')?.src || '';
 
-            if (!albumTitle || !artistName) {
-                console.warn('Delegated click: faltan datos en tarjeta de álbum, se ignora.', card);
-                return;
-            }
+                if (!albumTitle || !artistName) {
+                    console.warn('Faltan datos del álbum en la tarjeta; no se puede abrir la página del álbum.', this);
+                    return;
+                }
 
-            console.log('Delegated album click:', { albumTitle, artistName, albumCover });
-            await showAlbumPage(albumTitle, artistName, albumCover);
-        }
-    });
+                await showAlbumPage(albumTitle, artistName, albumCover);
+            });
+        });
+
+        // Delegated clicks (por si algunas tarjetas se generan dinámicamente)
+        // No re-registramos el listener global; está declarado más arriba y sigue activo.
+    }
+
+    // Ejecutar inicialización por primera vez
+    initAfterAjaxLoad();
 
     // CONTROLES DEL REPRODUCTOR
     const playBtn = document.querySelector('.play-btn');

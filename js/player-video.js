@@ -46,7 +46,7 @@
         modal.classList.remove('open');
         modal.setAttribute('aria-hidden', 'true');
         videoPlayer.pause();
-        videoPlayer.src = ''; // Limpiar fuente
+        videoPlayer.src = ''; 
         document.body.style.overflow = '';
         if (lastFocused) lastFocused.focus();
     }
