@@ -1546,6 +1546,66 @@ document.addEventListener('DOMContentLoaded', async function () {
             mainContentArea.appendChild(albumPage);
             mainContentArea.scrollTop = 0;
 
+            // Construir playlist del álbum (priorizar audio local, fallback a preview_url)
+            const trackRows = albumPage.querySelectorAll('.track-row');
+            currentPlaylist = (albumData.tracks?.items || []).map((track, idx) => ({
+                audioFile: (track.local_audio && track.local_audio.trim()) || track.preview_url || '',
+                name: track.name,
+                artist: (track.artists || []).map(a => a.name).join(', '),
+                album: albumData.name,
+                cover: localCover || (albumData.images && albumData.images[0]?.url) || '',
+                explicit: !!track.explicit,
+                row: trackRows[idx]
+            }));
+
+            // Asociar clicks en filas del álbum para reproducir (asegura que funcionen archivos locales)
+            trackRows.forEach((row, idx) => {
+                row.addEventListener('click', (e) => {
+                    if (e.target.closest('.track-favorite-btn, .track-add-playlist-btn')) return;
+
+                    const audioFile = currentPlaylist[idx]?.audioFile || row.getAttribute('data-local-audio') || row.getAttribute('data-preview') || '';
+                    if (!audioFile) {
+                        console.warn('No hay audio disponible para esta pista');
+                        if (typeof showNotification === 'function') showNotification('⚠️ No hay audio disponible para esta pista');
+                        return;
+                    }
+
+                    currentTrackIndex = idx;
+                    playTrack(idx);
+                });
+            });
+
+            // Botón de reproducir álbum en la página del álbum
+            const playAlbumBtnInner = albumPage.querySelector('.play-album-btn');
+            if (playAlbumBtnInner) {
+                playAlbumBtnInner.addEventListener('click', (e) => {
+                    e.stopPropagation();
+
+                    // Asegurar playlist construida
+                    if (!currentPlaylist || currentPlaylist.length === 0) {
+                        currentPlaylist = (albumData.tracks?.items || []).map((track, idx) => ({
+                            audioFile: (track.local_audio && track.local_audio.trim()) || track.preview_url || '',
+                            name: track.name,
+                            artist: (track.artists || []).map(a => a.name).join(', '),
+                            album: albumData.name,
+                            cover: localCover || (albumData.images && albumData.images[0]?.url) || '',
+                            explicit: !!track.explicit,
+                            row: trackRows[idx]
+                        }));
+                    }
+
+                    // Encontrar primer índice con audio válido
+                    const firstIdx = currentPlaylist.findIndex(t => t.audioFile && t.audioFile.trim());
+                    if (firstIdx === -1) {
+                        if (typeof showNotification === 'function') showNotification('⚠️ No hay pistas reproducibles en este álbum');
+                        return;
+                    }
+
+                    currentTrackIndex = firstIdx;
+                    playTrack(firstIdx);
+                });
+            }
+
             // Botón de regresar
             const backBtn = albumPage.querySelector('.back-button');
             backBtn.addEventListener('click', () => {
