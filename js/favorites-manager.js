@@ -9,11 +9,23 @@ class FavoritesManager {
     // Cargar favoritos desde storage persistente
     async loadFavorites() {
         try {
-            const saved = await window.storage.get(this.storageKey);
-            if (saved && saved.value) {
-                this.favorites = JSON.parse(saved.value);
+            // Compatibilidad: si existe `window.storage` (Electron/hosted env), usarlo;
+            // de lo contrario, usar localStorage del navegador.
+            let saved = null;
+            if (window.storage && typeof window.storage.get === 'function') {
+                saved = await window.storage.get(this.storageKey);
+                if (saved && saved.value) {
+                    this.favorites = JSON.parse(saved.value);
+                } else {
+                    this.favorites = [];
+                }
             } else {
-                this.favorites = [];
+                const raw = localStorage.getItem(this.storageKey);
+                if (raw) {
+                    this.favorites = JSON.parse(raw);
+                } else {
+                    this.favorites = [];
+                }
             }
             this.initialized = true;
             console.log('✅ Favoritos cargados:', this.favorites.length);
@@ -29,7 +41,11 @@ class FavoritesManager {
     // Guardar favoritos en storage persistente
     async saveFavorites() {
         try {
-            await window.storage.set(this.storageKey, JSON.stringify(this.favorites));
+            if (window.storage && typeof window.storage.set === 'function') {
+                await window.storage.set(this.storageKey, JSON.stringify(this.favorites));
+            } else {
+                localStorage.setItem(this.storageKey, JSON.stringify(this.favorites));
+            }
             console.log('✅ Favoritos guardados:', this.favorites.length);
         } catch (error) {
             console.error('Error guardando favoritos:', error);
@@ -62,11 +78,13 @@ class FavoritesManager {
             cover: track.cover,
             audioFile: track.audioFile,
             duration: track.duration || '0:00',
+            explicit: !!track.explicit,
             addedAt: new Date().toISOString()
         };
 
         this.favorites.push(favorite);
         await this.saveFavorites();
+        try { window.dispatchEvent(new Event('favorites:changed')); } catch (err) { /* ignore */ }
         console.log('❤️ Agregado a favoritos:', track.name);
         return true;
     }
@@ -80,6 +98,7 @@ class FavoritesManager {
 
         if (this.favorites.length < initialLength) {
             await this.saveFavorites();
+            try { window.dispatchEvent(new Event('favorites:changed')); } catch (err) { /* ignore */ }
             console.log('💔 Removido de favoritos:', trackName);
             return true;
         }
@@ -134,7 +153,17 @@ class FavoritesManager {
     // Limpiar todos los favoritos
     async clearAllFavorites() {
         this.favorites = [];
-        await window.storage.delete(this.storageKey);
+        try {
+            if (window.storage && typeof window.storage.delete === 'function') {
+                await window.storage.delete(this.storageKey);
+            } else {
+                localStorage.removeItem(this.storageKey);
+            }
+        } catch (err) {
+            console.warn('Error eliminando storage nativo:', err);
+            localStorage.removeItem(this.storageKey);
+        }
+        try { window.dispatchEvent(new Event('favorites:changed')); } catch (err) { /* ignore */ }
         console.log('🗑️ Todos los favoritos eliminados');
     }
 

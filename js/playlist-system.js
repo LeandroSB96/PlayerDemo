@@ -121,6 +121,7 @@ export class PlaylistSystem {
             audioFile: track.audioFile,
             duration: track.duration || '0:00',
             cover: track.cover || '',
+            explicit: !!track.explicit,
             addedAt: new Date().toISOString()
         };
 
@@ -164,6 +165,7 @@ export class PlaylistSystem {
                 audioFile: t.audioFile,
                 duration: t.duration || '0:00',
                 cover: t.cover || album.cover || '',
+                explicit: !!t.explicit || !!album.explicit,
                 addedAt: new Date().toISOString()
             };
 

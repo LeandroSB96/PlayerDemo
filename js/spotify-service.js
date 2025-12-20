@@ -90,23 +90,71 @@ class SpotifyService {
         }
     }
 
-    // Búsqueda de álbumes
-async searchAlbum(albumName, artistName) {
-    await this.checkAndRefreshToken();
-    try {
-        const query = `${albumName} ${artistName}`;
-        const response = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=album&limit=1`, {
-            headers: {
-                'Authorization': `${this.tokenType} ${this.accessToken}`
-            }
-        });
-        const data = await response.json();
-        return data.albums?.items[0] || null;
-    } catch (error) {
-        console.error('Error buscando álbum:', error);
-        return null;
+    // Búsqueda de artista por nombre
+    async searchArtistByName(artistName) {
+        await this.checkAndRefreshToken();
+        try {
+            const response = await fetch(
+                `https://api.spotify.com/v1/search?q=${encodeURIComponent(artistName)}&type=artist&limit=5`,
+                {
+                    headers: {
+                        'Authorization': `${this.tokenType} ${this.accessToken}`
+                    }
+                }
+            );
+            const data = await response.json();
+            const artists = data.artists?.items || [];
+            
+            if (!artists.length) return null;
+
+            // Normalizar para comparación
+            const normalize = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            const target = normalize(artistName);
+
+            // Intentar encontrar coincidencia exacta
+            const exactMatch = artists.find(a => normalize(a.name) === target);
+            if (exactMatch) return exactMatch;
+
+            // Si no, devolver el primer resultado (mayor relevancia según Spotify)
+            console.warn('Búsqueda de artista: devolviendo primer resultado:', artists[0]?.name);
+            return artists[0];
+        } catch (error) {
+            console.error('Error buscando artista:', error);
+            return null;
+        }
     }
-}
+
+    // Búsqueda de álbumes
+    async searchAlbum(albumName, artistName) {
+        await this.checkAndRefreshToken();
+        try {
+            artistName = artistName || '';
+            const query = `${albumName} ${artistName}`;
+            const response = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=album&limit=5`, {
+                headers: {
+                    'Authorization': `${this.tokenType} ${this.accessToken}`
+                }
+            });
+            const data = await response.json();
+            const items = data.albums?.items || [];
+            if (!items.length) return null;
+
+            // Función auxiliar simple de normalización en este servicio (solo para comparar nombres)
+            const normalize = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+            const target = normalize(artistName || '');
+            // Intentar encontrar un item cuyo artista coincida con artistName
+            const match = items.find(it => normalize(it.artists?.[0]?.name) === target || normalize(it.artists?.[0]?.name).includes(target));
+            if (match) return match;
+
+            // Si no encontramos coincidencia exacta, devolver el primer resultado pero emitir un warning
+            console.warn('No se encontró álbum con artista coincidente en Spotify, usando primer resultado:', items[0]?.name, items[0]?.artists?.[0]?.name);
+            return items[0];
+        } catch (error) {
+            console.error('Error buscando álbum:', error);
+            return null;
+        }
+    }
 
     // Obtener detalles de un álbum
     async getAlbum(albumId) {
@@ -173,20 +221,37 @@ async searchAlbum(albumName, artistName) {
     }
 
     // Obtener albumes por artista
-    async getArtistAlbums(artistId, limit = 5, country = 'AR') {
+    async getArtistAlbums(artistId, limit = 10, country = 'AR') {
         await this.checkAndRefreshToken();
         try {
-            const response = await fetch(`https://api.spotify.com/v1/artists/${artistId}/albums?market=${country}&limit=10`, {
-                headers: {
-                    'Authorization': `${this.tokenType} ${this.accessToken}`
+            console.log(`🎵 Obteniendo álbumes del artista: ${artistId}`);
+
+            const response = await fetch(
+                `https://api.spotify.com/v1/artists/${artistId}/albums?market=${country}&limit=${limit}&include_groups=album,single`,
+                {
+                    headers: {
+                        'Authorization': `${this.tokenType} ${this.accessToken}`
+                    }
                 }
-            });
-            return await response.json();
+            );
+
+            if (!response.ok) {
+                throw new Error(`Spotify API error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log(`✅ Álbumes obtenidos:`, data.items?.length || 0);
+
+            // Devolver el objeto completo 
+            return data;
+
         } catch (error) {
-            console.error('Error obteniendo álbumes del artista:', error);
-            throw error;
+            console.error('❌ Error obteniendo álbumes del artista:', error);
+            // Devolver estructura vacía en lugar de lanzar error
+            return { items: [], total: 0 };
         }
     }
+
 
     //Albumes recomendados del artista
     async getRecommendedAlbums(artistId, limit = 5, country = 'AR') {

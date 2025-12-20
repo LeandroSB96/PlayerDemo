@@ -6,6 +6,17 @@ function formatTime(seconds) {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
+// Small helper to escape HTML when inserting via innerHTML
+function escapeHtml(str = '') {
+    return String(str).replace(/[&<>"']/g, (c) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    }[c]));
+}
+
 // Estado global del reproductor
 export const playerState = {
     currentAudio: null,
@@ -271,7 +282,11 @@ function updatePlayingUI(index) {
         const playerArtistName = document.getElementById('playerArtistName');
         const playerAlbumCover = document.getElementById('playerAlbumCover');
 
-        if (playerTrackName) playerTrackName.textContent = track.title || track.dataset?.title;
+        if (playerTrackName) {
+            const titleText = track.title || track.dataset?.title || '';
+            const isExplicit = !!track.explicit || (track.dataset && track.dataset.explicit === '1');
+            playerTrackName.innerHTML = `${escapeHtml(titleText)}${isExplicit ? " <span class='explicit-badge inline'>E</span>" : ''}`;
+        }
         if (playerArtistName) playerArtistName.textContent = track.artist || document.querySelector('.album-page-meta .artist-name-bold')?.textContent;
         if (playerAlbumCover) {
             const coverSrc = document.querySelector('.album-page-cover')?.src;

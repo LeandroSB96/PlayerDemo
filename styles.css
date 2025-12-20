@@ -1848,6 +1848,74 @@ body {
     border-color: #ff3385;
 }
 
+/* Estilos específicos para botones de playlist detail */
+.playlist-play-all-btn,
+.playlist-shuffle-btn,
+.playlist-clear-btn,
+.playlist-edit-btn,
+.playlist-delete-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: #b3b3b3;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.playlist-play-all-btn {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(131deg, rgba(115, 59, 161, 1) 31%, rgba(207, 9, 253, 1) 71%);
+    border: none;
+    color: #f5f3f3;
+    font-size: 20px;
+}
+
+.playlist-play-all-btn:hover {
+    transform: scale(1.06);
+    box-shadow: 
+        0 0 20px rgba(155, 75, 255, 0.5),
+        0 0 40px rgba(155, 75, 255, 0.3),
+        0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.playlist-shuffle-btn:hover,
+.playlist-clear-btn:hover,
+.playlist-edit-btn:hover,
+.playlist-delete-btn:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #fff;
+    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+}
+
+.playlist-clear-btn:hover {
+    border-color: #ff9500;
+    color: #ff9500;
+    background: rgba(255, 149, 0, 0.08);
+}
+
+.playlist-delete-btn:hover {
+    border-color: #ff4444;
+    color: #ff4444;
+    background: rgba(255, 68, 68, 0.08);
+}
+
+.playlist-edit-btn:hover {
+    border-color: #4b9bff;
+    color: #4b9bff;
+    background: rgba(75, 155, 255, 0.08);
+}
+
 /* Botón de shuffle activo */
 .shuffle-album-btn.active,
 .shuffle-favorites-btn.active {
@@ -1990,25 +2058,26 @@ body {
 
 .tracks-header {
     display: grid;
-    grid-template-columns: 40px 2fr 1.5fr 60px 80px;
-    gap: 16px;
-    padding: 8px 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    grid-template-columns: 44px 2fr 1fr 48px 64px; 
+    gap: 12px;
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     color: #b3b3b3;
     font-size: 12px;
     text-transform: uppercase;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
 
 .track-row {
     display: grid;
-    grid-template-columns: 40px 2fr 1.5fr 60px 80px;
-    gap: 16px;
-    padding: 8px 16px;
-    border-radius: 4px;
-    transition: all 0.2s ease;
+    grid-template-columns: 44px 2fr 1fr 48px 64px;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: background 0.18s ease, transform 0.12s ease;
     cursor: pointer;
     align-items: center;
+    position: relative;
 }
 
 .track-row:hover {
@@ -2021,17 +2090,17 @@ body {
     justify-content: center;
     color: #b3b3b3;
     position: relative;
-    cursor: pointer;
 }
 
 .track-col-number::before {
     content: attr(data-number);
-    transition: opacity 0.2s ease;
+    transition: color 0.12s ease, transform 0.12s ease;
 }
 
 .track-row:hover .track-col-number::before {
     content: '▶';
     color: #ff00ff;
+    transform: translateY(-1px);
 }
 
 .track-col-title {
@@ -2070,15 +2139,15 @@ body {
 }
 
 .track-favorite-btn {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     background: transparent;
     border: none;
     color: #b3b3b3;
-    font-size: 16px;
+    font-size: 14px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: color 0.18s ease, transform 0.12s ease, opacity 0.12s ease;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2091,7 +2160,7 @@ body {
 
 .track-favorite-btn:hover {
     color: #fff;
-    transform: scale(1.1);
+    transform: scale(1.08);
 }
 
 .track-favorite-btn.active {
@@ -2108,6 +2177,91 @@ body {
     align-items: center;
     justify-content: flex-end;
     color: #b3b3b3;
+    padding-right: 36px; 
+}
+
+/* Explicit badge styles */
+.album-card {
+    position: relative;
+}
+
+/* Explicit badge default: inline pill shown next to titles */
+.explicit-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.95);
+    color: #000;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(0,0,0,0.06);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    margin-left: 8px;
+}
+
+/* variant for album page title */
+.explicit-badge.inline {
+    font-size: 11px;
+    padding: 1px 6px;
+    vertical-align: middle;
+    display: inline-flex;
+    align-items: center;
+    margin-left: 5px; 
+}
+
+/* If we ever need a card-absolute badge, use .explicit-badge.card */
+.explicit-badge.card {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    z-index: 5;
+}
+
+.explicit-track-badge {
+    display: inline-block;
+    margin-left: 8px;
+    background: rgba(255,255,255,0.95);
+    color: #000;
+    font-weight: 700;
+    font-size: 11px;
+    padding: 1px 6px;
+    border-radius: 3px;
+    vertical-align: middle;
+    border: 1px solid rgba(0,0,0,0.06);
+}
+
+/* small variant for song list */
+.explicit-track-badge.small {
+    font-size: 10px;
+    padding: 0px 4px;
+    margin-left: 6px;
+}
+
+.track-remove-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: #b3b3b3;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    cursor: pointer;
+    transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.track-row:hover .track-remove-btn {
+    opacity: 1;
+}
+
+.track-remove-btn:hover {
+    color: #fff;
 }
 
 /* Responsive */
@@ -2115,7 +2269,7 @@ body {
 
     .tracks-header,
     .track-row {
-        grid-template-columns: 40px 2fr 60px 80px;
+        grid-template-columns: 40px 2fr 48px 64px; 
     }
 
     .track-col-album {
@@ -2125,7 +2279,7 @@ body {
 
 @media (max-width: 768px) {
     .album-actions {
-        gap: 16px;
+        gap: 14px;
     }
 
     .play-album-btn {
@@ -2143,7 +2297,7 @@ body {
 
     .tracks-header,
     .track-row {
-        grid-template-columns: 30px 1fr 50px 60px;
+        grid-template-columns: 30px 1fr 48px 60px;
         gap: 12px;
     }
 
@@ -2565,112 +2719,9 @@ body {
     padding: 5px;
 }
 
-.playlist-card {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    padding: 16px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.playlist-card:hover {
-    background: rgba(75, 155, 255, 0.1);
-    transform: translateY(-4px);
-    border-color: rgba(75, 155, 255, 0.3);
-}
-
-.playlist-card-cover {
-    position: relative;
-    width: 100%;
-    padding-bottom: 100%;
-    margin-bottom: 16px;
-    background: rgba(75, 155, 255, 0.1);
-    border-radius: 4px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.playlist-card-cover i {
-    position: absolute;
-    font-size: 48px;
-    color: #4b9bff;
-}
-
-.playlist-card-play-btn {
-    position: absolute;
-    bottom: 8px;
-    right: 8px;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: linear-gradient(131deg, rgba(115, 59, 161, 1) 31%, rgba(207, 9, 253, 1) 71%);
-    border: none;
-    cursor: pointer;
-    opacity: 0;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 20px;
-}
-
-.playlist-card:hover .playlist-card-play-btn {
-    opacity: 1;
-    transform: scale(1.1);
-}
-
-.playlist-card-info {
-    text-align: left;
-}
-
-.playlist-card-info h3 {
-    font-size: 16px;
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 8px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.playlist-card-info p {
-    font-size: 14px;
-    color: #b3b3b3;
-}
-
 /* Estilos para filas de tracks en playlists */
 .playlist-track-row {
     cursor: pointer;
-}
-
-.playlist-track-remove-btn {
-    background: transparent;
-    border: none;
-    color: #b3b3b3;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-}
-
-.playlist-track-row:hover .playlist-track-remove-btn {
-    opacity: 1;
-    background: rgba(255, 75, 155, 0.2);
-    color: #ff4b9b;
-}
-
-.playlist-track-remove-btn:hover {
-    background: rgba(255, 75, 155, 0.3);
 }
 
 /* Página de explorar */
@@ -3114,6 +3165,19 @@ body {
     visibility: visible;
 }
 
+/* Ocultar reproductor principal cuando el mini-player esté activo (preservando el mini-player) */
+.player.mini-hidden > :not(.mini-player-wrapper) {
+    display: none !important;
+}
+
+/* Asegurar que el mini-player flote por encima y no se vea afectado */
+.mini-player-wrapper {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 5000;
+}
+
 /* Header del Mini-Player */
 .mini-player-header {
     display: flex;
@@ -3177,6 +3241,56 @@ body {
     display: flex;
     flex-direction: column;
     gap: 6px;
+}
+
+.mini-player-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.mini-player-meta-text {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.mini-player-song-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 4px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mini-player-artist-name {
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mini-fav-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,0.9);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-left: 8px;
+}
+
+.mini-fav-btn i {
+    font-size: 16px;
 }
 
 .mini-player-song-name {

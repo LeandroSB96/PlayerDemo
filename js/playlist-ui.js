@@ -3,6 +3,98 @@
 */
 
 import { playlistSystem } from './playlist-system.js';
+import { favoritesManager } from './favorites-manager.js';
+
+/**
+ * Generar collage de portadas (hasta 4) para mostrar en la card
+ */
+function generatePlaylistCollageDataUrl(tracks, size = 200) {
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+
+    // Fondo gris por defecto
+    ctx.fillStyle = 'rgba(50, 50, 80, 0.5)';
+    ctx.fillRect(0, 0, size, size);
+
+    if (!tracks || tracks.length === 0) {
+        // Mostrar icono de lista
+        ctx.fillStyle = '#888';
+        ctx.font = `bold ${size * 0.5}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('♪', size / 2, size / 2);
+        return canvas.toDataURL();
+    }
+
+    // Tomar hasta 4 portadas
+    const covers = tracks.slice(0, 4).map(t => t.cover).filter(Boolean);
+    
+    if (covers.length === 0) {
+        // Sin portadas, mostrar icono
+        ctx.fillStyle = '#888';
+        ctx.font = `bold ${size * 0.5}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('♪', size / 2, size / 2);
+        return canvas.toDataURL();
+    }
+
+    // Crear grid según cantidad de portadas
+    const gridSize = covers.length === 1 ? 1 : 2;
+    const tileSize = size / gridSize;
+
+    // Cargar y dibujar imágenes de forma sincrónica usando canvas
+    covers.forEach((coverUrl, idx) => {
+        try {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            
+            // Usar función de timeout para manejo de errores
+            const timeoutId = setTimeout(() => {
+                ctx.fillStyle = 'rgba(100, 100, 120, 0.3)';
+                const row = Math.floor(idx / gridSize);
+                const col = idx % gridSize;
+                const x = col * tileSize;
+                const y = row * tileSize;
+                ctx.fillRect(x, y, tileSize, tileSize);
+            }, 1000);
+
+            img.onload = function () {
+                clearTimeout(timeoutId);
+                const row = Math.floor(idx / gridSize);
+                const col = idx % gridSize;
+                const x = col * tileSize;
+                const y = row * tileSize;
+                try {
+                    ctx.drawImage(img, x, y, tileSize, tileSize);
+                } catch (e) {
+                    // Dibujar fallback si hay error
+                    ctx.fillStyle = 'rgba(100, 100, 120, 0.3)';
+                    ctx.fillRect(x, y, tileSize, tileSize);
+                }
+            };
+            
+            img.onerror = function () {
+                clearTimeout(timeoutId);
+                // Dibujar fallback
+                ctx.fillStyle = 'rgba(100, 100, 120, 0.3)';
+                const row = Math.floor(idx / gridSize);
+                const col = idx % gridSize;
+                const x = col * tileSize;
+                const y = row * tileSize;
+                ctx.fillRect(x, y, tileSize, tileSize);
+            };
+            
+            img.src = coverUrl;
+        } catch (e) {
+            console.warn('Error loading cover:', coverUrl, e);
+        }
+    });
+
+    return canvas.toDataURL();
+}
 
 /**
   Mostrar modal para agregar track a una playlist
@@ -10,11 +102,10 @@ import { playlistSystem } from './playlist-system.js';
    @param {function} onSuccess 
  */
 export function showPlaylistModal(item, onSuccess = null) {
-    // `item` puede ser una pista individual o un objeto álbum con `tracks`.
     const isAlbum = item && Array.isArray(item.tracks);
     if (!item || (isAlbum ? item.tracks.length === 0 : (!item.name || !item.audioFile))) {
         console.error('[PlaylistUI] Item inválido:', item);
-        alert('Error: datos inválidos');
+        showNotification('❌ Error: datos inválidos');
         return;
     }
 
@@ -84,15 +175,19 @@ export function showPlaylistModal(item, onSuccess = null) {
     const createBtn = modal.querySelector('.playlist-modal-create-btn');
     const addBtns = modal.querySelectorAll('.playlist-modal-add-btn');
 
-    const closeModal = () => {
+    const closeModal = (e = null) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
         modal.remove();
     };
 
-    overlay.addEventListener('click', closeModal);
-    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', (e) => closeModal(e));
+    closeBtn.addEventListener('click', (e) => closeModal(e));
 
-    createBtn.addEventListener('click', () => {
-        closeModal();
+    createBtn.addEventListener('click', (e) => {
+        closeModal(e);
         showCreatePlaylistModal(track, onSuccess);
     });
 
@@ -113,10 +208,13 @@ export function showPlaylistModal(item, onSuccess = null) {
                     if (addedCount > 0) {
                         showNotification(`✅ Álbum agregado a la playlist (${addedCount} pistas)`);
                         closeModal();
-                        if (onSuccess) {
-                            console.log('[PlaylistUI] Llamando onSuccess (album)');
-                            onSuccess(playlistId, item);
-                        }
+                        // Pequeño delay para evitar propagación de eventos que pudiera causar reproducción
+                        setTimeout(() => {
+                            if (onSuccess) {
+                                console.log('[PlaylistUI] Llamando onSuccess (album)');
+                                onSuccess(playlistId, item);
+                            }
+                        }, 100);
                     } else {
                         showNotification('⚠️ Ninguna pista nueva para agregar');
                     }
@@ -127,10 +225,13 @@ export function showPlaylistModal(item, onSuccess = null) {
                     if (added) {
                         showNotification('✅ Canción agregada a la playlist');
                         closeModal();
-                        if (onSuccess) {
-                            console.log('[PlaylistUI] Llamando onSuccess (track)');
-                            onSuccess(playlistId, item);
-                        }
+                        // Pequeño delay para evitar propagación de eventos que pudiera causar reproducción
+                        setTimeout(() => {
+                            if (onSuccess) {
+                                console.log('[PlaylistUI] Llamando onSuccess (track)');
+                                onSuccess(playlistId, item);
+                            }
+                        }, 100);
                     } else {
                         showNotification('⚠️ Esta canción ya está en la playlist');
                     }
@@ -242,11 +343,9 @@ export function showCreatePlaylistModal(trackToAdd = null, onSuccess = null) {
  * Mostrar página de playlists
  */
 export function showPlaylistsPage(onBack = null) {
-    const existingPages = document.querySelectorAll('.album-page:not(.playlists-page-container), .favorites-page, .explore-page, .artists-page');
+    // Limpieza completa - eliminar TODAS las páginas dinámicas
+    const existingPages = document.querySelectorAll('.album-page, .favorites-page, .playlists-page-container, .playlist-detail-container, .explore-page, .artists-page');
     existingPages.forEach(page => page.remove());
-
-    const existing = document.querySelector('.playlists-page-container');
-    if (existing) existing.remove();
 
     const playlists = playlistSystem.getAllPlaylists();
     const mainContent = document.querySelector('.main-content');
@@ -290,18 +389,18 @@ export function showPlaylistsPage(onBack = null) {
                     <p>No tienes playlists aún</p>
                 </div>
             ` : `
-                <div class="playlists-grid">
+                <div class="albums-grid">
                     ${playlists.map(pl => `
-                        <div class="playlist-card" data-playlist-id="${pl.id}">
-                            <div class="playlist-card-cover">
-                                <i class="fa-solid fa-list"></i>
-                                <button class="playlist-card-play-btn" aria-label="Reproducir">
+                        <div class="album-card" data-playlist-id="${pl.id}">
+                            <div class="album-cover">
+                                <img src="${generatePlaylistCollageDataUrl(pl.tracks)}" alt="${escapeHtml(pl.name)}" />
+                                <button class="album-play-btn playlist-card-play-btn" aria-label="Reproducir">
                                     <i class="fa-solid fa-play"></i>
                                 </button>
                             </div>
-                            <div class="playlist-card-info">
-                                <h3>${escapeHtml(pl.name)}</h3>
-                                <p>${pl.tracks.length} canción${pl.tracks.length !== 1 ? 'es' : ''}</p>
+                            <div class="album-info">
+                                <h3 class="album-title">${escapeHtml(pl.name)}</h3>
+                                <p class="album-artist">${pl.tracks.length} canción${pl.tracks.length !== 1 ? 'es' : ''}</p>
                             </div>
                         </div>
                     `).join('')}
@@ -317,31 +416,27 @@ export function showPlaylistsPage(onBack = null) {
     // Events
     page.querySelector('.back-button').addEventListener('click', () => {
         page.remove();
-        document.querySelector('.content').style.display = 'block';
-        if (onBack) onBack();
+        showPlaylistsPage(onBack);
     });
 
     page.querySelector('.playlists-create-new-btn').addEventListener('click', () => {
         showCreatePlaylistModal();
     });
 
-    // Playlist cards
-    page.querySelectorAll('.playlist-card').forEach(card => {
+    // Playlist cards 
+    page.querySelectorAll('.album-card').forEach(card => {
         const playlistId = card.dataset.playlistId;
 
         card.addEventListener('click', (e) => {
-            if (!e.target.closest('.playlist-card-play-btn')) {
-                showPlaylistDetailPage(playlistId, () => {
-                    page.remove();
-                });
+            if (!e.target.closest('.album-play-btn')) {
+                showPlaylistDetailPage(playlistId, onBack);
             }
         });
 
-        card.querySelector('.playlist-card-play-btn')?.addEventListener('click', (e) => {
+        card.querySelector('.album-play-btn')?.addEventListener('click', (e) => {
             e.stopPropagation();
             const playlist = playlistSystem.getPlaylist(playlistId);
             if (playlist && playlist.tracks.length > 0) {
-                // Disparar evento global para reproducir playlist
                 window.dispatchEvent(new CustomEvent('playlist:play', {
                     detail: { playlistId, tracks: playlist.tracks }
                 }));
@@ -361,8 +456,9 @@ export function showPlaylistDetailPage(playlistId, onBack = null) {
         return;
     }
 
-    const existing = document.querySelector('.playlist-detail-container');
-    if (existing) existing.remove();
+    // CRÍTICO: Eliminar TODAS las páginas antes de mostrar detalle
+    const allPages = document.querySelectorAll('.playlists-page-container, .playlist-detail-container, .album-page, .favorites-page, .explore-page, .artists-page');
+    allPages.forEach(page => page.remove());
 
     const mainContent = document.querySelector('.main-content');
     if (!mainContent) return;
@@ -398,6 +494,9 @@ export function showPlaylistDetailPage(playlistId, onBack = null) {
                     <button class="playlist-shuffle-btn">
                         <i class="fa-solid fa-shuffle"></i>
                     </button>
+                    <button class="playlist-clear-btn" title="Limpiar todas las canciones">
+                        <i class="fa-solid fa-broom"></i>
+                    </button>
                 ` : ''}
                 <button class="playlist-edit-btn">
                     <i class="fa-solid fa-pen"></i>
@@ -422,42 +521,65 @@ export function showPlaylistDetailPage(playlistId, onBack = null) {
                         <span class="track-col-duration"><i class="fa-regular fa-clock"></i></span>
                     </div>
                     ${playlist.tracks.map((track, idx) => `
-                        <div class="track-row playlist-track-row" data-track-id="${track.id}">
-                            <span class="track-col-number">${idx + 1}</span>
-                            <div class="track-col-title">
-                                <span class="track-name">${escapeHtml(track.name)}</span>
-                                <span class="track-artists">${escapeHtml(track.artist)}</span>
+                            <div class="track-row playlist-track-row" data-track-id="${track.id}">
+                                <span class="track-col-number" data-number="${idx + 1}"></span>
+                                <div class="track-col-title">
+                                    <span class="track-name">${escapeHtml(track.name)} ${ (track.explicit) ? "<span class='explicit-track-badge'>E</span>" : '' }</span>
+                                    <span class="track-artists">${escapeHtml(track.artist)}</span>
+                                </div>
+                                <div class="track-col-album">
+                                    <span>${escapeHtml(track.album)}</span>
+                                </div>
+                                <div class="track-col-heart">
+                                    <button class="track-favorite-btn ${favoritesManager.isFavorite(track.name, track.artist, track.album) ? 'active' : ''}" aria-label="Me gusta" data-track-id="${track.id}">
+                                        <i class="fa-solid fa-heart"></i>
+                                    </button>
+                                </div>
+                                <span class="track-col-duration">${track.duration}</span>
+                                <button class="track-remove-btn" data-track-id="${track.id}" aria-label="Quitar">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
                             </div>
-                            <div class="track-col-album">
-                                <span>${escapeHtml(track.album)}</span>
-                            </div>
-                            <button class="playlist-track-remove-btn" data-track-id="${track.id}" aria-label="Quitar">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
-                            <span class="track-col-duration">${track.duration}</span>
-                        </div>
-                    `).join('')}
+                        `).join('')}
                 </div>
             `}
         </div>
     `;
 
-    document.querySelector('.content').style.display = 'none';
+    const contentElement = document.querySelector('.content');
+    if (contentElement) contentElement.style.display = 'none';
     mainContent.appendChild(page);
 
     // Events
     page.querySelector('.back-button').addEventListener('click', () => {
         page.remove();
-        document.querySelector('.content').style.display = 'block';
-        if (onBack) onBack();
+        if (contentElement) contentElement.style.display = 'block';
+        if (onBack) {
+            onBack();
+        } else {
+            showPlaylistsPage();
+        }
     });
 
-    page.querySelector('.playlist-delete-btn').addEventListener('click', () => {
-        const message = `¿Eliminar playlist?\nLa playlist "${playlist.name}" será eliminada permanentemente junto con todas sus ${playlist.tracks.length} canciones.`;
-        if (confirm(message)) {
+    page.querySelector('.playlist-delete-btn').addEventListener('click', async () => {
+        // Usar showConfirmationModal si está disponible (viene de script.js), sino usar confirm()
+        let confirmed = false;
+        if (window.showConfirmationModal && typeof window.showConfirmationModal === 'function') {
+            confirmed = await window.showConfirmationModal({
+                title: 'Eliminar Playlist',
+                message: `¿Eliminar "${playlist.name}" y todas sus ${playlist.tracks.length} canciones?`,
+                confirmText: 'Eliminar',
+                cancelText: 'Cancelar',
+                icon: '🗑️'
+            });
+        } else {
+            confirmed = confirm(`¿Eliminar playlist?\nLa playlist "${playlist.name}" será eliminada permanentemente junto con todas sus ${playlist.tracks.length} canciones.`);
+        }
+        if (confirmed) {
             playlistSystem.deletePlaylist(playlistId);
             showNotification('🗑️ Playlist eliminada');
             page.remove();
+            if (contentElement) contentElement.style.display = 'block';
             showPlaylistsPage();
         }
     });
@@ -482,16 +604,59 @@ export function showPlaylistDetailPage(playlistId, onBack = null) {
             showNotification('🔀 Modo aleatorio activado');
         });
 
-        page.querySelectorAll('.playlist-track-remove-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const trackId = btn.dataset.trackId;
-                playlistSystem.removeTrackFromPlaylist(playlistId, trackId);
-                showNotification('🗑️ Canción removida');
+        page.querySelector('.playlist-clear-btn')?.addEventListener('click', async () => {
+            let confirmed = false;
+            if (window.showConfirmationModal && typeof window.showConfirmationModal === 'function') {
+                confirmed = await window.showConfirmationModal({
+                    title: 'Limpiar Playlist',
+                    message: `¿Eliminar todas las ${playlist.tracks.length} canciones de "${playlist.name}"?`,
+                    confirmText: 'Eliminar Todo',
+                    cancelText: 'Cancelar',
+                    icon: '🗑️'
+                });
+            } else {
+                confirmed = confirm(`¿Eliminar todas las ${playlist.tracks.length} canciones de "${playlist.name}"?`);
+            }
+            if (confirmed) {
+                // Eliminar todas las canciones
+                playlist.tracks.forEach(track => {
+                    playlistSystem.removeTrackFromPlaylist(playlistId, track.id);
+                });
+                showNotification('🗑️ Playlist vaciada');
                 page.remove();
                 showPlaylistDetailPage(playlistId, onBack);
+            }
+        });
+
+        page.querySelectorAll('.track-remove-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const trackId = btn.dataset.trackId;
+                const track = playlistSystem.getTrackFromPlaylist(playlistId, trackId);
+
+                let confirmed = false;
+                if (window.showConfirmationModal && typeof window.showConfirmationModal === 'function') {
+                    confirmed = await window.showConfirmationModal({
+                        title: 'Eliminar Canción',
+                        message: `¿Quitar "${track?.name || 'Esta canción'}" de la playlist?`,
+                        confirmText: 'Eliminar',
+                        cancelText: 'Cancelar',
+                        icon: '🗑️'
+                    });
+                } else {
+                    confirmed = confirm(`¿Quitar "${track?.name || 'Esta canción'}" de la playlist?`);
+                }
+
+                if (confirmed) {
+                    playlistSystem.removeTrackFromPlaylist(playlistId, trackId);
+                    showNotification('🗑️ Canción removida');
+                    page.remove();
+                    showPlaylistDetailPage(playlistId, onBack);
+                }
             });
         });
+
+        // La reproducción por fila se maneja al hacer click en la fila completa
 
         page.querySelectorAll('.playlist-track-row').forEach(row => {
             row.addEventListener('click', function () {
@@ -499,8 +664,32 @@ export function showPlaylistDetailPage(playlistId, onBack = null) {
                 const track = playlistSystem.getTrackFromPlaylist(playlistId, trackId);
                 if (track) {
                     window.dispatchEvent(new CustomEvent('playlist:playTrack', {
-                        detail: { playlistId, track, trackId }
+                        detail: { playlistId, track, trackId, tracks: playlist.tracks }
                     }));
+                }
+            });
+        });
+
+        // Botones de favorito en la lista de la playlist (reutiliza estilos de favoritos)
+        page.querySelectorAll('.track-favorite-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const row = btn.closest('.track-row');
+                const trackId = row?.dataset.trackId;
+                const track = playlistSystem.getTrackFromPlaylist(playlistId, trackId);
+                if (!track) return;
+
+                try {
+                    await favoritesManager.toggleFavorite(track);
+                    const isNowFav = favoritesManager.isFavorite(track.name, track.artist, track.album);
+                    btn.classList.toggle('active', isNowFav);
+                    const counter = document.querySelector('.favorites-counter');
+                    if (counter) counter.textContent = favoritesManager.getFavoritesCount();
+                    window.dispatchEvent(new Event('favorites:changed'));
+                    showNotification(isNowFav ? '❤️ Agregado a favoritos' : '💔 Removido de favoritos');
+                } catch (err) {
+                    console.error('[PlaylistUI] Error toggling favorite:', err);
+                    showNotification('❌ Error modificando favoritos');
                 }
             });
         });

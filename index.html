@@ -125,7 +125,9 @@
                     </div>
 
                     <div class="albums-grid">
-                        <article class="album-card" tabindex="0">
+                        <article class="album-card" tabindex="0" data-album-name="Nada Personal (Remastered)"
+                            data-artist-name="Soda Stereo"
+                            data-cover="assets/covers-img/popular-albums/nada-personal.webp">
                             <div class="album-cover">
                                 <img src="assets/covers-img/popular-albums/nada-personal.webp"
                                     alt="Nada Personal Album Cover" style="width:100%;height:100%;object-fit:cover;">
@@ -138,7 +140,9 @@
                             </div>
                         </article>
 
-                        <article class="album-card" tabindex="0">
+                        <article class="album-card" tabindex="0" data-album-name="Violator (Deluxe)"
+                            data-artist-name="Depeche Mode"
+                            data-cover="assets/covers-img/popular-albums/Depeche-Mode-Violator.webp">
                             <div class="album-cover">
                                 <img src="assets/covers-img/popular-albums/Depeche-Mode-Violator.webp"
                                     alt="Depeche Mode Album Cover" style="width:100%;height:100%;object-fit:cover;">
@@ -151,7 +155,9 @@
                             </div>
                         </article>
 
-                        <article class="album-card" tabindex="0">
+                        <article class="album-card" tabindex="0" data-album-name="Killers (2015 Remaster)"
+                            data-artist-name="Iron Maiden"
+                            data-cover="assets/covers-img/popular-albums/Iron-Maiden-–-Killers-ghostcultmag.webp">
                             <div class="album-cover">
                                 <img src="assets/covers-img/popular-albums/Iron-Maiden-–-Killers-ghostcultmag.webp"
                                     alt="Killers Album Cover">
@@ -164,7 +170,9 @@
                             </div>
                         </article>
 
-                        <article class="album-card" tabindex="0">
+                        <article class="album-card" tabindex="0" data-album-name="Seventeen Seconds"
+                            data-artist-name="The Cure"
+                            data-cover="assets/covers-img/popular-albums/The Cure- Seventeen Seconds.webp">
                             <div class="album-cover">
                                 <img src="assets/covers-img/popular-albums/The Cure- Seventeen Seconds.webp"
                                     alt="Seventeen Seconds Album Cover">
@@ -177,7 +185,8 @@
                             </div>
                         </article>
 
-                        <article class="album-card" tabindex="0">
+                        <article class="album-card" tabindex="0" data-album-name="Starboy" data-artist-name="The Weeknd"
+                            data-cover="assets/covers-img/popular-albums/starboy.webp">
                             <div class="album-cover">
                                 <img src="assets/covers-img/popular-albums/starboy.webp" alt="Starboy Album Cover">
                                 <button class="album-play-btn" aria-label="Reproducir álbum"></button>
@@ -280,7 +289,7 @@
                     </div>
 
                     <div class="song-list">
-                        <article class="song-item">
+                        <article class="song-item" data-audio-file="assets\audio\tend-music\03 - Magia.mp3">
                             <div class="song-cover">
                                 <img src="assets/covers-img/tend-songs/Fuerza-natural.webp"
                                     alt="Portada de Fuerza Natural" />
@@ -293,7 +302,8 @@
                             <button class="song-play-btn" aria-label="Reproducir canción"></button>
                         </article>
 
-                        <article class="song-item">
+                        <article class="song-item"
+                            data-audio-file="assets\audio\tend-music\Stairway to Heaven (Remaster).mp3">
                             <div class="song-cover">
                                 <img src="assets/covers-img/tend-songs/LedZeppelinIV.webp"
                                     alt="Portada de Led Zepellin iv" />
@@ -306,19 +316,19 @@
                             <button class="song-play-btn" aria-label="Reproducir canción"></button>
                         </article>
 
-                        <article class="song-item">
+                        <article class="song-item" data-audio-file="assets\audio\tend-music\Nookie.flac">
                             <div class="song-cover">
                                 <img src="assets/covers-img/tend-songs/limp-bizkit.webp" alt="Portada de limp-bizkit" />
                             </div>
                             <div class="song-info">
-                                <h3 class="song-title">Nookie</h3>
+                                <h3 class="song-title">Nookie <span class="explicit-track-badge small">E</span></h3>
                                 <p class="song-artist">Significant Other</p>
                                 <p class="song-year">1999</p>
                             </div>
                             <button class="song-play-btn" aria-label="Reproducir canción"></button>
                         </article>
 
-                        <article class="song-item">
+                        <article class="song-item" data-audio-file="assets\audio\tend-music\Relax, Take It Easy.mp3">
                             <div class="song-cover">
                                 <img src="assets/covers-img/tend-songs/mika-album.webp" alt="Portada de Mika" />
                             </div>
@@ -330,7 +340,7 @@
                             <button class="song-play-btn" aria-label="Reproducir canción"></button>
                         </article>
 
-                        <article class="song-item">
+                        <article class="song-item" data-audio-file="assets\audio\tend-music\Iron Man.mp3">
                             <div class="song-cover">
                                 <img src="assets/covers-img/tend-songs/black-sabbath-paranoid.webp"
                                     alt="Portada de Black Sabbath Paranoid" />
@@ -343,7 +353,7 @@
                             <button class="song-play-btn" aria-label="Reproducir canción"></button>
                         </article>
 
-                        <article class="song-item">
+                        <article class="song-item" data-audio-file="assets\audio\tend-music\Sin Disfraz.mp3">
                             <div class="song-cover">
                                 <img src="assets/covers-img/tend-songs/virus-locura.webp" alt="Portada de Virus" />
                             </div>
@@ -419,8 +429,7 @@
                         <article class="video-card"
                             data-video-src="assets/videos/CA7RIEL & Paco Amoroso - EL ÚNICO.webm">
                             <div class="video-thumb-container">
-                                <img class="video-thumb"
-                                    src="assets/images/video-covers/paco y catriel- el unico.webp"
+                                <img class="video-thumb" src="assets/images/video-covers/paco y catriel- el unico.webp"
                                     alt="Miniatura El Unico" loading="lazy">
                                 <button class="video-play-btn" aria-label="Reproducir video"></button>
                             </div>
@@ -488,7 +497,7 @@
                             <div class="album-info">
                                 <h3 class="album-title">Chill Vibes</h3>
                                 <p class="album-artist">Para relajarte</p>
-                                <p class="album-year">120 canciones</p>
+                                <p class="album-year">23 canciones</p>
                             </div>
                         </article>
 
@@ -501,7 +510,7 @@
                             <div class="album-info">
                                 <h3 class="album-title">Deep Focus</h3>
                                 <p class="album-artist">Concentración</p>
-                                <p class="album-year">40 canciones</p>
+                                <p class="album-year">15 canciones</p>
                             </div>
                         </article>
 
@@ -514,7 +523,7 @@
                             <div class="album-info">
                                 <h3 class="album-title">Sleep Time</h3>
                                 <p class="album-artist">Para dormir</p>
-                                <p class="album-year">95 canciones</p>
+                                <p class="album-year">7 canciones</p>
                             </div>
                         </article>
 
@@ -527,7 +536,7 @@
                             <div class="album-info">
                                 <h3 class="album-title">Meditation</h3>
                                 <p class="album-artist">Meditación</p>
-                                <p class="album-year">20 canciones</p>
+                                <p class="album-year">15 canciones</p>
                             </div>
                         </article>
 
@@ -540,7 +549,7 @@
                             <div class="album-info">
                                 <h3 class="album-title">Happy Vibes</h3>
                                 <p class="album-artist">Energía</p>
-                                <p class="album-year">110 canciones</p>
+                                <p class="album-year">1 canciones</p>
                             </div>
                         </article>
                     </div>
@@ -660,7 +669,7 @@
             <button class="player-favorite-btn" aria-label="Me gusta">
                 <i class="fa-regular fa-heart"></i>
             </button>
-        
+
             <button class="player-add-playlist-btn" aria-label="Agregar a playlist">
                 <i class="fa-solid fa-plus"></i>
             </button>
@@ -694,8 +703,15 @@
                     </div>
 
                     <div class="mini-player-info">
-                        <h3 class="mini-player-song-name" id="miniPlayerSongName">-</h3>
-                        <p class="mini-player-artist-name" id="miniPlayerArtistName">-</p>
+                        <div class="mini-player-meta">
+                            <div class="mini-player-meta-text">
+                                <h3 class="mini-player-song-name" id="miniPlayerSongName">-</h3>
+                                <p class="mini-player-artist-name" id="miniPlayerArtistName">-</p>
+                            </div>
+                            <button class="mini-fav-btn" aria-label="Me gusta" title="Agregar a favoritos">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                        </div>
                         <div class="mini-player-progress">
                             <span class="mini-time" id="miniCurrentTime">0:00</span>
                             <div class="mini-progress-bar">

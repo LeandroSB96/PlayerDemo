@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const fetch = require('node-fetch');
+const path = require('path');
 const app = express();
 
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
@@ -19,6 +20,10 @@ app.use((req, res, next) => {
   next();
 });
 
+// Servir archivos estáticos (para PJAX)
+app.use(express.static(path.join(__dirname, '..')));
+
+// Ruta para obtener token de Spotify
 app.get('/spotify-token', async (req, res) => {
   try {
     const response = await fetch('https://accounts.spotify.com/api/token', {
@@ -44,6 +49,12 @@ app.get('/spotify-token', async (req, res) => {
   }
 });
 
+// Fallback a index.html para rutas SPA 
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'index.html'));
+});
+
 app.listen(PORT, () => {
-  console.log(`Spotify token proxy running on http://localhost:${PORT}. Endpoint: /spotify-token`);
+  console.log(`\n🎵 Player Demo running at http://localhost:${PORT}`);
+  console.log(`📍 Spotify token proxy: /spotify-token\n`);
 });
