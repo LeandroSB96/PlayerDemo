@@ -5,8 +5,122 @@
 import { playlistSystem } from './playlist-system.js';
 import { favoritesManager } from './favorites-manager.js';
 
+// Verificar y limpiar playlists corruptas al cargar
+function cleanupCorruptedPlaylists() {
+    try {
+        const allPlaylists = playlistSystem.getAllPlaylists();
+        let needsCleanup = false;
+        
+        allPlaylists.forEach(pl => {
+            // Verificar si la playlist tiene datos válidos
+            if (!pl.name || typeof pl.name !== 'string') {
+                console.warn('[PlaylistUI] Playlist corrupta detectada, eliminando:', pl);
+                playlistSystem.deletePlaylist(pl.id);
+                needsCleanup = true;
+            }
+        });
+        
+        if (needsCleanup) {
+            showNotification('🧹 Limpieza de datos completada');
+        }
+    } catch (error) {
+        console.error('[PlaylistUI] Error en limpieza inicial:', error);
+    }
+}
+
+// Ejecutar limpieza al cargar el módulo
+cleanupCorruptedPlaylists();
+
 /**
- * Generar collage de portadas (hasta 4) para mostrar en la card
+ * Helper: confirmAction con modal mejorado
+ */
+async function confirmAction(options = {}) {
+    const defaultOpts = {
+        title: '¿Estás seguro?',
+        message: 'Confirmar acción',
+        confirmText: 'Confirmar',
+        cancelText: 'Cancelar',
+        icon: '⚠️'
+    };
+    const opts = { ...defaultOpts, ...options };
+
+    // Intentar usar el modal global si existe
+    if (window.showConfirmationModal && typeof window.showConfirmationModal === 'function') {
+        try {
+            return await window.showConfirmationModal(opts);
+        } catch (e) {
+            console.error('[PlaylistUI] Error con showConfirmationModal:', e);
+        }
+    }
+
+    // Fallback: crear modal local
+    return new Promise((resolve) => {
+        const overlay = document.createElement('div');
+        overlay.className = 'confirmation-modal-overlay';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        `;
+
+        const modal = document.createElement('div');
+        modal.className = 'confirmation-modal';
+        modal.style.cssText = `
+            background: linear-gradient(135deg, #2a2a4a 0%, #1a1a2e 100%);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        `;
+
+        modal.innerHTML = `
+            <div style="margin-bottom: 24px;">
+                <span style="font-size: 48px; margin-bottom: 16px; display: block;">${opts.icon}</span>
+                <h2 style="font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 8px;">${escapeHtml(opts.title)}</h2>
+                <p style="font-size: 14px; color: #b3b3b3; line-height: 1.5;">${escapeHtml(opts.message)}</p>
+            </div>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button class="confirm-cancel-btn" style="padding: 12px 24px; background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; min-width: 120px;">
+                    ${escapeHtml(opts.cancelText)}
+                </button>
+                <button class="confirm-ok-btn" style="padding: 12px 24px; background: linear-gradient(135deg, #ff4b4b 0%, #d32f2f 100%); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; min-width: 120px;">
+                    ${escapeHtml(opts.confirmText)}
+                </button>
+            </div>
+        `;
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        const cancelBtn = modal.querySelector('.confirm-cancel-btn');
+        const okBtn = modal.querySelector('.confirm-ok-btn');
+
+        const close = (result) => {
+            overlay.remove();
+            resolve(result);
+        };
+
+        cancelBtn.addEventListener('click', () => close(false));
+        okBtn.addEventListener('click', () => close(true));
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) close(false);
+        });
+    });
+}
+
+/**
+ * Generar collage de portadas
  */
 function generatePlaylistCollageDataUrl(tracks, size = 200) {
     const canvas = document.createElement('canvas');
@@ -14,12 +128,10 @@ function generatePlaylistCollageDataUrl(tracks, size = 200) {
     canvas.height = size;
     const ctx = canvas.getContext('2d');
 
-    // Fondo gris por defecto
     ctx.fillStyle = 'rgba(50, 50, 80, 0.5)';
     ctx.fillRect(0, 0, size, size);
 
     if (!tracks || tracks.length === 0) {
-        // Mostrar icono de lista
         ctx.fillStyle = '#888';
         ctx.font = `bold ${size * 0.5}px Arial`;
         ctx.textAlign = 'center';
@@ -28,11 +140,9 @@ function generatePlaylistCollageDataUrl(tracks, size = 200) {
         return canvas.toDataURL();
     }
 
-    // Tomar hasta 4 portadas
     const covers = tracks.slice(0, 4).map(t => t.cover).filter(Boolean);
     
     if (covers.length === 0) {
-        // Sin portadas, mostrar icono
         ctx.fillStyle = '#888';
         ctx.font = `bold ${size * 0.5}px Arial`;
         ctx.textAlign = 'center';
@@ -41,44 +151,23 @@ function generatePlaylistCollageDataUrl(tracks, size = 200) {
         return canvas.toDataURL();
     }
 
-    // Crear grid según cantidad de portadas
     const gridSize = covers.length === 1 ? 1 : 2;
     const tileSize = size / gridSize;
 
-    // Cargar y dibujar imágenes de forma sincrónica usando canvas
     covers.forEach((coverUrl, idx) => {
         try {
             const img = new Image();
             img.crossOrigin = 'anonymous';
             
-            // Usar función de timeout para manejo de errores
-            const timeoutId = setTimeout(() => {
-                ctx.fillStyle = 'rgba(100, 100, 120, 0.3)';
+            img.onload = function() {
                 const row = Math.floor(idx / gridSize);
                 const col = idx % gridSize;
                 const x = col * tileSize;
                 const y = row * tileSize;
-                ctx.fillRect(x, y, tileSize, tileSize);
-            }, 1000);
-
-            img.onload = function () {
-                clearTimeout(timeoutId);
-                const row = Math.floor(idx / gridSize);
-                const col = idx % gridSize;
-                const x = col * tileSize;
-                const y = row * tileSize;
-                try {
-                    ctx.drawImage(img, x, y, tileSize, tileSize);
-                } catch (e) {
-                    // Dibujar fallback si hay error
-                    ctx.fillStyle = 'rgba(100, 100, 120, 0.3)';
-                    ctx.fillRect(x, y, tileSize, tileSize);
-                }
+                ctx.drawImage(img, x, y, tileSize, tileSize);
             };
             
-            img.onerror = function () {
-                clearTimeout(timeoutId);
-                // Dibujar fallback
+            img.onerror = function() {
                 ctx.fillStyle = 'rgba(100, 100, 120, 0.3)';
                 const row = Math.floor(idx / gridSize);
                 const col = idx % gridSize;
@@ -97,9 +186,7 @@ function generatePlaylistCollageDataUrl(tracks, size = 200) {
 }
 
 /**
-  Mostrar modal para agregar track a una playlist
-   @param {object} track 
-   @param {function} onSuccess 
+ * Mostrar modal para agregar track/álbum a playlist
  */
 export function showPlaylistModal(item, onSuccess = null) {
     const isAlbum = item && Array.isArray(item.tracks);
@@ -109,12 +196,10 @@ export function showPlaylistModal(item, onSuccess = null) {
         return;
     }
 
-    // Remover modal existente
     const existing = document.querySelector('.playlist-modal-container');
     if (existing) existing.remove();
 
     const playlists = playlistSystem.getAllPlaylists();
-    const isCreatingNew = playlists.length === 0;
 
     const modal = document.createElement('div');
     modal.className = 'playlist-modal-container';
@@ -129,25 +214,22 @@ export function showPlaylistModal(item, onSuccess = null) {
             </div>
 
             <div class="playlist-modal-body">
-                <!-- Item info (track o álbum) -->
                 <div class="playlist-modal-track-info">
-                    <img src="${(isAlbum ? (item.cover || 'assets/images/default-album.webp') : (item.cover || 'assets/images/default-album.webp'))}" alt="${isAlbum ? escapeHtml(item.name) : escapeHtml(item.name)}">
+                    <img src="${(isAlbum ? (item.cover || 'assets/images/default-album.webp') : (item.cover || 'assets/images/default-album.webp'))}" alt="${escapeHtml(item.name)}">
                     <div>
                         <p class="modal-track-name">${escapeHtml(item.name)}</p>
                         <p class="modal-track-artist">${isAlbum ? `${item.tracks.length} pista(s) • ${escapeHtml(item.artist || '')}` : escapeHtml(item.artist || 'Desconocido')}</p>
                     </div>
                 </div>
 
-                <!-- Create new button -->
                 <button class="playlist-modal-create-btn">
                     <i class="fa-solid fa-plus"></i> Nueva Playlist
                 </button>
 
-                <!-- Existing playlists -->
                 <div class="playlist-modal-list">
                     ${playlists.length === 0 ?
-            `<p class="playlist-modal-empty">No tienes playlists. ¡Crea una!</p>` :
-            playlists.map(pl => `
+                        `<p class="playlist-modal-empty">No tienes playlists. ¡Crea una!</p>` :
+                        playlists.map(pl => `
                             <div class="playlist-modal-item" data-playlist-id="${pl.id}">
                                 <div class="playlist-modal-item-info">
                                     <i class="fa-solid fa-list"></i>
@@ -161,7 +243,7 @@ export function showPlaylistModal(item, onSuccess = null) {
                                 </button>
                             </div>
                         `).join('')
-        }
+                    }
                 </div>
             </div>
         </div>
@@ -169,83 +251,55 @@ export function showPlaylistModal(item, onSuccess = null) {
 
     document.body.appendChild(modal);
 
-    // Events
     const overlay = modal.querySelector('.playlist-modal-overlay');
     const closeBtn = modal.querySelector('.playlist-modal-close');
     const createBtn = modal.querySelector('.playlist-modal-create-btn');
     const addBtns = modal.querySelectorAll('.playlist-modal-add-btn');
 
-    const closeModal = (e = null) => {
-        if (e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        modal.remove();
-    };
+    const closeModal = () => modal.remove();
 
-    overlay.addEventListener('click', (e) => closeModal(e));
-    closeBtn.addEventListener('click', (e) => closeModal(e));
-
-    createBtn.addEventListener('click', (e) => {
-        closeModal(e);
-        showCreatePlaylistModal(track, onSuccess);
+    overlay.addEventListener('click', closeModal);
+    closeBtn.addEventListener('click', closeModal);
+    createBtn.addEventListener('click', () => {
+        closeModal();
+        showCreatePlaylistModal(item, onSuccess);
     });
 
-    console.log('[PlaylistUI] Botones encontrados:', addBtns.length, 'isAlbum:', isAlbum);
-    addBtns.forEach((btn, idx) => {
-        console.log(`[PlaylistUI] Configurando botón ${idx}:`, btn);
-        btn.addEventListener('click', (e) => {
-            console.log('[PlaylistUI] Click en botón agregar');
+    addBtns.forEach(btn => {
+        btn.addEventListener('click', async (e) => {
             e.stopPropagation();
             const playlistId = btn.dataset.playlistId;
-            console.log('[PlaylistUI] PlaylistId:', playlistId);
 
             try {
                 if (isAlbum) {
-                    console.log('[PlaylistUI] Llamando addAlbumToPlaylist con:', { playlistId, album: item });
                     const addedCount = playlistSystem.addAlbumToPlaylist(playlistId, item);
-                    console.log('[PlaylistUI] Resultado addAlbumToPlaylist:', addedCount);
                     if (addedCount > 0) {
-                        showNotification(`✅ Álbum agregado a la playlist (${addedCount} pistas)`);
+                        showNotification(`✅ Álbum agregado (${addedCount} pistas)`);
                         closeModal();
-                        // Pequeño delay para evitar propagación de eventos que pudiera causar reproducción
-                        setTimeout(() => {
-                            if (onSuccess) {
-                                console.log('[PlaylistUI] Llamando onSuccess (album)');
-                                onSuccess(playlistId, item);
-                            }
-                        }, 100);
+                        if (onSuccess) setTimeout(() => onSuccess(playlistId, item), 100);
                     } else {
-                        showNotification('⚠️ Ninguna pista nueva para agregar');
+                        showNotification('⚠️ Ninguna pista nueva');
                     }
                 } else {
-                    console.log('[PlaylistUI] Llamando addTrackToPlaylist con:', { playlistId, track: item });
                     const added = playlistSystem.addTrackToPlaylist(playlistId, item);
-                    console.log('[PlaylistUI] Resultado addTrackToPlaylist:', added);
                     if (added) {
-                        showNotification('✅ Canción agregada a la playlist');
+                        showNotification('✅ Canción agregada');
                         closeModal();
-                        // Pequeño delay para evitar propagación de eventos que pudiera causar reproducción
-                        setTimeout(() => {
-                            if (onSuccess) {
-                                console.log('[PlaylistUI] Llamando onSuccess (track)');
-                                onSuccess(playlistId, item);
-                            }
-                        }, 100);
+                        if (onSuccess) setTimeout(() => onSuccess(playlistId, item), 100);
                     } else {
-                        showNotification('⚠️ Esta canción ya está en la playlist');
+                        showNotification('⚠️ Ya está en la playlist');
                     }
                 }
             } catch (error) {
-                console.error('[PlaylistUI] Error al agregar:', error);
-                showNotification('❌ Error al agregar la canción');
+                console.error('[PlaylistUI] Error:', error);
+                showNotification('❌ Error al agregar');
             }
         });
     });
 }
 
 /**
- * Mostrar modal para crear una nueva playlist
+ * Modal para crear playlist
  */
 export function showCreatePlaylistModal(trackToAdd = null, onSuccess = null) {
     const existing = document.querySelector('.create-playlist-modal-container');
@@ -290,46 +344,34 @@ export function showCreatePlaylistModal(trackToAdd = null, onSuccess = null) {
     const submitBtn = modal.querySelector('.create-playlist-submit-btn');
     const nameInput = modal.querySelector('#playlistNameInput');
 
-    const closeModal = () => {
-        modal.remove();
-    };
+    const closeModal = () => modal.remove();
 
     overlay.addEventListener('click', closeModal);
     closeBtn.addEventListener('click', closeModal);
 
     const handleSubmit = () => {
-        console.log('[CreatePlaylistModal] handleSubmit called');
         const name = nameInput.value.trim();
-        console.log('[CreatePlaylistModal] Name:', name);
         if (!name) {
-            showNotification('⚠️ Ingresa un nombre para la playlist');
+            showNotification('⚠️ Ingresa un nombre');
             return;
         }
 
         try {
             const desc = modal.querySelector('#playlistDescInput').value.trim();
-            console.log('[CreatePlaylistModal] Creating playlist:', name, desc);
             const newPlaylist = playlistSystem.createPlaylist(name, desc);
-            console.log('[CreatePlaylistModal] Playlist created:', newPlaylist);
 
             if (trackToAdd) {
-                console.log('[CreatePlaylistModal] Adding track:', trackToAdd);
                 const added = playlistSystem.addTrackToPlaylist(newPlaylist.id, trackToAdd);
-                console.log('[CreatePlaylistModal] Track added result:', added);
                 showNotification(`✅ Playlist creada${added ? ' y canción agregada' : ''}`);
             } else {
                 showNotification('✅ Playlist creada');
             }
 
             closeModal();
-            console.log('[CreatePlaylistModal] onSuccess:', !!onSuccess);
-            if (onSuccess) {
-                console.log('[CreatePlaylistModal] Calling onSuccess with:', newPlaylist.id, trackToAdd);
-                onSuccess(newPlaylist.id, trackToAdd);
-            }
+            if (onSuccess) onSuccess(newPlaylist.id, trackToAdd);
         } catch (error) {
-            console.error('[PlaylistUI] Error al crear:', error);
-            showNotification('❌ Error al crear la playlist');
+            console.error('[PlaylistUI] Error:', error);
+            showNotification('❌ Error al crear');
         }
     };
 
@@ -340,10 +382,9 @@ export function showCreatePlaylistModal(trackToAdd = null, onSuccess = null) {
 }
 
 /**
- * Mostrar página de playlists
+ * Página de playlists (SIN botón de eliminar en las cards)
  */
 export function showPlaylistsPage(onBack = null) {
-    // Limpieza completa - eliminar TODAS las páginas dinámicas
     const existingPages = document.querySelectorAll('.album-page, .favorites-page, .playlists-page-container, .playlist-detail-container, .explore-page, .artists-page');
     existingPages.forEach(page => page.remove());
 
@@ -363,7 +404,7 @@ export function showPlaylistsPage(onBack = null) {
                 <i class="fa-solid fa-arrow-left"></i>
             </button>
             <div class="album-page-hero">
-                <div class="playlists-icon">
+                <div class="playlists-icon" style="width: 232px; height: 232px; display: flex; align-items: center; justify-content: center; background: rgba(75, 155, 255, 0.1); border-radius: 8px;">
                     <i class="fa-solid fa-list" style="font-size: 120px; color: #4b9bff;"></i>
                 </div>
                 <div class="album-page-info">
@@ -378,8 +419,11 @@ export function showPlaylistsPage(onBack = null) {
 
         <div class="album-page-content">
             <div class="album-actions">
-                <button class="playlists-create-new-btn">
+                <button class="playlists-create-new-btn" title="Crear nueva playlist" style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(131deg, rgba(115, 59, 161, 1) 31%, rgba(207, 9, 253, 1) 71%); border: none; color: #f5f3f3; font-size: 20px; cursor: pointer;">
                     <i class="fa-solid fa-plus"></i>
+                </button>
+                <button class="playlists-reset-btn" title="Limpiar todas" style="width: 48px; height: 48px; border-radius: 50%; background: transparent; border: 2px solid rgba(255, 69, 69, 0.3); color: #ff4545; font-size: 18px; cursor: pointer;">
+                    <i class="fa-solid fa-broom"></i>
                 </button>
             </div>
 
@@ -389,14 +433,12 @@ export function showPlaylistsPage(onBack = null) {
                     <p>No tienes playlists aún</p>
                 </div>
             ` : `
-                <div class="albums-grid">
+                <div class="albums-grid playlists-grid">
                     ${playlists.map(pl => `
-                        <div class="album-card" data-playlist-id="${pl.id}">
+                        <div class="album-card playlist-card" data-playlist-id="${pl.id}">
                             <div class="album-cover">
                                 <img src="${generatePlaylistCollageDataUrl(pl.tracks)}" alt="${escapeHtml(pl.name)}" />
-                                <button class="album-play-btn playlist-card-play-btn" aria-label="Reproducir">
-                                    <i class="fa-solid fa-play"></i>
-                                </button>
+                                <button class="album-play-btn" aria-label="Reproducir"></button>
                             </div>
                             <div class="album-info">
                                 <h3 class="album-title">${escapeHtml(pl.name)}</h3>
@@ -409,45 +451,72 @@ export function showPlaylistsPage(onBack = null) {
         </div>
     `;
 
-    // Ocultar contenido principal
     document.querySelector('.content').style.display = 'none';
     mainContent.appendChild(page);
 
     // Events
     page.querySelector('.back-button').addEventListener('click', () => {
         page.remove();
-        showPlaylistsPage(onBack);
+        document.querySelector('.content').style.display = 'block';
+        if (onBack) onBack();
     });
 
     page.querySelector('.playlists-create-new-btn').addEventListener('click', () => {
-        showCreatePlaylistModal();
+        showCreatePlaylistModal(null, () => {
+            page.remove();
+            showPlaylistsPage(onBack);
+        });
     });
 
-    // Playlist cards 
-    page.querySelectorAll('.album-card').forEach(card => {
+    page.querySelector('.playlists-reset-btn').addEventListener('click', async () => {
+        const confirmed = await confirmAction({
+            title: 'Eliminar todas las playlists',
+            message: '¿Eliminar TODAS las playlists? Esta acción no se puede deshacer.',
+            confirmText: 'Eliminar Todo',
+            cancelText: 'Cancelar',
+            icon: '🗑️'
+        });
+        
+        if (confirmed) {
+            playlistSystem.clearAll();
+            showNotification('🗑️ Todas las playlists eliminadas');
+            page.remove();
+            showPlaylistsPage(onBack);
+        }
+    });
+
+    // Cards de playlist (solo abrir detalle o reproducir)
+    page.querySelectorAll('.playlist-card').forEach(card => {
         const playlistId = card.dataset.playlistId;
 
+        // Click en la card (abrir detalle)
         card.addEventListener('click', (e) => {
             if (!e.target.closest('.album-play-btn')) {
                 showPlaylistDetailPage(playlistId, onBack);
             }
         });
 
-        card.querySelector('.album-play-btn')?.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const playlist = playlistSystem.getPlaylist(playlistId);
-            if (playlist && playlist.tracks.length > 0) {
-                window.dispatchEvent(new CustomEvent('playlist:play', {
-                    detail: { playlistId, tracks: playlist.tracks }
-                }));
-                showNotification('▶️ Reproduciendo playlist');
-            }
-        });
+        // Botón play
+        const playBtn = card.querySelector('.album-play-btn');
+        if (playBtn) {
+            playBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const playlist = playlistSystem.getPlaylist(playlistId);
+                if (playlist && playlist.tracks.length > 0) {
+                    window.dispatchEvent(new CustomEvent('playlist:play', {
+                        detail: { playlistId, tracks: playlist.tracks }
+                    }));
+                    showNotification('▶️ Reproduciendo playlist');
+                } else {
+                    showNotification('⚠️ Playlist vacía');
+                }
+            });
+        }
     });
 }
 
 /**
- * Mostrar página de detalle de una playlist
+ * Página de detalle de playlist
  */
 export function showPlaylistDetailPage(playlistId, onBack = null) {
     const playlist = playlistSystem.getPlaylist(playlistId);
@@ -456,7 +525,6 @@ export function showPlaylistDetailPage(playlistId, onBack = null) {
         return;
     }
 
-    // CRÍTICO: Eliminar TODAS las páginas antes de mostrar detalle
     const allPages = document.querySelectorAll('.playlists-page-container, .playlist-detail-container, .album-page, .favorites-page, .explore-page, .artists-page');
     allPages.forEach(page => page.remove());
 
@@ -471,7 +539,7 @@ export function showPlaylistDetailPage(playlistId, onBack = null) {
                 <i class="fa-solid fa-arrow-left"></i>
             </button>
             <div class="album-page-hero">
-                <div class="playlist-detail-icon">
+                <div style="width: 232px; height: 232px; display: flex; align-items: center; justify-content: center; background: rgba(75, 155, 255, 0.1); border-radius: 8px;">
                     <i class="fa-solid fa-list" style="font-size: 120px; color: #4b9bff;"></i>
                 </div>
                 <div class="album-page-info">
@@ -488,20 +556,20 @@ export function showPlaylistDetailPage(playlistId, onBack = null) {
         <div class="album-page-content">
             <div class="album-actions">
                 ${playlist.tracks.length > 0 ? `
-                    <button class="playlist-play-all-btn">
+                    <button class="playlist-play-all-btn" style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(131deg, rgba(115, 59, 161, 1) 31%, rgba(207, 9, 253, 1) 71%); border: none; color: #f5f3f3; font-size: 20px; cursor: pointer;">
                         <i class="fa-solid fa-play"></i>
                     </button>
-                    <button class="playlist-shuffle-btn">
+                    <button class="playlist-shuffle-btn" style="width: 48px; height: 48px; border-radius: 50%; background: transparent; border: 2px solid rgba(255, 255, 255, 0.2); color: #b3b3b3; font-size: 18px; cursor: pointer;">
                         <i class="fa-solid fa-shuffle"></i>
                     </button>
-                    <button class="playlist-clear-btn" title="Limpiar todas las canciones">
+                    <button class="playlist-clear-btn" title="Vaciar playlist" style="width: 48px; height: 48px; border-radius: 50%; background: transparent; border: 2px solid rgba(255, 149, 0, 0.3); color: #ff9500; font-size: 18px; cursor: pointer;">
                         <i class="fa-solid fa-broom"></i>
                     </button>
                 ` : ''}
-                <button class="playlist-edit-btn">
+                <button class="playlist-edit-btn" style="width: 48px; height: 48px; border-radius: 50%; background: transparent; border: 2px solid rgba(75, 155, 255, 0.3); color: #4b9bff; font-size: 18px; cursor: pointer;">
                     <i class="fa-solid fa-pen"></i>
                 </button>
-                <button class="playlist-delete-btn">
+                <button class="playlist-delete-btn" style="width: 48px; height: 48px; border-radius: 50%; background: transparent; border: 2px solid rgba(255, 69, 69, 0.3); color: #ff4545; font-size: 18px; cursor: pointer;">
                     <i class="fa-solid fa-trash"></i>
                 </button>
             </div>
@@ -521,108 +589,92 @@ export function showPlaylistDetailPage(playlistId, onBack = null) {
                         <span class="track-col-duration"><i class="fa-regular fa-clock"></i></span>
                     </div>
                     ${playlist.tracks.map((track, idx) => `
-                            <div class="track-row playlist-track-row" data-track-id="${track.id}">
-                                <span class="track-col-number" data-number="${idx + 1}"></span>
-                                <div class="track-col-title">
-                                    <span class="track-name">${escapeHtml(track.name)} ${ (track.explicit) ? "<span class='explicit-track-badge'>E</span>" : '' }</span>
-                                    <span class="track-artists">${escapeHtml(track.artist)}</span>
-                                </div>
-                                <div class="track-col-album">
-                                    <span>${escapeHtml(track.album)}</span>
-                                </div>
-                                <div class="track-col-heart">
-                                    <button class="track-favorite-btn ${favoritesManager.isFavorite(track.name, track.artist, track.album) ? 'active' : ''}" aria-label="Me gusta" data-track-id="${track.id}">
-                                        <i class="fa-solid fa-heart"></i>
-                                    </button>
-                                </div>
-                                <span class="track-col-duration">${track.duration}</span>
-                                <button class="track-remove-btn" data-track-id="${track.id}" aria-label="Quitar">
-                                    <i class="fa-solid fa-xmark"></i>
+                        <div class="track-row playlist-track-row" data-track-id="${track.id}">
+                            <span class="track-col-number" data-number="${idx + 1}"></span>
+                            <div class="track-col-title">
+                                <span class="track-name">${escapeHtml(track.name)} ${track.explicit ? "<span class='explicit-track-badge'>E</span>" : ''}</span>
+                                <span class="track-artists">${escapeHtml(track.artist)}</span>
+                            </div>
+                            <div class="track-col-album">
+                                <span>${escapeHtml(track.album)}</span>
+                            </div>
+                            <div class="track-col-heart">
+                                <button class="track-favorite-btn ${favoritesManager.isFavorite(track.name, track.artist, track.album) ? 'active' : ''}">
+                                    <i class="${favoritesManager.isFavorite(track.name, track.artist, track.album) ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
                                 </button>
                             </div>
-                        `).join('')}
+                            <span class="track-col-duration">${track.duration}</span>
+                            <button class="track-remove-btn" data-track-id="${track.id}">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    `).join('')}
                 </div>
             `}
         </div>
     `;
 
-    const contentElement = document.querySelector('.content');
-    if (contentElement) contentElement.style.display = 'none';
+    document.querySelector('.content').style.display = 'none';
     mainContent.appendChild(page);
 
     // Events
     page.querySelector('.back-button').addEventListener('click', () => {
         page.remove();
-        if (contentElement) contentElement.style.display = 'block';
-        if (onBack) {
-            onBack();
-        } else {
-            showPlaylistsPage();
-        }
+        showPlaylistsPage(onBack);
     });
 
     page.querySelector('.playlist-delete-btn').addEventListener('click', async () => {
-        // Usar showConfirmationModal si está disponible (viene de script.js), sino usar confirm()
-        let confirmed = false;
-        if (window.showConfirmationModal && typeof window.showConfirmationModal === 'function') {
-            confirmed = await window.showConfirmationModal({
-                title: 'Eliminar Playlist',
-                message: `¿Eliminar "${playlist.name}" y todas sus ${playlist.tracks.length} canciones?`,
-                confirmText: 'Eliminar',
-                cancelText: 'Cancelar',
-                icon: '🗑️'
-            });
-        } else {
-            confirmed = confirm(`¿Eliminar playlist?\nLa playlist "${playlist.name}" será eliminada permanentemente junto con todas sus ${playlist.tracks.length} canciones.`);
-        }
+        const confirmed = await confirmAction({
+            title: 'Eliminar Playlist',
+            message: `¿Eliminar "${playlist.name}"?`,
+            confirmText: 'Eliminar',
+            cancelText: 'Cancelar',
+            icon: '🗑️'
+        });
+        
         if (confirmed) {
             playlistSystem.deletePlaylist(playlistId);
             showNotification('🗑️ Playlist eliminada');
             page.remove();
-            if (contentElement) contentElement.style.display = 'block';
-            showPlaylistsPage();
+            showPlaylistsPage(onBack);
         }
     });
 
     page.querySelector('.playlist-edit-btn').addEventListener('click', () => {
-        showEditPlaylistModal(playlistId);
+        showEditPlaylistModal(playlistId, () => {
+            page.remove();
+            showPlaylistDetailPage(playlistId, onBack);
+        });
     });
 
     if (playlist.tracks.length > 0) {
-        page.querySelector('.playlist-play-all-btn')?.addEventListener('click', () => {
+        page.querySelector('.playlist-play-all-btn').addEventListener('click', () => {
             window.dispatchEvent(new CustomEvent('playlist:play', {
                 detail: { playlistId, tracks: playlist.tracks }
             }));
-            showNotification('▶️ Reproduciendo playlist');
+            showNotification('▶️ Reproduciendo');
         });
 
-        page.querySelector('.playlist-shuffle-btn')?.addEventListener('click', () => {
+        page.querySelector('.playlist-shuffle-btn').addEventListener('click', () => {
             const shuffled = [...playlist.tracks].sort(() => Math.random() - 0.5);
             window.dispatchEvent(new CustomEvent('playlist:play', {
-                detail: { playlistId, tracks: shuffled, shuffle: true }
+                detail: { playlistId, tracks: shuffled }
             }));
-            showNotification('🔀 Modo aleatorio activado');
+            showNotification('🔀 Modo aleatorio');
         });
 
-        page.querySelector('.playlist-clear-btn')?.addEventListener('click', async () => {
-            let confirmed = false;
-            if (window.showConfirmationModal && typeof window.showConfirmationModal === 'function') {
-                confirmed = await window.showConfirmationModal({
-                    title: 'Limpiar Playlist',
-                    message: `¿Eliminar todas las ${playlist.tracks.length} canciones de "${playlist.name}"?`,
-                    confirmText: 'Eliminar Todo',
-                    cancelText: 'Cancelar',
-                    icon: '🗑️'
-                });
-            } else {
-                confirmed = confirm(`¿Eliminar todas las ${playlist.tracks.length} canciones de "${playlist.name}"?`);
-            }
+        page.querySelector('.playlist-clear-btn').addEventListener('click', async () => {
+            const confirmed = await confirmAction({
+                title: 'Vaciar Playlist',
+                message: `¿Eliminar todas las ${playlist.tracks.length} canciones?`,
+                confirmText: 'Vaciar',
+                cancelText: 'Cancelar',
+                icon: '🧹'
+            });
+            
             if (confirmed) {
-                // Eliminar todas las canciones
-                playlist.tracks.forEach(track => {
-                    playlistSystem.removeTrackFromPlaylist(playlistId, track.id);
-                });
-                showNotification('🗑️ Playlist vaciada');
+                playlist.tracks.forEach(t => playlistSystem.removeTrackFromPlaylist(playlistId, t.id));
+                showNotification('🧹 Playlist vaciada');
                 page.remove();
                 showPlaylistDetailPage(playlistId, onBack);
             }
@@ -632,20 +684,15 @@ export function showPlaylistDetailPage(playlistId, onBack = null) {
             btn.addEventListener('click', async (e) => {
                 e.stopPropagation();
                 const trackId = btn.dataset.trackId;
-                const track = playlistSystem.getTrackFromPlaylist(playlistId, trackId);
+                const track = playlist.tracks.find(t => t.id === trackId);
 
-                let confirmed = false;
-                if (window.showConfirmationModal && typeof window.showConfirmationModal === 'function') {
-                    confirmed = await window.showConfirmationModal({
-                        title: 'Eliminar Canción',
-                        message: `¿Quitar "${track?.name || 'Esta canción'}" de la playlist?`,
-                        confirmText: 'Eliminar',
-                        cancelText: 'Cancelar',
-                        icon: '🗑️'
-                    });
-                } else {
-                    confirmed = confirm(`¿Quitar "${track?.name || 'Esta canción'}" de la playlist?`);
-                }
+                const confirmed = await confirmAction({
+                    title: 'Quitar Canción',
+                    message: `¿Quitar "${track?.name || 'esta canción'}"?`,
+                    confirmText: 'Quitar',
+                    cancelText: 'Cancelar',
+                    icon: '🗑️'
+                });
 
                 if (confirmed) {
                     playlistSystem.removeTrackFromPlaylist(playlistId, trackId);
@@ -656,40 +703,40 @@ export function showPlaylistDetailPage(playlistId, onBack = null) {
             });
         });
 
-        // La reproducción por fila se maneja al hacer click en la fila completa
-
         page.querySelectorAll('.playlist-track-row').forEach(row => {
-            row.addEventListener('click', function () {
+            row.addEventListener('click', function(e) {
+                if (e.target.closest('.track-favorite-btn, .track-remove-btn')) return;
+                
                 const trackId = this.dataset.trackId;
-                const track = playlistSystem.getTrackFromPlaylist(playlistId, trackId);
+                const track = playlist.tracks.find(t => t.id === trackId);
                 if (track) {
                     window.dispatchEvent(new CustomEvent('playlist:playTrack', {
-                        detail: { playlistId, track, trackId, tracks: playlist.tracks }
+                        detail: { playlistId, track, tracks: playlist.tracks }
                     }));
                 }
             });
         });
 
-        // Botones de favorito en la lista de la playlist (reutiliza estilos de favoritos)
         page.querySelectorAll('.track-favorite-btn').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
+            btn.addEventListener('click', async function(e) {
                 e.stopPropagation();
-                const row = btn.closest('.track-row');
-                const trackId = row?.dataset.trackId;
-                const track = playlistSystem.getTrackFromPlaylist(playlistId, trackId);
+                const row = this.closest('.track-row');
+                const trackId = row.dataset.trackId;
+                const track = playlist.tracks.find(t => t.id === trackId);
                 if (!track) return;
 
                 try {
                     await favoritesManager.toggleFavorite(track);
-                    const isNowFav = favoritesManager.isFavorite(track.name, track.artist, track.album);
-                    btn.classList.toggle('active', isNowFav);
-                    const counter = document.querySelector('.favorites-counter');
-                    if (counter) counter.textContent = favoritesManager.getFavoritesCount();
+                    const isFav = favoritesManager.isFavorite(track.name, track.artist, track.album);
+                    const icon = this.querySelector('i');
+                    
+                    icon.className = isFav ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+                    this.classList.toggle('active', isFav);
+                    
                     window.dispatchEvent(new Event('favorites:changed'));
-                    showNotification(isNowFav ? '❤️ Agregado a favoritos' : '💔 Removido de favoritos');
+                    showNotification(isFav ? '❤️ Agregado' : '💔 Removido');
                 } catch (err) {
-                    console.error('[PlaylistUI] Error toggling favorite:', err);
-                    showNotification('❌ Error modificando favoritos');
+                    console.error('[PlaylistUI] Error:', err);
                 }
             });
         });
@@ -697,9 +744,9 @@ export function showPlaylistDetailPage(playlistId, onBack = null) {
 }
 
 /**
- * Mostrar modal de edición de playlist
+ * Modal de edición
  */
-export function showEditPlaylistModal(playlistId) {
+function showEditPlaylistModal(playlistId, onSuccess = null) {
     const playlist = playlistSystem.getPlaylist(playlistId);
     if (!playlist) return;
 
@@ -720,14 +767,14 @@ export function showEditPlaylistModal(playlistId) {
 
             <div class="edit-playlist-modal-body">
                 <div class="form-group">
-                    <label for="editPlaylistNameInput">Nombre</label>
-                    <input type="text" id="editPlaylistNameInput" class="playlist-input" 
+                    <label for="editNameInput">Nombre</label>
+                    <input type="text" id="editNameInput" class="playlist-input" 
                            value="${escapeHtml(playlist.name)}" maxlength="100">
                 </div>
 
                 <div class="form-group">
-                    <label for="editPlaylistDescInput">Descripción</label>
-                    <textarea id="editPlaylistDescInput" class="playlist-textarea" 
+                    <label for="editDescInput">Descripción</label>
+                    <textarea id="editDescInput" class="playlist-textarea" 
                               maxlength="200" rows="3">${escapeHtml(playlist.description)}</textarea>
                 </div>
 
@@ -744,45 +791,39 @@ export function showEditPlaylistModal(playlistId) {
     const closeBtn = modal.querySelector('.edit-playlist-modal-close');
     const submitBtn = modal.querySelector('.edit-playlist-submit-btn');
 
-    const closeModal = () => {
-        modal.remove();
-    };
+    const closeModal = () => modal.remove();
 
     overlay.addEventListener('click', closeModal);
     closeBtn.addEventListener('click', closeModal);
 
     submitBtn.addEventListener('click', () => {
-        const name = modal.querySelector('#editPlaylistNameInput').value.trim();
+        const name = modal.querySelector('#editNameInput').value.trim();
         if (!name) {
             showNotification('⚠️ Ingresa un nombre');
             return;
         }
 
         try {
-            const desc = modal.querySelector('#editPlaylistDescInput').value.trim();
+            const desc = modal.querySelector('#editDescInput').value.trim();
             playlistSystem.updatePlaylist(playlistId, { name, description: desc });
-            showNotification('✅ Playlist actualizada');
+            showNotification('✅ Actualizada');
             closeModal();
-            document.querySelector('.playlist-detail-container')?.remove();
-            showPlaylistDetailPage(playlistId);
+            if (onSuccess) onSuccess();
         } catch (error) {
-            showNotification('❌ Error al actualizar');
+            showNotification('❌ Error');
         }
     });
 }
 
 /**
- * Utilidad: escapar HTML
+ * Utilidades
  */
 function escapeHtml(text) {
     const div = document.createElement('div');
-    div.textContent = text;
+    div.textContent = text || '';
     return div.innerHTML;
 }
 
-/**
- * Utilidad: mostrar notificación
- */
 function showNotification(message) {
     let notification = document.querySelector('.notification');
     if (!notification) {
@@ -792,9 +833,12 @@ function showNotification(message) {
     }
     notification.textContent = message;
     notification.classList.add('show');
-    setTimeout(() => {
-        notification.classList.remove('show');
-    }, 2500);
+    setTimeout(() => notification.classList.remove('show'), 2500);
 }
 
-export default { showPlaylistModal, showCreatePlaylistModal, showPlaylistsPage, showPlaylistDetailPage };
+export default { 
+    showPlaylistModal, 
+    showCreatePlaylistModal, 
+    showPlaylistsPage, 
+    showPlaylistDetailPage 
+};

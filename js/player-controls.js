@@ -153,8 +153,8 @@ export function playTrack(index) {
     }
 
     console.log('Intentando reproducir pista:', {
-        title: track.title || track.dataset?.title,
-        artist: track.artist,
+        title: track.name || track.title || track.dataset?.title,
+        artist: track.artist || track.artists || track.dataset?.artist,
         audioFile: audioFile
     });
 
@@ -283,14 +283,14 @@ function updatePlayingUI(index) {
         const playerAlbumCover = document.getElementById('playerAlbumCover');
 
         if (playerTrackName) {
-            const titleText = track.title || track.dataset?.title || '';
+            const titleText = track.name || track.title || track.dataset?.title || '';
             const isExplicit = !!track.explicit || (track.dataset && track.dataset.explicit === '1');
             playerTrackName.innerHTML = `${escapeHtml(titleText)}${isExplicit ? " <span class='explicit-badge inline'>E</span>" : ''}`;
         }
-        if (playerArtistName) playerArtistName.textContent = track.artist || document.querySelector('.album-page-meta .artist-name-bold')?.textContent;
+        if (playerArtistName) playerArtistName.textContent = track.artist || track.artists || track.dataset?.artist || '';
         if (playerAlbumCover) {
-            const coverSrc = document.querySelector('.album-page-cover')?.src;
-            if (coverSrc) playerAlbumCover.src = coverSrc;
+            const coverSrc = track.cover || track.albumCover || document.querySelector('.album-page-cover')?.src || 'assets/images/default-album.webp';
+            playerAlbumCover.src = coverSrc;
         }
     }
 }

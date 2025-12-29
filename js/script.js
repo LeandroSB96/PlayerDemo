@@ -1350,30 +1350,34 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                 coverUrl = localMatch.cover || localCover || '';
             } else {
-                // Buscar en Spotify
-                console.log('🔍 Buscando en Spotify...');
-                const spotifyMatch = await spotifyService.searchAlbum(albumTitle, requestedArtistName);
+                console.log('🔍 Álbum externo: creando placeholder inmediato para velocidad');
 
-                if (!spotifyMatch) {
-                    alert('No se encontró el álbum en Spotify ni en la colección local.');
-                    // Restaurar contenido principal
-                    if (mainContent) mainContent.style.display = 'block';
-                    return;
-                }
+                albumData = {
+                    id: null,
+                    name: albumTitle,
+                    release_date: '', 
+                    total_tracks: 0,
+                    explicit: false,
+                    tracks: { items: [] },
+                    artists: [{ id: null, name: requestedArtistName }]
+                };
 
-                const albumDetails = await spotifyService.getAlbum(spotifyMatch.id);
-                artistData = await spotifyService.getArtist(albumDetails.artists[0].id);
-                coverUrl = localCover || albumDetails.images?.[0]?.url || '';
+                artistData = {
+                    id: null,
+                    name: requestedArtistName,
+                    images: [{ url: localCover || 'assets/images/default-artist.webp' }],
+                    followers: { total: 0 }
+                };
 
-                albumData = albumDetails;
+                coverUrl = localCover || 'assets/images/default-album.webp';
             }
 
-            await createAlbumPage(albumData, artistData, coverUrl);
+// Renderizar inmediatamente la página 
+                createAlbumPage(albumData, artistData, coverUrl);
 
         } catch (error) {
             console.error('Error buscando/mostrando álbum:', error);
             alert('Ocurrió un error al intentar abrir la página del álbum. Revisa la consola para más detalles.');
-            // Restaurar contenido principal en caso de error
             const mainContent = document.querySelector('.content');
             if (mainContent) mainContent.style.display = 'block';
         }
@@ -1381,6 +1385,25 @@ document.addEventListener('DOMContentLoaded', async function () {
         //  FUNCIÓN INTERNA: CREAR PÁGINA DEL ÁLBUM 
         async function createAlbumPage(albumData, artistData, localCover) {
             const albumName = albumData.name || albumData.title || 'Sin título';
+
+            // Helper para formatear la fecha de lanzamiento de forma segura
+            function formatReleaseDate(releaseDate) {
+                if (!releaseDate) return 'Fecha desconocida';
+                // Si solo es año
+                if (/^\d{4}$/.test(releaseDate)) return releaseDate;
+                try {
+                    const d = new Date(releaseDate);
+                    if (isNaN(d.getTime())) return 'Fecha desconocida';
+                    return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+                } catch (e) {
+                    return 'Fecha desconocida';
+                }
+            }
+
+            const releaseDateDisplay = formatReleaseDate(albumData.release_date);
+            const releaseYearDisplay = (typeof albumData.release_date === 'string' && albumData.release_date.indexOf('-') !== -1)
+                ? albumData.release_date.split('-')[0]
+                : (albumData.release_date || 'N/A');
 
             const albumPage = document.createElement('div');
             albumPage.className = 'album-page';
@@ -1391,16 +1414,16 @@ document.addEventListener('DOMContentLoaded', async function () {
             </button>
             <div class="album-page-hero">
                 <div class="album-cover-wrapper">
-                    <img src="${localCover}" alt="${albumData.name}" class="album-page-cover">
+                    <img src="${localCover || 'assets/images/default-album.webp'}" alt="${albumData.name}" class="album-page-cover">
                 </div>
                 <div class="album-page-info">
                     <span class="album-page-type">ÁLBUM</span>
                     <h1 class="album-page-title">${albumData.name} ${albumData.explicit ? '<span class="explicit-badge inline">E</span>' : ''}</h1>
                     <div class="album-page-meta">
-                        <img src="${artistData.images[0]?.url || ''}" alt="${artistData.name}" class="artist-avatar-small">
+                        <img src="${artistData.images[0]?.url || 'assets/images/default-artist.webp'}" alt="${artistData.name}" class="artist-avatar-small">
                         <span class="artist-name-bold">${artistData.name}</span>
                         <span>•</span>
-                        <span>${albumData.release_date.split('-')[0]}</span>
+                        <span>${releaseYearDisplay}</span>
                         <span>•</span>
                         <span>${albumData.total_tracks} canciones</span>
                     </div>
@@ -1459,9 +1482,9 @@ document.addEventListener('DOMContentLoaded', async function () {
             </div>
             
             <div class="album-info-extra">
-                <p class="info-date">${new Date(albumData.release_date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                <p class="info-date">${releaseDateDisplay}</p>
                 <div class="artist-info-section">
-                    <img src="${artistData.images[0]?.url || ''}" alt="${artistData.name}" class="artist-image-large">
+                    <img src="${artistData.images[0]?.url || 'assets/images/default-artist.webp'}" alt="${artistData.name}" class="artist-image-large">
                     <div>
                         <h3>${artistData.name}</h3>
                         <p>${artistData.followers?.total?.toLocaleString() || 0} seguidores</p>
@@ -1546,6 +1569,57 @@ document.addEventListener('DOMContentLoaded', async function () {
             mainContentArea.appendChild(albumPage);
             mainContentArea.scrollTop = 0;
 
+            // Helper para precargar y cambiar imagen con transición suave
+            function preloadAndSwapImage(imgEl, url, altText) {
+                if (!imgEl || !url) return;
+                try {
+                    const tmp = new Image();
+                    tmp.crossOrigin = 'anonymous';
+                    tmp.onload = () => {
+                        if (!imgEl.style.transition) imgEl.style.transition = 'opacity 300ms ease';
+                        imgEl.style.opacity = '0';
+                        setTimeout(() => {
+                            imgEl.src = url;
+                            if (altText) imgEl.alt = altText;
+                            imgEl.style.opacity = '1';
+                        }, 60);
+                    };
+                    tmp.onerror = () => {
+                        console.warn('Error precargando imagen:', url);
+                    };
+                    tmp.src = url;
+                } catch (err) {
+                    console.error('preloadAndSwapImage error:', err);
+                }
+            }
+
+            // Iniciar búsqueda del artista en background para precargar su imagen lo antes posible (útil para álbumes locales)
+            (async () => {
+                try {
+                    if ((!artistData.id || artistData.id === 'local') && artistData.name) {
+                        const artistImageLarge = albumPage.querySelector('.artist-image-large');
+                        const avatarSmall = albumPage.querySelector('.artist-avatar-small');
+
+                        const spotifyArtistEarly = await spotifyService.searchArtistByName(artistData.name);
+                        if (spotifyArtistEarly) {
+                            // Actualizar datos de artista y UI (sin bloquear render)
+                            artistData = spotifyArtistEarly;
+                            const spotifyImageEarly = spotifyArtistEarly.images?.[0]?.url || '';
+                            if (spotifyImageEarly) {
+                                preloadAndSwapImage(artistImageLarge, spotifyImageEarly, spotifyArtistEarly.name);
+                                preloadAndSwapImage(avatarSmall, spotifyImageEarly, spotifyArtistEarly.name);
+                            }
+                            const artistNameBold = albumPage.querySelector('.artist-name-bold');
+                            const followersP = albumPage.querySelector('.artist-info-section p');
+                            if (artistNameBold) artistNameBold.textContent = spotifyArtistEarly.name;
+                            if (followersP) followersP.textContent = `${spotifyArtistEarly.followers?.total?.toLocaleString() || 0} seguidores`;
+                        }
+                    }
+                } catch (err) {
+                    console.warn('Error buscando artista en background:', err);
+                }
+            })();
+
             // Construir playlist del álbum (priorizar audio local, fallback a preview_url)
             const trackRows = albumPage.querySelectorAll('.track-row');
             currentPlaylist = (albumData.tracks?.items || []).map((track, idx) => ({
@@ -1606,6 +1680,139 @@ document.addEventListener('DOMContentLoaded', async function () {
                 });
             }
 
+            // Si no tiene pistas (caso: placeholder para Spotify), intentar cargar el álbum desde Spotify en background y actualizar la UI
+            (async () => {
+                try {
+                    const hasTracks = (albumData.tracks && (albumData.tracks.items || []).length > 0);
+                    if (!hasTracks && albumData.name) {
+                        console.log('🔄 Cargando datos del álbum desde Spotify en background:', albumData.name);
+
+                        const spotifyMatch = await spotifyService.searchAlbum(albumData.name, artistData.name);
+                        if (!spotifyMatch) {
+                            console.warn('⚠️ No se encontró el álbum en Spotify (background)');
+                            return;
+                        }
+
+                        const albumDetails = await spotifyService.getAlbum(spotifyMatch.id);
+                        const spotifyArtist = await spotifyService.getArtist(albumDetails.artists[0].id);
+                        const newCover = localCover || albumDetails.images?.[0]?.url || '';
+
+                        // Actualizar portada, título y meta
+                        const coverImg = albumPage.querySelector('.album-page-cover');
+                        if (coverImg && newCover) coverImg.src = newCover;
+
+                        const titleEl = albumPage.querySelector('.album-page-title');
+                        if (titleEl) titleEl.innerHTML = `${escapeHtml(albumDetails.name)} ${albumDetails.explicit ? '<span class="explicit-badge inline">E</span>' : ''}`;
+
+                        const metaYearEl = albumPage.querySelector('.album-page-meta');
+                        if (metaYearEl) {
+                            const yearSpans = metaYearEl.querySelectorAll('span');
+                            const releaseYear = (typeof albumDetails.release_date === 'string' && albumDetails.release_date.indexOf('-') !== -1)
+                                ? albumDetails.release_date.split('-')[0]
+                                : (albumDetails.release_date || 'N/A');
+                            if (yearSpans && yearSpans.length >= 5) {
+                                yearSpans[2].textContent = releaseYear;
+                                yearSpans[4].textContent = `${albumDetails.total_tracks} canciones`;
+                            }
+                        }
+
+                        // Actualizar fecha legible en la sección de info (si existe)
+                        const infoDateEl = albumPage.querySelector('.info-date');
+                        if (infoDateEl) infoDateEl.textContent = formatReleaseDate(albumDetails.release_date);
+
+                        // Reconstruir lista de pistas
+                        const tracksContainer = albumPage.querySelector('.album-tracks-list');
+                        if (tracksContainer) {
+                            const header = `
+                                <div class="tracks-header">
+                                    <span class="track-col-number">#</span>
+                                    <span class="track-col-title">Título</span>
+                                    <span class="track-col-album">Álbum</span>
+                                    <span class="track-col-heart"></span>
+                                    <span class="track-col-duration"><i class="fa-regular fa-clock"></i></span>
+                                </div>`;
+
+                            const rows = (albumDetails.tracks.items || []).map((track, index) => {
+                                const durMs = Number(track.duration_ms) || (track.duration ? durationToMs(track.duration) : 0);
+                                const minutes = Math.floor(durMs / 60000);
+                                const seconds = Math.floor((durMs % 60000) / 1000).toFixed(0).padStart(2, '0');
+                                return `
+                                    <div class="track-row" 
+                                        data-preview="${track.preview_url || ''}"
+                                        data-local-audio="${track.local_audio || ''}"
+                                        data-track-index="${index}"
+                                        data-explicit="${track.explicit ? '1' : '0'}">
+                                        <span class="track-col-number" data-number="${index + 1}"></span>
+                                        <div class="track-col-title">
+                                            <span class="track-name">${escapeHtml(track.name)} ${(track.explicit || albumDetails.explicit) ? "<span class='explicit-track-badge'>E</span>" : ''}</span>
+                                            <span class="track-artists">${(track.artists || []).map(a => a.name).join(', ')}</span>
+                                        </div>
+                                        <div class="track-col-album">
+                                            <span>${escapeHtml(albumDetails.name)}</span>
+                                        </div>
+                                        <div class="track-col-heart">
+                                            <button class="track-favorite-btn" aria-label="Me gusta">
+                                                <i class="fa-regular fa-heart"></i>
+                                            </button>
+                                        </div>
+                                        <span class="track-col-duration">${minutes}:${seconds}</span>
+                                    </div>`;
+                            }).join('');
+
+                            tracksContainer.innerHTML = header + rows;
+
+                            // Reconstruir playlist actual con las nuevas pistas
+                            const newRows = albumPage.querySelectorAll('.track-row');
+                            currentPlaylist = (albumDetails.tracks.items || []).map((track, idx) => ({
+                                audioFile: (track.local_audio && track.local_audio.trim()) || track.preview_url || '',
+                                name: track.name,
+                                artist: (track.artists || []).map(a => a.name).join(', '),
+                                album: albumDetails.name,
+                                cover: newCover,
+                                explicit: !!track.explicit,
+                                row: newRows[idx]
+                            }));
+
+                            // Re-attach listeners a filas
+                            newRows.forEach((row, idx) => {
+                                row.addEventListener('click', (e) => {
+                                    if (e.target.closest('.track-favorite-btn, .track-add-playlist-btn')) return;
+                                    const audioFile = currentPlaylist[idx]?.audioFile || row.getAttribute('data-local-audio') || row.getAttribute('data-preview') || '';
+                                    if (!audioFile) {
+                                        if (typeof showNotification === 'function') showNotification('⚠️ No hay audio disponible para esta pista');
+                                        return;
+                                    }
+                                    currentTrackIndex = idx;
+                                    playTrack(idx);
+                                });
+                            });
+
+                        }
+
+                        // Actualizar info del artista (imagen + seguidores)
+                        if (spotifyArtist) {
+                            const artistImageLarge = albumPage.querySelector('.artist-image-large');
+                            const avatarSmall = albumPage.querySelector('.artist-avatar-small');
+                            const artistNameBold = albumPage.querySelector('.artist-name-bold');
+                            const followersP = albumPage.querySelector('.artist-info-section p');
+
+                            const spotifyImage = spotifyArtist.images?.[0]?.url || '';
+                            if (spotifyImage) {
+                                preloadAndSwapImage(artistImageLarge, spotifyImage, spotifyArtist.name);
+                                preloadAndSwapImage(avatarSmall, spotifyImage, spotifyArtist.name);
+                            }
+
+                            if (artistNameBold) artistNameBold.textContent = spotifyArtist.name;
+                            if (followersP) followersP.textContent = `${spotifyArtist.followers?.total?.toLocaleString() || 0} seguidores`;
+
+                        }
+
+                        console.log('✅ Album actualizado desde Spotify (background):', albumDetails.name);
+                    }
+                } catch (error) {
+                    console.error('❌ Error cargando datos del álbum en background:', error);
+                }
+            })();
             // Botón de regresar
             const backBtn = albumPage.querySelector('.back-button');
             backBtn.addEventListener('click', () => {
@@ -1639,14 +1846,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                         const spotifyImage = spotifyArtist.images?.[0]?.url || '';
                         if (spotifyImage) {
-                            if (artistImageLarge) {
-                                artistImageLarge.src = spotifyImage;
-                                artistImageLarge.alt = spotifyArtist.name;
-                            }
-                            if (avatarSmall) {
-                                avatarSmall.src = spotifyImage;
-                                avatarSmall.alt = spotifyArtist.name;
-                            }
+                            preloadAndSwapImage(artistImageLarge, spotifyImage, spotifyArtist.name);
+                            preloadAndSwapImage(avatarSmall, spotifyImage, spotifyArtist.name);
                         }
 
                         if (artistNameBold) artistNameBold.textContent = spotifyArtist.name;
