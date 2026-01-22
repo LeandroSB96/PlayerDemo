@@ -5,10 +5,29 @@ class SpotifyService {
         this.tokenType = 'Bearer';
         this.expiresIn = 0;
         this.tokenTimestamp = null;
+        // Caché para optimizar llamadas a la API
+        this.cache = new Map();
+        this.cacheTimeout = 10 * 60 * 1000; // 10 minutos
     }
 
     async initialize() {
         await this.getAccessToken();
+    }
+
+    // Método auxiliar para caché
+    async cachedFetch(key, fetchFunction) {
+        const now = Date.now();
+        if (this.cache.has(key)) {
+            const { data, timestamp } = this.cache.get(key);
+            if (now - timestamp < this.cacheTimeout) {
+                return data;
+            } else {
+                this.cache.delete(key);
+            }
+        }
+        const data = await fetchFunction();
+        this.cache.set(key, { data, timestamp: now });
+        return data;
     }
 
     async getAccessToken() {
@@ -20,9 +39,9 @@ class SpotifyService {
                 console.warn('Fetch relativo a /spotify-token falló, intentando fallback:', err);
             }
 
-            // Si la petición relativa no fue exitosa, intentamos el proxy en localhost:3000
+            // Si la petición relativa no fue exitosa, intentamos el proxy en localhost:3001
             if (!resp || !resp.ok) {
-                const fallbackUrl = 'http://localhost:3000/spotify-token';
+                const fallbackUrl = 'http://localhost:3001/spotify-token';
                 resp = await fetch(fallbackUrl);
             }
 
@@ -92,100 +111,121 @@ class SpotifyService {
 
     // Búsqueda de artista por nombre
     async searchArtistByName(artistName) {
-        await this.checkAndRefreshToken();
-        try {
-            const response = await fetch(
-                `https://api.spotify.com/v1/search?q=${encodeURIComponent(artistName)}&type=artist&limit=5`,
-                {
-                    headers: {
-                        'Authorization': `${this.tokenType} ${this.accessToken}`
+        return this.cachedFetch(`search_artist_${artistName}`, async () => {
+            await this.checkAndRefreshToken();
+            try {
+                const response = await fetch(
+                    `https://api.spotify.com/v1/search?q=${encodeURIComponent(artistName)}&type=artist&limit=5`,
+                    {
+                        headers: {
+                            'Authorization': `${this.tokenType} ${this.accessToken}`
+                        }
                     }
-                }
-            );
-            const data = await response.json();
-            const artists = data.artists?.items || [];
-            
-            if (!artists.length) return null;
+                );
+                const data = await response.json();
+                const artists = data.artists?.items || [];
+                
+                if (!artists.length) return null;
 
-            // Normalizar para comparación
-            const normalize = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-            const target = normalize(artistName);
+                // Normalizar para comparación
+                const normalize = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                const target = normalize(artistName);
 
-            // Intentar encontrar coincidencia exacta
-            const exactMatch = artists.find(a => normalize(a.name) === target);
-            if (exactMatch) return exactMatch;
+                // Intentar encontrar coincidencia exacta
+                const exactMatch = artists.find(a => normalize(a.name) === target);
+                if (exactMatch) return exactMatch;
 
-            // Si no, devolver el primer resultado (mayor relevancia según Spotify)
-            console.warn('Búsqueda de artista: devolviendo primer resultado:', artists[0]?.name);
-            return artists[0];
-        } catch (error) {
-            console.error('Error buscando artista:', error);
-            return null;
-        }
+                // Si no, devolver el primer resultado (mayor relevancia según Spotify)
+                console.warn('Búsqueda de artista: devolviendo primer resultado:', artists[0]?.name);
+                return artists[0];
+            } catch (error) {
+                console.error('Error buscando artista:', error);
+                return null;
+            }
+        });
     }
 
     // Búsqueda de álbumes
     async searchAlbum(albumName, artistName) {
-        await this.checkAndRefreshToken();
-        try {
-            artistName = artistName || '';
-            const query = `${albumName} ${artistName}`;
-            const response = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=album&limit=5`, {
-                headers: {
-                    'Authorization': `${this.tokenType} ${this.accessToken}`
-                }
-            });
-            const data = await response.json();
-            const items = data.albums?.items || [];
-            if (!items.length) return null;
+        const cacheKey = `search_album_${albumName}_${artistName}`;
+        return this.cachedFetch(cacheKey, async () => {
+            await this.checkAndRefreshToken();
+            try {
+                artistName = artistName || '';
+                const query = `${albumName} ${artistName}`;
+                const response = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=album&limit=10`, {
+                    headers: {
+                        'Authorization': `${this.tokenType} ${this.accessToken}`
+                    }
+                });
+                const data = await response.json();
+                const items = data.albums?.items || [];
+                if (!items.length) return null;
 
-            // Función auxiliar simple de normalización en este servicio (solo para comparar nombres)
-            const normalize = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                // Función auxiliar simple de normalización en este servicio (solo para comparar nombres)
+                const normalize = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 
-            const target = normalize(artistName || '');
-            // Intentar encontrar un item cuyo artista coincida con artistName
-            const match = items.find(it => normalize(it.artists?.[0]?.name) === target || normalize(it.artists?.[0]?.name).includes(target));
-            if (match) return match;
+                const targetAlbum = normalize(albumName);
+                const targetArtist = normalize(artistName || '');
 
-            // Si no encontramos coincidencia exacta, devolver el primer resultado pero emitir un warning
-            console.warn('No se encontró álbum con artista coincidente en Spotify, usando primer resultado:', items[0]?.name, items[0]?.artists?.[0]?.name);
-            return items[0];
-        } catch (error) {
-            console.error('Error buscando álbum:', error);
-            return null;
-        }
+                // Intentar encontrar un item que coincida exactamente con el álbum y el artista
+                const exactMatch = items.find(it => 
+                    normalize(it.name) === targetAlbum && 
+                    normalize(it.artists?.[0]?.name) === targetArtist
+                );
+                if (exactMatch) return exactMatch;
+
+                // Si no, buscar coincidencia parcial del álbum y artista
+                const partialMatch = items.find(it => 
+                    normalize(it.name).includes(targetAlbum) && 
+                    normalize(it.artists?.[0]?.name).includes(targetArtist)
+                );
+                if (partialMatch) return partialMatch;
+
+                // Si aún no, devolver null en lugar de un resultado incorrecto
+                console.warn('No se encontró álbum coincidente en Spotify para:', albumName, 'de', artistName);
+                return null;
+            } catch (error) {
+                console.error('Error buscando álbum:', error);
+                return null;
+            }
+        });
     }
 
     // Obtener detalles de un álbum
     async getAlbum(albumId) {
-        await this.checkAndRefreshToken();
-        try {
-            const response = await fetch(`https://api.spotify.com/v1/albums/${albumId}`, {
-                headers: {
-                    'Authorization': `${this.tokenType} ${this.accessToken}`
-                }
-            });
-            return await response.json();
-        } catch (error) {
-            console.error('Error obteniendo álbum:', error);
-            throw error;
-        }
+        return this.cachedFetch(`album_${albumId}`, async () => {
+            await this.checkAndRefreshToken();
+            try {
+                const response = await fetch(`https://api.spotify.com/v1/albums/${albumId}`, {
+                    headers: {
+                        'Authorization': `${this.tokenType} ${this.accessToken}`
+                    }
+                });
+                return await response.json();
+            } catch (error) {
+                console.error('Error obteniendo álbum:', error);
+                throw error;
+            }
+        });
     }
 
     // Obtener detalles de un artista
     async getArtist(artistId) {
-        await this.checkAndRefreshToken();
-        try {
-            const response = await fetch(`https://api.spotify.com/v1/artists/${artistId}`, {
-                headers: {
-                    'Authorization': `${this.tokenType} ${this.accessToken}`
-                }
-            });
-            return await response.json();
-        } catch (error) {
-            console.error('Error obteniendo artista:', error);
-            throw error;
-        }
+        return this.cachedFetch(`artist_${artistId}`, async () => {
+            await this.checkAndRefreshToken();
+            try {
+                const response = await fetch(`https://api.spotify.com/v1/artists/${artistId}`, {
+                    headers: {
+                        'Authorization': `${this.tokenType} ${this.accessToken}`
+                    }
+                });
+                return await response.json();
+            } catch (error) {
+                console.error('Error obteniendo artista:', error);
+                throw error;
+            }
+        });
     }
 
     // Obtener las top tracks de un artista
@@ -222,34 +262,36 @@ class SpotifyService {
 
     // Obtener albumes por artista
     async getArtistAlbums(artistId, limit = 10, country = 'AR') {
-        await this.checkAndRefreshToken();
-        try {
-            console.log(`🎵 Obteniendo álbumes del artista: ${artistId}`);
+        return this.cachedFetch(`artist_albums_${artistId}_${limit}_${country}`, async () => {
+            await this.checkAndRefreshToken();
+            try {
+                console.log(`🎵 Obteniendo álbumes del artista: ${artistId}`);
 
-            const response = await fetch(
-                `https://api.spotify.com/v1/artists/${artistId}/albums?market=${country}&limit=${limit}&include_groups=album,single`,
-                {
-                    headers: {
-                        'Authorization': `${this.tokenType} ${this.accessToken}`
+                const response = await fetch(
+                    `https://api.spotify.com/v1/artists/${artistId}/albums?market=${country}&limit=${limit}&include_groups=album,single`,
+                    {
+                        headers: {
+                            'Authorization': `${this.tokenType} ${this.accessToken}`
+                        }
                     }
+                );
+
+                if (!response.ok) {
+                    throw new Error(`Spotify API error: ${response.status}`);
                 }
-            );
 
-            if (!response.ok) {
-                throw new Error(`Spotify API error: ${response.status}`);
+                const data = await response.json();
+                console.log(`✅ Álbumes obtenidos:`, data.items?.length || 0);
+
+                // Devolver el objeto completo 
+                return data;
+
+            } catch (error) {
+                console.error('❌ Error obteniendo álbumes del artista:', error);
+                // Devolver estructura vacía en lugar de lanzar error
+                return { items: [], total: 0 };
             }
-
-            const data = await response.json();
-            console.log(`✅ Álbumes obtenidos:`, data.items?.length || 0);
-
-            // Devolver el objeto completo 
-            return data;
-
-        } catch (error) {
-            console.error('❌ Error obteniendo álbumes del artista:', error);
-            // Devolver estructura vacía en lugar de lanzar error
-            return { items: [], total: 0 };
-        }
+        });
     }
 
 
