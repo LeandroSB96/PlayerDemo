@@ -1,17 +1,22 @@
 // explore-page.js
 import { spotifyService } from './spotify-service.js';
 
-// Configuración de géneros
+// Configuración de géneros con búsquedas variadas
 const GENRES = [
-    { name: 'Pop', query: 'pop', color: 'rgba(255, 75, 155, 0.3)', icon: '🎤' },
-    { name: 'Rock', query: 'rock', color: 'rgba(255, 75, 75, 0.3)', icon: '🎸' },
-    { name: 'Hip Hop', query: 'hip hop', color: 'rgba(255, 165, 0, 0.3)', icon: '🎧' },
-    { name: 'Electrónica', query: 'electronic', color: 'rgba(75, 155, 255, 0.3)', icon: '🎹' },
-    { name: 'Jazz', query: 'jazz', color: 'rgba(255, 215, 0, 0.3)', icon: '🎷' },
-    { name: 'R&B', query: 'r&b', color: 'rgba(155, 75, 255, 0.3)', icon: '🎵' },
-    { name: 'Indie', query: 'indie', color: 'rgba(75, 255, 155, 0.3)', icon: '🎼' },
-    { name: 'Metal', query: 'metal', color: 'rgba(50, 50, 50, 0.5)', icon: '🤘' }
+    { name: 'Pop', queries: ['pop', 'pop hits', 'pop music', 'pop stars', 'modern pop'], color: 'rgba(255, 75, 155, 0.3)', icon: '🎤' },
+    { name: 'Rock', queries: ['rock', 'rock classics', 'rock legends', 'hard rock', 'alternative rock'], color: 'rgba(255, 75, 75, 0.3)', icon: '🎸' },
+    { name: 'Hip Hop', queries: ['hip hop', 'rap', 'hip-hop hits', 'trap', 'hip hop classics'], color: 'rgba(255, 165, 0, 0.3)', icon: '🎧' },
+    { name: 'Electrónica', queries: ['electronic', 'electronic dance', 'edm', 'house', 'techno'], color: 'rgba(75, 155, 255, 0.3)', icon: '🎹' },
+    { name: 'Jazz', queries: ['jazz', 'jazz standards', 'contemporary jazz', 'smooth jazz', 'jazz fusion'], color: 'rgba(255, 215, 0, 0.3)', icon: '🎷' },
+    { name: 'R&B', queries: ['r&b', 'soul', 'r&b hits', 'neo-soul', 'contemporary r&b'], color: 'rgba(155, 75, 255, 0.3)', icon: '🎵' },
+    { name: 'Indie', queries: ['indie', 'indie rock', 'indie pop', 'alternative', 'indie artists'], color: 'rgba(75, 255, 155, 0.3)', icon: '🎼' },
+    { name: 'Metal', queries: ['metal', 'heavy metal', 'black metal', 'death metal', 'metal classics'], color: 'rgba(50, 50, 50, 0.5)', icon: '🤘' }
 ];
+
+// Función para seleccionar una búsqueda aleatoria de cada género
+function getRandomQuery(genre) {
+    return genre.queries[Math.floor(Math.random() * genre.queries.length)];
+}
 
 /**
  * Muestra la página de explorar con álbumes organizados por género
@@ -226,7 +231,7 @@ function createSkeletonCards(color, count) {
 }
 
 /**
- * Carga los álbumes de un género desde Spotify
+ * Carga los álbumes de un género desde Spotify con variabilidad
  * @param {HTMLElement} genreSection - Sección del género
  * @param {Object} genre - Objeto del género
  * @param {Function} showAlbumPageCallback - Callback para mostrar álbum
@@ -235,9 +240,15 @@ async function loadGenreAlbums(genreSection, genre, showAlbumPageCallback) {
     const grid = genreSection.querySelector('.genre-albums-grid');
     
     try {
-        console.log(`🔍 Buscando álbumes de ${genre.name}...`);
-        const searchResults = await spotifyService.search(genre.query);
-        const albums = searchResults.albums.slice(0, 6);
+        // Seleccionar una búsqueda aleatoria del género para variabilidad
+        const searchQuery = getRandomQuery(genre);
+        const randomOffset = Math.floor(Math.random() * 20); // Offset aleatorio entre 0 y 20
+        
+        console.log(`🔍 Buscando "${searchQuery}" para ${genre.name} (offset: ${randomOffset})...`);
+        
+        // Realizar búsqueda con offset para obtener resultados diferentes cada vez
+        const searchResults = await spotifyService.search(searchQuery, randomOffset);
+        const albums = (searchResults.albums || []).slice(0, 6);
         
         if (albums.length === 0) {
             grid.innerHTML = createEmptyState(genre.name);

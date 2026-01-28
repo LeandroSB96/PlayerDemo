@@ -6,6 +6,12 @@ import { playlistSystem } from './playlist-system.js';
 import { showPlaylistModal, showPlaylistsPage } from './playlist-ui.js';
 import { showExplorePage } from './explore-page.js';
 import { showArtistsPage } from './artists-page.js';
+import { showAlbumsPage } from './albums-page.js';
+
+// Asignar funciones a window para acceso global
+window.showAlbumsPage = showAlbumsPage;
+window.showExplorePage = showExplorePage;
+window.showArtistsPage = showArtistsPage;
 
 // Función para formatear tiempo en mm:ss
 function formatTime(seconds) {
@@ -956,6 +962,12 @@ document.addEventListener('DOMContentLoaded', async function () {
             history.pushState({ page: 'playlists' }, '', '#playlists');
             return;
         }
+        if (linkId === 'albumsNavBtn') {
+            e.preventDefault();
+            showAlbumsPage(showAlbumPage);
+            history.pushState({ page: 'albums' }, '', '#albums');
+            return;
+        }
 
         // Validar que sea enlace interno
         if (!href.startsWith('/') && !href.startsWith('.')) return;
@@ -976,6 +988,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             showFavoritesPage();
         } else if (state.page === 'playlists') {
             showPlaylistsPage(() => updatePlaylistsCounter());
+        } else if (state.page === 'albums') {
+            showAlbumsPage(showAlbumPage);
         } else if (typeof state.page === 'string') {
             // Intentar recargar contenido de URL almacenada
             pjaxManager.navigateTo(state.page, state.title, false);
@@ -1715,6 +1729,33 @@ document.addEventListener('DOMContentLoaded', async function () {
                 row: trackRows[idx]
             }));
 
+            // Actualizar el estado visual (active/inactive) de los botones de favoritos
+            // basado en si la canción ya está en favoritos
+            trackRows.forEach((row, idx) => {
+                const track = window.currentPlaylist[idx];
+                if (!track) return;
+
+                const favBtn = row.querySelector('.track-favorite-btn');
+                if (!favBtn) return;
+
+                const isFav = favoritesManager.isFavorite(track.name, track.artist, track.album);
+                const icon = favBtn.querySelector('i');
+
+                if (isFav) {
+                    favBtn.classList.add('active');
+                    if (icon) {
+                        icon.classList.remove('fa-regular');
+                        icon.classList.add('fa-solid');
+                    }
+                } else {
+                    favBtn.classList.remove('active');
+                    if (icon) {
+                        icon.classList.remove('fa-solid');
+                        icon.classList.add('fa-regular');
+                    }
+                }
+            });
+
             // Asociar clicks en filas del álbum para reproducir (asegura que funcionen archivos locales)
             trackRows.forEach((row, idx) => {
                 row.addEventListener('click', (e) => {
@@ -1855,6 +1896,32 @@ document.addEventListener('DOMContentLoaded', async function () {
                                 explicit: !!track.explicit,
                                 row: newRows[idx]
                             }));
+
+                            // Actualizar el estado visual de los botones de favoritos después de cargar desde Spotify
+                            newRows.forEach((row, idx) => {
+                                const track = window.currentPlaylist[idx];
+                                if (!track) return;
+
+                                const favBtn = row.querySelector('.track-favorite-btn');
+                                if (!favBtn) return;
+
+                                const isFav = favoritesManager.isFavorite(track.name, track.artist, track.album);
+                                const icon = favBtn.querySelector('i');
+
+                                if (isFav) {
+                                    favBtn.classList.add('active');
+                                    if (icon) {
+                                        icon.classList.remove('fa-regular');
+                                        icon.classList.add('fa-solid');
+                                    }
+                                } else {
+                                    favBtn.classList.remove('active');
+                                    if (icon) {
+                                        icon.classList.remove('fa-solid');
+                                        icon.classList.add('fa-regular');
+                                    }
+                                }
+                            });
 
                             // Re-attach listeners a filas
                             newRows.forEach((row, idx) => {
@@ -2488,49 +2555,63 @@ document.addEventListener('DOMContentLoaded', async function () {
             });
         });
 
-        // Botones de Agregar a Favoritos en Tracks 
-        document.querySelectorAll('.track-favorite-btn').forEach(btn => {
-            const freshBtn = btn.cloneNode(true);
-            btn.replaceWith(freshBtn);
-        });
+        // Botones de Agregar a Favoritos en Tracks - Usar delegación de eventos
+        // Esto permite que funcione con botones renderizados dinámicamente
+        document.addEventListener('click', async function (e) {
+            const trackFavBtn = e.target.closest('.track-favorite-btn');
+            if (!trackFavBtn) return;
 
-        document.querySelectorAll('.track-favorite-btn').forEach(btn => {
-            btn.addEventListener('click', async function (e) {
-                e.preventDefault();
-                e.stopPropagation();
+            e.preventDefault();
+            e.stopPropagation();
 
-                const row = this.closest('.track-row');
-                if (!row) return;
+            const row = trackFavBtn.closest('.track-row');
+            if (!row) return;
 
-                const trackName = row.querySelector('.track-name')?.textContent?.trim() || '';
-                const artistName = row.querySelector('.track-artists')?.textContent?.trim() || '';
-                const albumName = row.getAttribute('data-album') || row.querySelector('.track-col-album span')?.textContent?.trim() || 'Desconocido';
+            const trackName = row.querySelector('.track-name')?.textContent?.trim() || '';
+            const artistName = row.querySelector('.track-artists')?.textContent?.trim() || '';
+            const albumName = row.getAttribute('data-album') || row.querySelector('.track-col-album span')?.textContent?.trim() || 'Desconocido';
 
-                const isFav = favoritesManager.isFavorite(trackName, artistName, albumName);
-                const icon = this.querySelector('i');
+            const isFav = favoritesManager.isFavorite(trackName, artistName, albumName);
+            const icon = trackFavBtn.querySelector('i');
 
-                if (isFav) {
-                    favoritesManager.removeFavorite(trackName, artistName, albumName);
+            if (isFav) {
+                await favoritesManager.removeFavorite(trackName, artistName, albumName);
+                if (icon) {
                     icon.classList.remove('fa-solid');
                     icon.classList.add('fa-regular');
-                    this.classList.remove('active');
-                } else {
-                    favoritesManager.addFavorite({
-                        name: trackName,
-                        artist: artistName,
-                        album: albumName,
-                        cover: row.dataset.cover || '',
-                        audioFile: row.dataset.localAudio || '',
-                        duration: row.querySelector('.track-col-duration')?.textContent?.trim() || '0:00'
-                    });
-                    icon.classList.remove('fa-regular');
-                    icon.classList.add('fa-solid');
-                    this.classList.add('active');
+                }
+                trackFavBtn.classList.remove('active');
+                showNotification('💔 Removido de favoritos');
+            } else {
+                // Obtener datos de la canción
+                const albumEl = row.querySelector('.track-col-album span');
+                const durationEl = row.querySelector('.track-col-duration');
+                
+                // Buscar la canción en window.currentPlaylist para obtener datos completos
+                let trackData = null;
+                if (window.currentPlaylist && window.currentPlaylist.length > 0) {
+                    trackData = window.currentPlaylist.find(t => t.name === trackName);
                 }
 
-                updateFavoritesCounter();
-            });
-        });
+                await favoritesManager.addFavorite({
+                    name: trackName,
+                    artist: artistName,
+                    album: albumName,
+                    cover: trackData?.cover || row.dataset.cover || '',
+                    audioFile: trackData?.audioFile || row.dataset.localAudio || '',
+                    duration: durationEl?.textContent?.trim() || '0:00'
+                });
+                if (icon) {
+                    icon.classList.remove('fa-regular');
+                    icon.classList.add('fa-solid');
+                }
+                trackFavBtn.classList.add('active');
+                showNotification('❤️ Agregado a favoritos');
+            }
+
+            updateFavoritesCounter();
+            syncFavoriteButtons(trackName, artistName, albumName);
+        }, true);
 
         console.log('[PJAX] Re-inicialización completada.');
     }

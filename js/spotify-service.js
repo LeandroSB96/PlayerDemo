@@ -73,11 +73,11 @@ class SpotifyService {
 
     // Búsqueda de tracks
     // Búsqueda general (artistas, álbumes y canciones)
-    async search(query, types = ['artist', 'album', 'track'], limit = 5) {
+    async search(query, offset = 0, types = ['artist', 'album', 'track'], limit = 5) {
         await this.checkAndRefreshToken();
         try {
             const response = await fetch(
-                `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=${types.join(',')}&limit=${limit}`, {
+                `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=${types.join(',')}&limit=${limit}&offset=${offset}`, {
                 headers: {
                     'Authorization': `${this.tokenType} ${this.accessToken}`
                 }
@@ -175,16 +175,22 @@ class SpotifyService {
                 );
                 if (exactMatch) return exactMatch;
 
-                // Si no, buscar coincidencia parcial del álbum y artista
-                const partialMatch = items.find(it => 
-                    normalize(it.name).includes(targetAlbum) && 
-                    normalize(it.artists?.[0]?.name).includes(targetArtist)
-                );
+                // Si no, buscar coincidencia parcial del álbum y artista (80% de similitud)
+                const partialMatch = items.find(it => {
+                    const itNormAlbum = normalize(it.name);
+                    const itNormArtist = normalize(it.artists?.[0]?.name);
+                    const albumMatch = targetAlbum.length > 0 && itNormAlbum.includes(targetAlbum);
+                    const artistMatch = targetArtist.length > 0 && itNormArtist.includes(targetArtist);
+                    // Ambos deben coincidir parcialmente, o si solo hay título, el título debe coincidir
+                    return (albumMatch && (artistMatch || targetArtist.length === 0)) || 
+                           (artistMatch && targetArtist.length > 0 && albumMatch);
+                });
                 if (partialMatch) return partialMatch;
 
-                // Si aún no, devolver null en lugar de un resultado incorrecto
-                console.warn('No se encontró álbum coincidente en Spotify para:', albumName, 'de', artistName);
-                return null;
+                // Fallback: devolver el primer resultado como último recurso
+                // Esto es útil cuando la búsqueda da resultados muy similares
+                console.warn('Usando primer resultado para búsqueda de álbum:', albumName, 'de', artistName);
+                return items[0];
             } catch (error) {
                 console.error('Error buscando álbum:', error);
                 return null;

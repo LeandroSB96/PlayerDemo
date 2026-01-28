@@ -2549,23 +2549,38 @@ body {
     text-overflow: ellipsis;
 }
 
+.mini-player-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
+}
+
 .mini-fav-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    background: transparent;
-    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     color: rgba(255,255,255,0.9);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    margin-left: 8px;
     transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
 }
 
 .mini-fav-btn:hover {
-    background: rgba(255, 0, 102, 0.1);
+    background: rgba(255, 0, 102, 0.2);
+    border-color: rgba(255, 0, 102, 0.4);
+    color: #ff0066;
+    transform: scale(1.05);
+}
+
+.mini-fav-btn.active {
+    background: rgba(255, 0, 102, 0.3);
+    border-color: #ff0066;
     color: #ff0066;
 }
 
@@ -2574,23 +2589,25 @@ body {
 }
 
 .mini-add-playlist-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    background: transparent;
-    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     color: rgba(255,255,255,0.9);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    margin-left: 8px;
     transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
 }
 
 .mini-add-playlist-btn:hover {
-    background: rgba(75, 155, 255, 0.1);
+    background: rgba(75, 155, 255, 0.2);
+    border-color: rgba(75, 155, 255, 0.4);
     color: #4b9bff;
+    transform: scale(1.05);
 }
 
 .mini-add-playlist-btn i {

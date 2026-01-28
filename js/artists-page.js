@@ -1,72 +1,77 @@
 // artists-page.js
 import { spotifyService } from './spotify-service.js';
 
-// Configuración de categorías de artistas
+// Configuración de categorías de artistas con búsquedas variadas
 const ARTIST_CATEGORIES = [
     { 
         name: 'Artistas Trending', 
-        query: 'trending artists', 
+        queries: ['trending artists', 'top artists', 'hot artists', 'popular today', 'viral artists'],
         color: 'rgba(255, 75, 155, 0.3)', 
         icon: '🔥',
         gradient: 'linear-gradient(135deg, #FF4B9B 0%, #FF1744 100%)'
     },
     { 
         name: 'Leyendas del Rock', 
-        query: 'rock legends', 
+        queries: ['rock legends', 'classic rock artists', 'rock icons', 'rock pioneers', 'legendary rockers'],
         color: 'rgba(255, 75, 75, 0.3)', 
         icon: '🎸',
         gradient: 'linear-gradient(135deg, #FF4B4B 0%, #B71C1C 100%)'
     },
     { 
         name: 'Íconos del Pop', 
-        query: 'pop artists', 
+        queries: ['pop artists', 'pop superstars', 'pop icons', 'pop divas', 'mainstream pop artists'],
         color: 'rgba(255, 155, 255, 0.3)', 
         icon: '🎤',
         gradient: 'linear-gradient(135deg, #FF9BFF 0%, #E040FB 100%)'
     },
     { 
         name: 'Rock Argentino', 
-        query: 'rock argentino', 
+        queries: ['rock argentino', 'soda stereo', 'los fabulosos cadillacs', 'ataque 77', 'argentinian rock'],
         color: 'rgba(100, 181, 246, 0.3)', 
         icon: '🇦🇷',
         gradient: 'linear-gradient(135deg, #64B5F6 0%, #1976D2 100%)'
     },
     { 
         name: 'Estrellas del Hip Hop', 
-        query: 'hip hop artists', 
+        queries: ['hip hop artists', 'rappers', 'hip hop superstars', 'rap icons', 'hip hop legends'],
         color: 'rgba(255, 165, 0, 0.3)', 
         icon: '🎧',
         gradient: 'linear-gradient(135deg, #FFA500 0%, #FF6F00 100%)'
     },
     { 
         name: 'Maestros del Jazz', 
-        query: 'jazz artists', 
+        queries: ['jazz artists', 'jazz legends', 'jazz musicians', 'jazz masters', 'smooth jazz artists'],
         color: 'rgba(255, 215, 0, 0.3)', 
         icon: '🎷',
         gradient: 'linear-gradient(135deg, #FFD700 0%, #FFA000 100%)'
     },
     { 
         name: 'Pioneros de la Electrónica', 
-        query: 'electronic music artists', 
+        queries: ['electronic music artists', 'edm artists', 'electronic pioneers', 'synth pioneers', 'electronic icons'],
         color: 'rgba(75, 155, 255, 0.3)', 
         icon: '⚡',
         gradient: 'linear-gradient(135deg, #4B9BFF 0%, #2962FF 100%)'
     },
     { 
         name: 'Voces del R&B', 
-        query: 'r&b artists', 
+        queries: ['r&b artists', 'soul singers', 'r&b legends', 'neo-soul artists', 'r&b superstars'],
         color: 'rgba(155, 75, 255, 0.3)', 
         icon: '🎵',
         gradient: 'linear-gradient(135deg, #9B4BFF 0%, #6A1B9A 100%)'
     },
     { 
         name: 'Talentos Indie', 
-        query: 'indie artists', 
+        queries: ['indie artists', 'indie rock bands', 'alternative artists', 'indie superstars', 'indie idols'],
         color: 'rgba(75, 255, 155, 0.3)', 
         icon: '🌟',
         gradient: 'linear-gradient(135deg, #4BFF9B 0%, #00C853 100%)'
     }
 ];
+
+// Función para seleccionar una búsqueda aleatoria de cada categoría
+function getRandomQuery(category) {
+    return category.queries[Math.floor(Math.random() * category.queries.length)];
+}
 
 /**
  * Muestra la página de artistas con categorías organizadas
@@ -281,7 +286,7 @@ function createSkeletonArtistCards(gradient, count) {
 }
 
 /**
- * Carga los artistas de una categoría desde Spotify
+ * Carga los artistas de una categoría desde Spotify con variabilidad
  * @param {HTMLElement} categorySection - Sección de la categoría
  * @param {Object} category - Objeto de la categoría
  * @param {Function} showArtistPageCallback - Callback para mostrar artista
@@ -290,9 +295,15 @@ async function loadCategoryArtists(categorySection, category, showArtistPageCall
     const grid = categorySection.querySelector('.category-artists-grid');
     
     try {
-        console.log(`🔍 Buscando artistas de ${category.name}...`);
-        const searchResults = await spotifyService.search(category.query);
-        const artists = searchResults.artists.slice(0, 6);
+        // Seleccionar una búsqueda aleatoria de la categoría para variabilidad
+        const searchQuery = getRandomQuery(category);
+        const randomOffset = Math.floor(Math.random() * 20); // Offset aleatorio entre 0 y 20
+        
+        console.log(`🔍 Buscando "${searchQuery}" para ${category.name} (offset: ${randomOffset})...`);
+        
+        // Realizar búsqueda con offset para obtener resultados diferentes cada vez
+        const searchResults = await spotifyService.search(searchQuery, randomOffset);
+        const artists = (searchResults.artists || []).slice(0, 6);
         
         if (artists.length === 0) {
             grid.innerHTML = createEmptyState(category.name);
