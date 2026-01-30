@@ -7,12 +7,14 @@ import { showPlaylistModal, showPlaylistsPage } from './playlist-ui.js';
 import { showExplorePage } from './explore-page.js';
 import { showArtistsPage } from './artists-page.js';
 import { showAlbumsPage } from './albums-page.js';
+import { showArtistPage } from './artist-detail-page.js';
 
 // Asignar servicios y funciones a window para acceso global
 window.spotifyService = spotifyService;
 window.showAlbumsPage = showAlbumsPage;
 window.showExplorePage = showExplorePage;
 window.showArtistsPage = showArtistsPage;
+window.showArtistPage = showArtistPage;
 
 // Función para formatear tiempo en mm:ss
 function formatTime(seconds) {
@@ -2129,7 +2131,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (artistsNavBtn) {
             artistsNavBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
-                await showArtistsPage();
+                await showArtistsPage(showArtistPage);
             });
         }
 
@@ -2215,7 +2217,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         function handleSearchResultClick(item) {
             switch (item.type) {
                 case 'Artista':
-                    console.log('Navegar a artista:', item.name);
+                    const artistImage = item.images?.[0]?.url || '';
+                    showArtistPage(item.name, artistImage);
                     break;
                 case 'Álbum':
                     showAlbumPage(item.name, item.artists[0].name, item.images[0].url);
