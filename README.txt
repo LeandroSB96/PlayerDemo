@@ -2,7 +2,7 @@
          PLAYER DEMO - GUÍA DEL PROYECTO
 ===============================================
 
-QUÉ ES PLAYER DEMO
+QUÉ ES PLAYER DEMO?
 ------------------
 Un reproductor de música moderno con búsqueda y navegación integrada con Spotify. 
 Podés explorar artistas, ver sus canciones populares, sus álbumes y armar tus propias playlists.
