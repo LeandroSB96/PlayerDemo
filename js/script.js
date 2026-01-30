@@ -8,7 +8,8 @@ import { showExplorePage } from './explore-page.js';
 import { showArtistsPage } from './artists-page.js';
 import { showAlbumsPage } from './albums-page.js';
 
-// Asignar funciones a window para acceso global
+// Asignar servicios y funciones a window para acceso global
+window.spotifyService = spotifyService;
 window.showAlbumsPage = showAlbumsPage;
 window.showExplorePage = showExplorePage;
 window.showArtistsPage = showArtistsPage;
@@ -938,17 +939,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         // Ignorar enlaces externos
         if (href.startsWith('http') || href.startsWith('mailto:')) return;
 
-        // Ignorar placeholders vacíos
-        if (href === '#') return;
-
-        // Rutas especiales manejadas dinámicamente (JS)
-        if (href.includes('index.html') || href === '/') {
-            e.preventDefault();
-            pjaxManager.showHome();
-            return;
-        }
-
-        // Links por ID (favoritos, playlists)
+        // ⭐ IMPORTANTE: Manejar botones especiales por ID ANTES del check de href === '#'
         const linkId = a.id;
         if (linkId === 'favoritesNavBtn') {
             e.preventDefault();
@@ -964,8 +955,18 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
         if (linkId === 'albumsNavBtn') {
             e.preventDefault();
-            showAlbumsPage(showAlbumPage);
+            showAlbumsPage();
             history.pushState({ page: 'albums' }, '', '#albums');
+            return;
+        }
+
+        // Ignorar placeholders vacíos (DESPUÉS de checks de ID)
+        if (href === '#') return;
+
+        // Rutas especiales manejadas dinámicamente (JS)
+        if (href.includes('index.html') || href === '/') {
+            e.preventDefault();
+            pjaxManager.showHome();
             return;
         }
 
@@ -989,7 +990,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         } else if (state.page === 'playlists') {
             showPlaylistsPage(() => updatePlaylistsCounter());
         } else if (state.page === 'albums') {
-            showAlbumsPage(showAlbumPage);
+            showAlbumsPage();
         } else if (typeof state.page === 'string') {
             // Intentar recargar contenido de URL almacenada
             pjaxManager.navigateTo(state.page, state.title, false);
@@ -1094,61 +1095,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                 </button>
             </div>
         </div>
-
-        <footer class="site-footer">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <div class="footer-logo">
-                        <div class="logo-icon">
-                            <img src="assets/images/logo-img/logo-disc.webp" alt="Logo Player Demo" />
-                        </div>
-                        <span class="logo-text">Player <span class="highlight">Demo</span></span>
-                    </div>
-                    <p style="color: #b3b3b3; margin-bottom: 20px;">Tu música favorita, siempre con vos.</p>
-                    <div class="social-icons">
-                        <a href="#" class="social-icon" aria-label="Facebook">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="social-icon" aria-label="Twitter">
-                            <i class="fa-brands fa-x-twitter"></i>
-                        </a>
-                        <a href="#" class="social-icon" aria-label="Instagram">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                        <a href="#" class="social-icon" aria-label="YouTube">
-                            <i class="fab fa-youtube"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="footer-section">
-                    <h3 class="footer-title">Recursos</h3>
-                    <ul class="footer-links">
-                        <li><a href="#">Acerca de Nosotros</a></li>
-                        <li><a href="#">Planes Premium</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-section">
-                    <h3 class="footer-title">Comunidad</h3>
-                    <ul class="footer-links">
-                        <li><a href="#">Blog</a></li>
-                        <li><a href="#">Eventos</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-section">
-                    <h3 class="footer-title">Ayuda</h3>
-                    <ul class="footer-links">
-                        <li><a href="#">Soporte</a></li>
-                        <li><a href="#">Contacto</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2025 Player Demo. Todos los derechos reservados.</p>
-            </div>
-        </footer>
     `;
 
         const mainContent = document.querySelector('.main-content');
@@ -1373,7 +1319,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     // Función showAlbumPage 
-    async function showAlbumPage(albumTitle, artistName, localCover) {
+    // ⭐ Exponer showAlbumPage globalmente
+    window.showAlbumPage = async function showAlbumPage(albumTitle, artistName, localCover) {
         try {
             console.log('🎵 showAlbumPage llamado con:', { albumTitle, artistName, localCover });
 
