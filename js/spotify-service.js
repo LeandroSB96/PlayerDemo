@@ -39,10 +39,22 @@ class SpotifyService {
                 console.warn('Fetch relativo a /spotify-token falló, intentando fallback:', err);
             }
 
-            // Si la petición relativa no fue exitosa, intentamos el proxy en localhost:3001
+            // Si la petición relativa no fue exitosa, intentamos proxies en localhost
             if (!resp || !resp.ok) {
-                const fallbackUrl = 'http://localhost:3001/spotify-token';
-                resp = await fetch(fallbackUrl);
+                // Intentar puerto 3000 (servidor por defecto en package.json)
+                const fallbackUrls = [
+                    'http://localhost:3000/spotify-token',
+                    'http://localhost:3001/spotify-token'
+                ];
+
+                for (const url of fallbackUrls) {
+                    try {
+                        resp = await fetch(url);
+                        if (resp && resp.ok) break;
+                    } catch (err) {
+                        console.warn(`Intento de fallback a ${url} falló:`, err);
+                    }
+                }
             }
 
             if (!resp.ok) {
