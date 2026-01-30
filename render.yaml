@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: playerdemo-server
+    runtime: node
+    plan: free
+    buildCommand: npm install && cd server && npm install
+    startCommand: node server/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: SPOTIFY_CLIENT_ID
+        sync: false
+      - key: SPOTIFY_CLIENT_SECRET
+        sync: false
+    staticSite:
+      buildCommand: echo "Static files ready"
+      publishPath: ./
+      routes:
+        - path: /spotify-token
+          destination: /spotify-token

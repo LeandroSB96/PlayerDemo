@@ -1,0 +1,161 @@
+# Guía de Deploy en Render
+
+## 📋 Requisitos Previos
+
+1. **Cuenta en Render** - https://render.com
+2. **GitHub** - Repositorio actualizado con los cambios
+3. **Credenciales de Spotify**:
+   - `SPOTIFY_CLIENT_ID`
+   - `SPOTIFY_CLIENT_SECRET`
+   - Obtén estas en https://developer.spotify.com/dashboard
+
+---
+
+## 🚀 Pasos para Deployar
+
+### 1. Prepara tu Repositorio
+
+Sube todos tus cambios a GitHub:
+
+```bash
+git add .
+git commit -m "Deploy to Render: agregado render.yaml"
+git push origin master
+```
+
+### 2. Conecta con Render
+
+1. Abre https://render.com y logueate con GitHub
+2. Haz click en **"+ New"** en el dashboard
+3. Selecciona **"Web Service"**
+4. Conecta tu repositorio de GitHub (`PlayerDemo`)
+
+### 3. Configura el Servicio
+
+Usa estos valores:
+
+| Campo | Valor |
+|-------|-------|
+| **Name** | `playerdemo` |
+| **Runtime** | Node |
+| **Build Command** | `npm install && cd server && npm install` |
+| **Start Command** | `node server/server.js` |
+| **Plan** | Free (o Paid si quieres mejor performance) |
+
+### 4. Agregar Variables de Entorno
+
+En la sección **"Environment"**, agrega:
+
+```
+SPOTIFY_CLIENT_ID = tu_client_id
+SPOTIFY_CLIENT_SECRET = tu_client_secret
+NODE_ENV = production
+```
+
+### 5. Deploy
+
+Haz click en **"Create Web Service"** y listo. Render comenzará a deployar automáticamente.
+
+---
+
+## 📍 URLs Después del Deploy
+
+Una vez deployed, tu app estará en:
+```
+https://playerdemo.onrender.com
+```
+
+Y el proxy de Spotify en:
+```
+https://playerdemo.onrender.com/spotify-token
+```
+
+---
+
+## ✅ Verificar que Funcione
+
+1. Abre tu URL en el navegador
+2. Prueba buscar un artista
+3. Verifica la consola (F12) para errores
+4. Si dice "Cannot GET /spotify-token", el backend está correcto
+
+---
+
+## 🔧 Solución de Problemas
+
+### La app se ve en blanco
+
+**Solución:**
+- Abre la consola (F12)
+- Verifica que no haya errores de CORS
+- Comprueba que `SPOTIFY_CLIENT_ID` y `SPOTIFY_CLIENT_SECRET` estén bien configurados
+
+### Error: "Cannot GET /spotify-token"
+
+**Esto es NORMAL**, significa que el backend está funcionando correctamente.
+
+### Errores de Spotify en la consola
+
+**Solución:**
+1. Verifica que tus credenciales de Spotify sean correctas
+2. Asegúrate de que tu app esté registrada en https://developer.spotify.com/dashboard
+3. El User-Agent puede estar siendo rechazado (raro, pero posible)
+
+### La app no carga datos
+
+**Solución:**
+1. Espera 1-2 minutos después del deploy (Render puede ser lento)
+2. Haz un hard refresh (Ctrl+Shift+R)
+3. Verifica en Render logs si hay errores (en el dashboard de Render)
+
+---
+
+## 📊 Logs en Render
+
+Para ver qué está pasando:
+
+1. Ve a tu servicio en Render
+2. Haz click en la pestaña **"Logs"**
+3. Verás la salida del servidor en tiempo real
+
+---
+
+## 💡 Tips para Production
+
+- **Caché agresivo**: Render cachea tu app, a veces tarda en actualizar
+- **Deployments fallidos**: Si falla, revisa los logs en Render
+- **Inactividad**: Con el plan Free, la app se "duerme" tras 15 min sin usar
+- **Límites**: El plan Free tiene 750 horas/mes, es bastante
+
+---
+
+## 🔄 Updates Posteriores
+
+Cada vez que pushes a `master` en GitHub, Render se auto-deploya automáticamente.
+
+```bash
+git add .
+git commit -m "Fix: algo"
+git push origin master
+# Render auto-deploya en 2-3 minutos
+```
+
+---
+
+## ❓ Preguntas Frecuentes
+
+**P: ¿Necesito pagar?**
+R: No, el plan Free funciona bien. Solo te cuesta si quieres mejor performance o custom domain.
+
+**P: ¿Se borran los datos?**
+R: La app es stateless, todo viene de Spotify. No hay base de datos.
+
+**P: ¿Cómo cambio credenciales de Spotify después?**
+R: En Render → Settings → Environment → Edita las variables → Deploy automático.
+
+**P: ¿Puedo usar otro dominio?**
+R: Sí, en Render → Settings → Custom Domain
+
+---
+
+¡Listo! Tu app estará online en minutos. 🎵

@@ -33,15 +33,17 @@ class SpotifyService {
     async getAccessToken() {
         try {
             let resp;
+            const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+            
             try {
+                // En producción (Render), usar ruta relativa; en desarrollo, intentar localhost
                 resp = await fetch('/spotify-token');
             } catch (err) {
                 console.warn('Fetch relativo a /spotify-token falló, intentando fallback:', err);
             }
 
-            // Si la petición relativa no fue exitosa, intentamos proxies en localhost
-            if (!resp || !resp.ok) {
-                // Intentar puerto 3000 (servidor por defecto en package.json)
+            // Si la petición relativa no fue exitosa, intentamos proxies locales (solo en desarrollo)
+            if ((!resp || !resp.ok) && !isProduction) {
                 const fallbackUrls = [
                     'http://localhost:3000/spotify-token',
                     'http://localhost:3001/spotify-token'
@@ -57,9 +59,9 @@ class SpotifyService {
                 }
             }
 
-            if (!resp.ok) {
-                const text = await resp.text();
-                throw new Error(`Token endpoint error: ${resp.status} ${text}`);
+            if (!resp || !resp.ok) {
+                const text = resp ? await resp.text() : 'No response';
+                throw new Error(`Token endpoint error: ${resp?.status || 'N/A'} ${text}`);
             }
 
             const data = await resp.json();
