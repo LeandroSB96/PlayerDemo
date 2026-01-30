@@ -133,7 +133,9 @@ PORT=3000
 
 ## 📄 Licencia
 
-ISC
+ISC License
+
+Copyright (c) 2026, LeandroSB96
 
 ## 🤝 Contribuciones
 
