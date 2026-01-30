@@ -1,6 +1,6 @@
 # 🎵 Player Demo
 
-Un reproductor de música moderno con integración a Spotify. Diseñado para ofrecer una experiencia fluida y visual explorando artistas, álbumes y canciones populares.
+Demo de un reproductor de música desktop moderno con integración a Spotify. Diseñado para ofrecer una experiencia fluida y visual explorando artistas, álbumes y canciones populares.
 
 ## ✨ Características
 
