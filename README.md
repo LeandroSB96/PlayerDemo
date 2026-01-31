@@ -2,9 +2,12 @@
 
 Demo de un reproductor de música desktop moderno con integración a Spotify. Diseñado para ofrecer una experiencia fluida y visual explorando artistas, álbumes y canciones populares.
 
+<img width="1363" height="640" alt="Captura de pantalla 2026-01-30 210023" src="https://github.com/user-attachments/assets/b1ada844-201c-476f-9e97-d2d354af6dc6" />
+
+
 ## ✨ Características
 
-- 🔍 **Búsqueda integrada** de artistas, álbumes y canciones (powered by Spotify)
+- 🔍 **Búsqueda integrada** de artistas, álbumes y canciones 
 - 🎤 **Página de artista** con información, top tracks y discografía completa
 - 💿 **Catálogo de álbumes** organizados por géneros y tendencias
 - 🎧 **Reproductor de música** con controles completos
